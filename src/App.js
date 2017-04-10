@@ -13,6 +13,7 @@ import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import Web3 from 'web3'
 
 class App extends Component {
+
     constructor(props) {
         super(props)
 
@@ -67,20 +68,59 @@ class App extends Component {
         this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this);
     }
 
-    handleNewIncomingOrder(order) {
+    handleNewIncomingOrder(orderDetails) {
         // Explicitly need to call SetState(), otherwise the change will be ignored
         this.setState({
             // use concat to create a new array extended with the new order
-            incomingOrders: this.state.incomingOrders.concat([order])
+            incomingOrders: this.state.incomingOrders.concat([orderDetails])
         })
     }
 
     handleNewOutgoingOrder(order) {
-        // Explicitly need to call SetState(), otherwise the change will be ignored
-        this.setState({
-            // use concat to create a new array extended with the new order
-            outgoingOrders: this.state.outgoingOrders.concat([order])
+        var factoryInstance
+        var self = this;
+        // get accounts
+        self.web3RPC.eth.getAccounts(function (error, accounts) {
+
+            // Actually perform the contract call here
+            self.factory.deployed().then(function (instance) {
+                factoryInstance = instance;
+                return factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
+                    from: accounts[0],
+                    gas: 500000
+                })
+                    .then(function (result) {
+                        console.log('Created StandingOrder - transaction: ' + result.tx)
+                        console.log(result.receipt)
+                        return
+                    })
+            })
         })
+    }
+
+    onNewOrder(error, result) {
+        // This will catch all createdOrder events, regardless of how they originated.
+        if (error == null) {
+            console.log('New order created:')
+            console.log(result.args)
+            // Get the RPC provider and setup our SimpleStorage contract.
+            const provider = new Web3.providers.HttpProvider('http://localhost:8545')
+            const contract = require('truffle-contract')
+            var order = contract(standingOrder_artifacts)
+            order.setProvider(provider)
+            order.at(result.address).then(function(instance){
+                console.log(instance);
+                return(instance.getUnclaimedFunds.call())
+            }).then(function (balance) {
+                console.log(balance.toNumber())
+            }).catch(function (e) {
+                console.log("Error!")
+                console.log(e);
+            })
+        } else {
+            console.log('Error onNewOrder:')
+            console.log(error)
+        }
     }
 
     componentWillMount() {
@@ -97,34 +137,39 @@ class App extends Component {
         // Get the RPC provider and setup our SimpleStorage contract.
         const provider = new Web3.providers.HttpProvider('http://localhost:8545')
         const contract = require('truffle-contract')
-        const factory = contract(standingOrderFactory_artifacts)
-        factory.setProvider(provider)
 
+        self.factory = contract(standingOrderFactory_artifacts)
+        self.factory.setProvider(provider)
+        // start watching events of factory
+        self.factory.deployed().then(function (instance) {
+            const createdOrders = instance.LogOrderCreated({fromBlock: 'latest'})
+            createdOrders.watch(self.onNewOrder)
+        })
         // Get Web3 so we can get our accounts.
-        const web3RPC = new Web3(provider)
+        self.web3RPC = new Web3(provider)
 
         // Declaring this for later so we can chain functions on SimpleStorage.
         // var simpleStorageInstance
 
         // Get accounts.
-        web3RPC.eth.getAccounts(function (error, accounts) {
-            console.log(accounts)
+        /*
+         self.web3RPC.eth.getAccounts(function (error, accounts) {
+         console.log(accounts)
 
-            /*
-             simpleStorage.deployed().then(function(instance) {
-             simpleStorageInstance = instance
+         simpleStorage.deployed().then(function(instance) {
+         simpleStorageInstance = instance
 
-             // Stores a value of 5.
-             return simpleStorageInstance.set(5, {from: accounts[0]})
-             }).then(function(result) {
-             // Get the value from the contract to prove it worked.
-             return simpleStorageInstance.get.call(accounts[0])
-             }).then(function(result) {
-             // Update state with the result.
-             return self.setState({ storageValue: result.c[0] })
-             })
-             */
-        })
+         // Stores a value of 5.
+         return simpleStorageInstance.set(5, {from: accounts[0]})
+         }).then(function(result) {
+         // Get the value from the contract to prove it worked.
+         return simpleStorageInstance.get.call(accounts[0])
+         }).then(function(result) {
+         // Update state with the result.
+         return self.setState({ storageValue: result.c[0] })
+         })
+         })
+         */
     }
 
     render() {

@@ -31,11 +31,11 @@ class ContractForm extends Component {
         // add a new entry to outgoing contracts
         var order = {
                     receiver: this.state.receiver,
-                    rate: this.state.rate,
-                    period: this.state.period,
+                    rate: parseInt(this.state.rate),
+                    period: parseInt(this.state.period),
                     owner_funds: 123,
                     funded_until: "unknown"
-        };
+        }
         console.log(order);
         // Notify parent about new order
         this.props.onNewOutgoingOrder(order);

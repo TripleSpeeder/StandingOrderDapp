@@ -27,7 +27,7 @@ contract StandingOrder is Ownable{
         // sanity check
         if (now < startTime) {
             // bad miner trying to mess with block time?
-            throw;
+            return 0;
         }
         
         // Calculate theoretical amount that payee should own right now
