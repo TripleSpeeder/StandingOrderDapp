@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
-import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap';
-import IncomingOrderList from './IncomingOrderList';
-import OutgoingOrderList from './OutgoingOrderList';
-import ContractForm from './ContractForm';
+import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap'
+import IncomingOrderList from './IncomingOrderList'
+import OutgoingOrderList from './OutgoingOrderList'
+import ContractForm from './ContractForm'
 
 /*
  Import our contract artifacts and turn them into usable abstractions.
@@ -62,10 +62,10 @@ class App extends Component {
                     funded_until: "3.3.2020"
                 }
             ]
-        };
+        }
 
-        this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this);
-        this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this);
+        this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
+        this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
     }
 
     handleNewIncomingOrder(orderDetails) {
@@ -77,50 +77,33 @@ class App extends Component {
     }
 
     handleNewOutgoingOrder(order) {
-        var factoryInstance
-        var self = this;
+        var self = this
         // get accounts
         self.web3RPC.eth.getAccounts(function (error, accounts) {
-
-            // Actually perform the contract call here
-            self.factory.deployed().then(function (instance) {
-                factoryInstance = instance;
-                return factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
-                    from: accounts[0],
-                    gas: 500000
-                })
-                    .then(function (result) {
-                        console.log('Created StandingOrder - transaction: ' + result.tx)
-                        console.log(result.receipt)
-                        return
-                    })
+            return self.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
+                from: accounts[0],
+                gas: 500000
+            }).then(function (result) {
+                    console.log('Created StandingOrder - transaction: ' + result.tx)
+                    console.log(result.receipt)
             })
+
+
+            /*
+             // Actually perform the contract call here
+             self.factoryContract.deployed().then(function (instance) {
+             factoryInstance = instance;
+             return factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
+             from: accounts[0],
+             gas: 500000
+             })
+             .then(function (result) {
+             console.log('Created StandingOrder - transaction: ' + result.tx)
+             console.log(result.receipt)
+             return
+             })
+             })*/
         })
-    }
-
-    onNewOrder(error, result) {
-        // This will catch all createdOrder events, regardless of how they originated.
-        if (error == null) {
-            console.log('New order created:')
-            console.log(result.args)
-            // Get the RPC provider and setup our SimpleStorage contract.
-            const provider = new Web3.providers.HttpProvider('http://localhost:8545')
-            const contract = require('truffle-contract')
-            var order = contract(standingOrder_artifacts)
-            order.setProvider(provider)
-            order.at(result.address).then(function(instance){
-                console.log(instance);
-                return(instance.getUnclaimedFunds.call())
-            }).then(function (balance) {
-                console.log(balance.toNumber())
-            }).catch(function (e) {
-                console.log("Error!")
-                console.log(e);
-            })
-        } else {
-            console.log('Error onNewOrder:')
-            console.log(error)
-        }
     }
 
     componentWillMount() {
@@ -134,19 +117,59 @@ class App extends Component {
         // So we can update state later.
         var self = this
 
-        // Get the RPC provider and setup our SimpleStorage contract.
+        // Get the RPC provider and setup our contracts.
         const provider = new Web3.providers.HttpProvider('http://localhost:8545')
         const contract = require('truffle-contract')
+        self.factoryContract = contract(standingOrderFactory_artifacts)
+        self.factoryContract.setProvider(provider)
+        self.factoryInstance = null
+        self.orderContract = contract(standingOrder_artifacts)
+        self.orderContract.setProvider(provider)
 
-        self.factory = contract(standingOrderFactory_artifacts)
-        self.factory.setProvider(provider)
-        // start watching events of factory
-        self.factory.deployed().then(function (instance) {
-            const createdOrders = instance.LogOrderCreated({fromBlock: 'latest'})
-            createdOrders.watch(self.onNewOrder)
-        })
         // Get Web3 so we can get our accounts.
         self.web3RPC = new Web3(provider)
+
+        // start watching events of factory
+        self.factoryContract.deployed().then(function (factory_instance) {
+            self.factoryInstance = factory_instance
+
+            // get past events
+            var allEvents = factory_instance.allEvents({fromBlock: 0, toBlock: 'latest'})
+            allEvents.get(function (error, logs) {
+                if (error === null) {
+                    console.log("Past events: ")
+                    console.log(logs)
+                }
+                else {
+                    console.log("Error while fetching past events:")
+                    console.log(error);
+                }
+            })
+
+            // watch for new events
+            const createdOrders = factory_instance.LogOrderCreated({fromBlock: 0, toBlock: 'latest'})
+            createdOrders.watch(function (error, result) {
+                // This will catch all createdOrder events, regardless of how they originated.
+                if (error === null) {
+                    console.log('LogOrderCreated event:')
+                    console.log(result.args)
+                    self.orderContract.at(result.args.orderAddress).then(function (order_instance) {
+                        console.log("Got contract at " + result.args.orderAddress + ":")
+                        console.log(order_instance)
+                        return order_instance.getUnclaimedFunds.call()
+                    }).then(function (balance) {
+                        console.log("Result of getUnclaimedFunds.call():")
+                        console.log(balance.toNumber())
+                    }).catch(function (e) {
+                        console.log("Error while getting UnclaimedFunds!")
+                        console.log(e)
+                    })
+                } else {
+                    console.log('Error while watching events:')
+                    console.log(error)
+                }
+            })
+        })
 
         // Declaring this for later so we can chain functions on SimpleStorage.
         // var simpleStorageInstance

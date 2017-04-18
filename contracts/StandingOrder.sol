@@ -115,7 +115,7 @@ contract StandingOrderFactory {
     mapping (address => StandingOrder[]) public standingOrdersByPayee;
 
     // Events
-    event LogOrderCreated(address orderAdress, address payee);
+    event LogOrderCreated(address orderAddress, address payee);
 
     // Create a new standing order. Allow to fund contract while creating, therefor "payable"
     function createStandingOrder(address payee, uint rate, uint interval) returns (StandingOrder) {
