@@ -6,11 +6,12 @@ class OutgoingOrderList extends Component {
     render() {
         // Prepare table rows for incoming orders
         const listItems = this.props.outgoingOrders.map((order) =>
-            <tr key={order.receiver}>
-                <td>{order.receiver}</td>
-                <td>{order.rate}</td>
-                <td>{order.period}</td>
-                <td>{order.owner_funds}</td>
+            <tr key={order.address}>
+                <td>{order.address}</td>
+                <td>{order.payee}</td>
+                <td>{order.paymentAmount}</td>
+                <td>{order.paymentInterval}</td>
+                <td>{order.ownerFunds}</td>
                 <td>{order.funded_until}</td>
                 <td>{order.owner_funds > 0 && <Button>Withdraw</Button> } <Button bsStyle="danger">Cancel</Button></td>
             </tr>
@@ -21,9 +22,10 @@ class OutgoingOrderList extends Component {
                 <Table striped bordered condensed hover>
                     <thead>
                     <tr>
-                        <th>Receiver</th>
-                        <th>Rate</th>
-                        <th>Period</th>
+                        <th>Address</th>
+                        <th>Payee</th>
+                        <th>Amount</th>
+                        <th>Interval</th>
                         <th>Owned funds remaining</th>
                         <th>Funded until</th>
                         <th>Actions</th>

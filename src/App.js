@@ -39,29 +39,7 @@ class App extends Component {
                     available_amount: 1200
                 }
             ],
-            outgoingOrders: [
-                {
-                    receiver: '0x11111111',
-                    rate: 100,
-                    period: 2000,
-                    owner_funds: 200,
-                    funded_until: "3.3.2018"
-                },
-                {
-                    receiver: '0x222222222',
-                    rate: 300,
-                    period: 1300,
-                    owner_funds: 12000,
-                    funded_until: "12.2.2018"
-                },
-                {
-                    receiver: '0x333333333',
-                    rate: 2000,
-                    period: 1430,
-                    owner_funds: 45000,
-                    funded_until: "3.3.2020"
-                }
-            ]
+            outgoingOrders: []
         }
 
         this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
@@ -84,25 +62,39 @@ class App extends Component {
                 from: accounts[0],
                 gas: 500000
             }).then(function (result) {
-                    console.log('Created StandingOrder - transaction: ' + result.tx)
-                    console.log(result.receipt)
+                console.log('Created StandingOrder - transaction: ' + result.tx)
+                console.log(result.receipt)
             })
+        })
+    }
 
+    orderToState(order_instance) {
+        var self=this
+        // address is immediately available
+        var flatOrder = {
+            address: order_instance.address
+        }
+        // get all other info via call() and promis
+        var promises = []
+        promises.push(order_instance.payee.call().then(function (payee) {
+            flatOrder.payee = payee
+        }))
+        promises.push(order_instance.paymentAmount.call().then(function (amount) {
+            flatOrder.paymentAmount = amount.toString()
+        }))
+        promises.push(order_instance.paymentInterval.call().then(function (interval) {
+            flatOrder.paymentInterval = interval.toString()
+        }))
+        promises.push(order_instance.getOwnerFunds.call().then(function (ownerFunds) {
+            flatOrder.ownerFunds = ownerFunds.toString()
+        }))
 
-            /*
-             // Actually perform the contract call here
-             self.factoryContract.deployed().then(function (instance) {
-             factoryInstance = instance;
-             return factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
-             from: accounts[0],
-             gas: 500000
-             })
-             .then(function (result) {
-             console.log('Created StandingOrder - transaction: ' + result.tx)
-             console.log(result.receipt)
-             return
-             })
-             })*/
+        Promise.all(promises).then(function () {
+            console.log("All promises resolved!")
+            self.setState({
+                // use concat to create a new array extended with the new order
+                outgoingOrders: self.state.outgoingOrders.concat([flatOrder])
+            })
         })
     }
 
@@ -137,12 +129,20 @@ class App extends Component {
             var allEvents = factory_instance.allEvents({fromBlock: 0, toBlock: 'latest'})
             allEvents.get(function (error, logs) {
                 if (error === null) {
-                    console.log("Past events: ")
-                    console.log(logs)
+                    console.log("Got " + logs.length + " Past events")
+                    var entry
+                    for (entry of logs) {
+                        console.log(entry)
+                        self.orderContract.at(entry.args.orderAddress).then(function (order_instance) {
+                            console.log("Adding order:")
+                            console.log(order_instance)
+                            self.orderToState(order_instance)
+                        })
+                    }
                 }
                 else {
                     console.log("Error while fetching past events:")
-                    console.log(error);
+                    console.log(error)
                 }
             })
 
@@ -156,13 +156,7 @@ class App extends Component {
                     self.orderContract.at(result.args.orderAddress).then(function (order_instance) {
                         console.log("Got contract at " + result.args.orderAddress + ":")
                         console.log(order_instance)
-                        return order_instance.getUnclaimedFunds.call()
-                    }).then(function (balance) {
-                        console.log("Result of getUnclaimedFunds.call():")
-                        console.log(balance.toNumber())
-                    }).catch(function (e) {
-                        console.log("Error while getting UnclaimedFunds!")
-                        console.log(e)
+                        self.orderToState(order_instance)
                     })
                 } else {
                     console.log('Error while watching events:')
