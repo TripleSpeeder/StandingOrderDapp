@@ -68,6 +68,10 @@ class App extends Component {
         })
     }
 
+    handleFundContract(contract_address) {
+        console.log("Funding contract " + contract_address);
+    }
+
     orderToState(order_instance) {
         var self=this
         // address is immediately available
@@ -147,7 +151,7 @@ class App extends Component {
             })
 
             // watch for new events
-            const createdOrders = factory_instance.LogOrderCreated({fromBlock: 0, toBlock: 'latest'})
+            const createdOrders = factory_instance.LogOrderCreated({fromBlock: 'latest', toBlock: 'latest'})
             createdOrders.watch(function (error, result) {
                 // This will catch all createdOrder events, regardless of how they originated.
                 if (error === null) {
@@ -228,6 +232,7 @@ class App extends Component {
                         <Col md={8}>
                             <OutgoingOrderList
                                 outgoingOrders={this.state.outgoingOrders}
+                                onFundContract={this.handleFundContract}
                             />
                         </Col>
                     </Row>

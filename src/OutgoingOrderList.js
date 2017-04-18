@@ -3,6 +3,12 @@ import {Table, Button} from 'react-bootstrap';
 
 class OutgoingOrderList extends Component {
 
+    handleFund(event) {
+        // add funds to contract
+        this.props.onFundContract(event.currentTarget.getAttribute('data-contract-address'))
+        event.preventDefault()
+    }
+
     render() {
         // Prepare table rows for incoming orders
         const listItems = this.props.outgoingOrders.map((order) =>
@@ -13,7 +19,7 @@ class OutgoingOrderList extends Component {
                 <td>{order.paymentInterval}</td>
                 <td>{order.ownerFunds}</td>
                 <td>{order.funded_until}</td>
-                <td>{order.owner_funds > 0 && <Button>Withdraw</Button> } <Button bsStyle="danger">Cancel</Button></td>
+                <td><Button bsStyle="danger" onClick={this.handleFund.bind(this)} data-contract-address={order.address}>Fund</Button> { order.owner_funds > 0 && <Button>Withdraw</Button> } <Button bsStyle="danger">Cancel</Button></td>
             </tr>
         );
 
