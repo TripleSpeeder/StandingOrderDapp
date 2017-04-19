@@ -58,7 +58,6 @@ class App extends Component {
 
         this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
         this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
-        this.handleFundContract = this.handleFundContract.bind(this)
     }
 
     handleNewIncomingOrder(orderDetails) {
@@ -83,23 +82,6 @@ class App extends Component {
         })
     }
 
-    handleFundContract(contract_address) {
-        var self = this
-        console.log("Funding contract " + contract_address)
-        var transaction_object = {
-            from: self.accounts[0],
-            to: contract_address,
-            value: self.web3RPC.toWei('1', 'ether')
-        }
-        self.web3RPC.eth.sendTransaction(transaction_object, function (err, address) {
-            if (err) {
-                console.log("Error while sending transaction: ")
-                console.log(err)
-            } else {
-                console.log("Contract funded. Transaction address: " + address)
-            }
-        })
-    }
 
     orderToState(order_instance) {
         var self = this
@@ -270,7 +252,6 @@ class App extends Component {
                         <Col md={8}>
                             <OutgoingOrderList
                                 outgoingOrders={this.state.outgoingOrders}
-                                onFundContract={this.handleFundContract}
                             />
                         </Col>
                     </Row>
