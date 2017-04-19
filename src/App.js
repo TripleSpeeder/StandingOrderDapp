@@ -10,7 +10,21 @@ import ContractForm from './ContractForm'
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 
-import Web3 from 'web3'
+import { default as Web3 } from 'web3'
+
+window.addEventListener('load', function () {
+    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+    if (typeof web3 !== 'undefined') {
+        console.warn('Using web3 detected from external source.')
+        // Use Mist/MetaMask's provider
+        // eslint-disable-next-line no-undef
+        window.web3 = new Web3(web3.currentProvider)
+    } else {
+        console.warn('No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask')
+        // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+        window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
+    }
+})
 
 class App extends Component {
 
@@ -44,6 +58,7 @@ class App extends Component {
 
         this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
         this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
+        this.handleFundContract = this.handleFundContract.bind(this)
     }
 
     handleNewIncomingOrder(orderDetails) {
@@ -69,16 +84,32 @@ class App extends Component {
     }
 
     handleFundContract(contract_address) {
-        console.log("Funding contract " + contract_address);
+        var self = this
+        console.log("Funding contract " + contract_address)
+        var transaction_object = {
+            from: self.accounts[0],
+            to: contract_address,
+            value: self.web3RPC.toWei('1', 'ether')
+        }
+        self.web3RPC.eth.sendTransaction(transaction_object, function (err, address) {
+            if (err) {
+                console.log("Error while sending transaction: ")
+                console.log(err)
+            } else {
+                console.log("Contract funded. Transaction address: " + address)
+            }
+        })
     }
 
     orderToState(order_instance) {
-        var self=this
+        var self = this
+
         // address is immediately available
         var flatOrder = {
             address: order_instance.address
         }
-        // get all other info via call() and promis
+
+        // get all other info via call() and promises
         var promises = []
         promises.push(order_instance.payee.call().then(function (payee) {
             flatOrder.payee = payee
@@ -113,6 +144,9 @@ class App extends Component {
         // So we can update state later.
         var self = this
 
+        // TODO - Refactor this - no need to explicitly use this?
+        self.web3RPC = window.web3
+
         // Get the RPC provider and setup our contracts.
         const provider = new Web3.providers.HttpProvider('http://localhost:8545')
         const contract = require('truffle-contract')
@@ -122,8 +156,12 @@ class App extends Component {
         self.orderContract = contract(standingOrder_artifacts)
         self.orderContract.setProvider(provider)
 
-        // Get Web3 so we can get our accounts.
-        self.web3RPC = new Web3(provider)
+        // Get accounts.
+        self.web3RPC.eth.getAccounts(function (error, accounts) {
+            console.log("Got accounts: ")
+            console.log(accounts)
+            self.accounts = accounts
+        })
 
         // start watching events of factory
         self.factoryContract.deployed().then(function (factory_instance) {
