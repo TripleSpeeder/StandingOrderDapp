@@ -189,7 +189,7 @@ class App extends Component {
             })
 
             // watch for new events
-            const createdOrders = factory_instance.LogOrderCreated({fromBlock: 'latest', toBlock: 'latest'})
+            const createdOrders = factory_instance.LogOrderCreated({fromBlock: 'pending', toBlock: 'latest'})
             createdOrders.watch(function (error, result) {
                 // This will catch all createdOrder events, regardless of how they originated.
                 if (error === null) {
