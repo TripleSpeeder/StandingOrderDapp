@@ -71,23 +71,12 @@ class OutgoingOrderContainer extends Component {
         })
     }
 
-    // Create flatOrder dictionary from orderInstance
-    _extract(orderInstance) {
-        // TODO: real implementation
-        return {
-            address: '0x123456789',
-            payee:   '0x987654321',
-            paymentAmount: 1000,
-            paymentInterval: 10,
-            ownerFunds: 40000,
-            funded_until: 'TODO'
-        }
+    componentWillMount() {
+        // start update of flatOrder
+        this.orderToState(this.state.orderInstance)
     }
 
     render() {
-        // start update of flatOrder
-        this.orderToState(this.state.orderInstance)
-        // var flatOrder = this._extract(this.state.orderInstance)
         return <OutgoingOrder
             order={this.state.flatOrder}
             onFundContract={this.handleFundContract}
