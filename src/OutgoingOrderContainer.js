@@ -80,8 +80,8 @@ class OutgoingOrderContainer extends Component {
         console.log("TODO: Start listening to new block events and refresh order state")
         this.filter = window.web3.eth.filter('latest')
         this.filter.watch(function(error, result){
-            var block = window.web3.eth.getBlock(result, true)
-            console.log('current block #' + block.number)
+            console.log('New block: ')
+            console.log(result)
         })
     }
 
