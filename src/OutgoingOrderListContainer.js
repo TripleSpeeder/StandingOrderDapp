@@ -73,6 +73,8 @@ class OutgoingOrderListContainer extends Component {
 
     render() {
         console.log("Rendering OutgoingOrderListContainer!")
+        console.log("Props: ")
+        console.log(this.props)
         return <OutgoingOrderList
             outgoingOrders={this.state.outgoingOrders}
         />
