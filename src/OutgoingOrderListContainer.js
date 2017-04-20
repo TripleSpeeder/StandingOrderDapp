@@ -18,17 +18,19 @@ class OutgoingOrderListContainer extends Component {
     tryStartWatching() {
         var self = this
 
-        if (self.props.factoryInstance)
+        if (self.props.factoryInstance === null)
         {
             console.log("Factory still undefined...")
             return
+        } else {
+            console.log("Factory: " + self.props.factoryInstance)
         }
 
         // Okay, I'm watching
         self.isWatching = true
 
         // Get all existing contracts
-        var allEvents = this.props.factoryInstance.allEvents({fromBlock: 0, toBlock: 'latest'})
+        var allEvents = self.props.factoryInstance.allEvents({fromBlock: 0, toBlock: 'latest'})
         allEvents.get(function (error, logs) {
             if (error === null) {
                 console.log("Got " + logs.length + " Past events")
@@ -52,7 +54,7 @@ class OutgoingOrderListContainer extends Component {
         })
 
         // Start watching for new contracts
-        this.createdOrders = this.props.factoryInstance.LogOrderCreated({fromBlock: 'pending', toBlock: 'latest'})
+        this.createdOrders = self.props.factoryInstance.LogOrderCreated({fromBlock: 'pending', toBlock: 'latest'})
         this.createdOrders.watch(function (error, result) {
             // This will catch all createdOrder events, regardless of how they originated.
             if (error === null) {
