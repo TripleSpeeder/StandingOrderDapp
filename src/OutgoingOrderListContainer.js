@@ -14,9 +14,25 @@ class OutgoingOrderListContainer extends Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (this.props.factoryInstance !== nextProps.factoryInstance) {
+            // we have a new factory!
+            // Clear existing orders from state
+            this.setState({
+                outgoingOrders: [],
+            })
+        }
+    }
+
     componentDidMount() {
         console.log("OutgoingOrderList DidMount")
-        return
+
+        if (typeof self.props.factoryInstance === 'undefined')
+        {
+            console.log("Factory still undefined...")
+            return
+        }
+
 
         var self = this
 
