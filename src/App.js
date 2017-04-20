@@ -110,7 +110,7 @@ class App extends Component {
         self.web3RPC.eth.getAccounts(function (error, accounts) {
             console.log("Got accounts: ")
             console.log(accounts)
-            this.setState({account: accounts[0]})
+            self.setState({account: accounts[0]})
         })
 
         // Get factory
