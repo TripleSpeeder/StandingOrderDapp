@@ -18,7 +18,7 @@ class OutgoingOrderListContainer extends Component {
     tryStartWatching() {
         var self = this
 
-        if (typeof self.props.factoryInstance === 'undefined')
+        if (self.props.factoryInstance)
         {
             console.log("Factory still undefined...")
             return

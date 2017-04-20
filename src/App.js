@@ -55,7 +55,8 @@ class App extends Component {
             ],
             outgoingOrders: [],
             orderContract: null,
-            factoryInstance: null
+            factoryInstance: null,
+            account: null,
         }
 
         this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
