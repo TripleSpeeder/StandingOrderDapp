@@ -5,6 +5,8 @@ import OutgoingOrderList from './OutgoingOrderList'
 class OutgoingOrderListContainer extends Component {
 
     constructor(props){
+        console.log("OutgoingOrderListContainer props: ")
+        console.log(props)
         super(props)
         this.state = {
             outgoingOrders: [],
@@ -13,6 +15,10 @@ class OutgoingOrderListContainer extends Component {
     }
 
     componentDidMount() {
+        console.log("OutgoingOrderList DidMount")
+        if (this.props.factoryInstance === 'undefined')
+            return
+
         var self = this
 
         // Get all existing contracts
@@ -67,6 +73,7 @@ class OutgoingOrderListContainer extends Component {
     }
 
     render() {
+        console.log("Rendering OutgoingOrderListContainer!")
         return <OutgoingOrderList
             outgoingOrders={this.state.outgoingOrders}
         />
