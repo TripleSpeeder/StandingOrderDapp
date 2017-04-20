@@ -10,7 +10,7 @@ class OutgoingOrderList extends Component {
         var rows = []
         this.props.outgoingOrders.forEach((order) => {
             rows.push(<OutgoingOrderContainer
-                order={order}
+                orderInstance={order}
                 key={order.address}
             />)
         })

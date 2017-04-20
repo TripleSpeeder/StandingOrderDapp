@@ -5,6 +5,9 @@ class OutgoingOrderContainer extends Component {
 
     constructor(props){
         super(props)
+        this.state = {
+            orderInstance: props.orderInstance
+        }
         this.handleFundContract = this.handleFundContract.bind(this)
     }
 
