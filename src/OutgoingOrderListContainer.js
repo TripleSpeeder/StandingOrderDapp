@@ -35,7 +35,7 @@ class OutgoingOrderListContainer extends Component {
                 var entry
                 for (entry of logs) {
                     console.log(entry)
-                    self.orderContract.at(entry.args.orderAddress).then(function (order_instance) {
+                    self.props.orderContract.at(entry.args.orderAddress).then(function (order_instance) {
                         console.log("Adding order:")
                         console.log(order_instance)
                         self.setState({
@@ -58,7 +58,7 @@ class OutgoingOrderListContainer extends Component {
             if (error === null) {
                 console.log('LogOrderCreated event:')
                 console.log(result.args)
-                self.orderContract.at(result.args.orderAddress).then(function (order_instance) {
+                self.props.orderContract.at(result.args.orderAddress).then(function (order_instance) {
                     console.log("Got contract at " + result.args.orderAddress + ":")
                     console.log(order_instance)
                     self.setState({

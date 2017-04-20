@@ -53,7 +53,9 @@ class App extends Component {
                     available_amount: 1200
                 }
             ],
-            outgoingOrders: []
+            outgoingOrders: [],
+            orderContract: null,
+            factoryInstance: null
         }
 
         this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
@@ -102,8 +104,9 @@ class App extends Component {
         const contract = require('truffle-contract')
         self.factoryContract = contract(standingOrderFactory_artifacts)
         self.factoryContract.setProvider(provider)
-        self.orderContract = contract(standingOrder_artifacts)
-        self.orderContract.setProvider(provider)
+        var orderContract = contract(standingOrder_artifacts)
+        orderContract.setProvider(provider)
+        self.setState({orderContract: orderContract})
 
         // Get accounts.
         self.web3RPC.eth.getAccounts(function (error, accounts) {
@@ -232,6 +235,7 @@ class App extends Component {
                             <OutgoingOrderListContainer
                                 account={this.state.account}
                                 factoryInstance={this.state.factoryInstance}
+                                orderContract={this.state.orderContract}
                             />
                         </Col>
                     </Row>
