@@ -232,7 +232,7 @@ class App extends Component {
                         <Col md={8}>
                             <OutgoingOrderListContainer
                                 account={this.state.account}
-                                factory={this.state.factoryInstance}
+                                factoryInstance={this.state.factoryInstance}
                             />
                         </Col>
                     </Row>
