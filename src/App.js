@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap'
 import IncomingOrderList from './IncomingOrderList'
-import OutgoingOrderList from './OutgoingOrderList'
+import OutgoingOrderListContainer from './OutgoingOrderListContainer'
 import ContractForm from './ContractForm'
 
 /*
@@ -110,9 +110,14 @@ class App extends Component {
         self.web3RPC.eth.getAccounts(function (error, accounts) {
             console.log("Got accounts: ")
             console.log(accounts)
-            self.accounts = accounts
+            this.setState({account: accounts[0]})
         })
 
+        // Get factory
+        self.factoryContract.deployed().then(function (factory_instance) {
+            self.setState({factoryInstance: factory_instance})
+        })
+        /*
         // start watching events of factory
         self.factoryContract.deployed().then(function (factory_instance) {
             self.factoryInstance = factory_instance
@@ -132,7 +137,6 @@ class App extends Component {
                                 // use concat to create a new array extended with the new order
                                 outgoingOrders: self.state.outgoingOrders.concat([order_instance])
                             })
-                            // self.orderToState(order_instance)
                         })
                     }
                 }
@@ -156,7 +160,6 @@ class App extends Component {
                             // use concat to create a new array extended with the new order
                             outgoingOrders: self.state.outgoingOrders.concat([order_instance])
                         })
-                        // self.orderToState(order_instance)
                     })
                 } else {
                     console.log('Error while watching events:')
@@ -164,6 +167,7 @@ class App extends Component {
                 }
             })
         })
+        */
 
         // Declaring this for later so we can chain functions on SimpleStorage.
         // var simpleStorageInstance
@@ -226,8 +230,9 @@ class App extends Component {
                     </Row>
                     <Row>
                         <Col md={8}>
-                            <OutgoingOrderList
-                                outgoingOrders={this.state.outgoingOrders}
+                            <OutgoingOrderListContainer
+                                account={this.state.account}
+                                factory={this.state.factoryInstance}
                             />
                         </Col>
                     </Row>

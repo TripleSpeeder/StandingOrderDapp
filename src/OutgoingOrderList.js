@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Table} from 'react-bootstrap';
 import OutgoingOrderContainer from './OutgoingOrderContainer'
-import { default as Web3 } from 'web3'
 
 class OutgoingOrderList extends Component {
 
