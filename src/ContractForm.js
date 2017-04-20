@@ -18,10 +18,6 @@ class ContractForm extends Component {
         const target = event.target;
         const name = target.name;
         const value = target.value;
-        /*
-        console.log(name);
-        console.log(value);
-        */
         this.setState({
             [name]: value
         });

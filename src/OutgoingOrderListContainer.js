@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {Table} from 'react-bootstrap';
 import OutgoingOrderList from './OutgoingOrderList'
 
 class OutgoingOrderListContainer extends Component {
