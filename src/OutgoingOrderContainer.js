@@ -72,8 +72,22 @@ class OutgoingOrderContainer extends Component {
     }
 
     componentWillMount() {
-        // start update of flatOrder
+        // start filling of flatOrder object
         this.orderToState(this.state.orderInstance)
+    }
+
+    componentDidMount() {
+        console.log("TODO: Start listening to new block events and refresh order state")
+        this.filter = window.web3.eth.filter('latest')
+        filter.watch(function(error, result){
+            var block = web3.eth.getBlock(result, true)
+            console.log('current block #' + block.number)
+        })
+    }
+
+    componentWillUnmount() {
+        console.log("TODO: Stop listening to new block events")
+        this.filter.stopWatching()
     }
 
     render() {
