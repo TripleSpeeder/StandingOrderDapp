@@ -16,8 +16,7 @@ class OutgoingOrderListContainer extends Component {
 
     componentDidMount() {
         console.log("OutgoingOrderList DidMount")
-        if (this.props.factoryInstance === 'undefined')
-            return
+        return
 
         var self = this
 
