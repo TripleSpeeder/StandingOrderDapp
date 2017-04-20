@@ -12,20 +12,11 @@ class OutgoingOrderListContainer extends Component {
             outgoingOrders: [],
             account: props.account
         }
+        this.isWatching = false
     }
 
-    componentWillReceiveProps(nextProps) {
-        if (this.props.factoryInstance !== nextProps.factoryInstance) {
-            // we have a new factory!
-            // Clear existing orders from state
-            this.setState({
-                outgoingOrders: [],
-            })
-        }
-    }
-
-    componentDidMount() {
-        console.log("OutgoingOrderList DidMount")
+    tryStartWatching() {
+        var self = this
 
         if (typeof self.props.factoryInstance === 'undefined')
         {
@@ -33,8 +24,8 @@ class OutgoingOrderListContainer extends Component {
             return
         }
 
-
-        var self = this
+        // Okay, I'm watching
+        self.isWatching = true
 
         // Get all existing contracts
         var allEvents = this.props.factoryInstance.allEvents({fromBlock: 0, toBlock: 'latest'})
@@ -82,15 +73,26 @@ class OutgoingOrderListContainer extends Component {
         })
     }
 
+    tryStopWatching() {
+        if (this.isWatching) {
+            this.isWatching = false
+            this.createdOrders.stopWatching()
+        }
+    }
+
     componentWillUnmount() {
         // Stop watching for new contracts
-        this.createdOrders.stopWatching()
+        this.tryStopWatching()
     }
 
     render() {
         console.log("Rendering OutgoingOrderListContainer!")
         console.log("Props: ")
         console.log(this.props)
+        if (!this.isWatching){
+            this.tryStartWatching()
+        }
+
         return <OutgoingOrderList
             outgoingOrders={this.state.outgoingOrders}
         />
