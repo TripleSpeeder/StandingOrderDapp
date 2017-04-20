@@ -65,7 +65,7 @@ class OutgoingOrderContainer extends Component {
         }))
 
         Promise.all(promises).then(function () {
-            console.log("All promises resolved!")
+            // console.log("All promises resolved!")
             self.setState({
                 flatOrder: flatOrder
             })
@@ -82,7 +82,7 @@ class OutgoingOrderContainer extends Component {
         var self=this
         this.filter = window.web3.eth.filter('latest')
         this.filter.watch(function(error, result){
-            console.log('New block!')
+            // console.log('New block!')
             self.orderToState()
         })
     }

@@ -87,13 +87,6 @@ class App extends Component {
 
 
     componentWillMount() {
-        /*
-         * SMART CONTRACT EXAMPLE
-         *
-         * Normally these functions would be called in the context of a
-         * state management library, but for convenience I've placed them here.
-         */
-
         // So we can update state later.
         var self = this
 
@@ -120,80 +113,6 @@ class App extends Component {
         self.factoryContract.deployed().then(function (factory_instance) {
             self.setState({factoryInstance: factory_instance})
         })
-        /*
-        // start watching events of factory
-        self.factoryContract.deployed().then(function (factory_instance) {
-            self.factoryInstance = factory_instance
-
-            // get past events
-            var allEvents = factory_instance.allEvents({fromBlock: 0, toBlock: 'latest'})
-            allEvents.get(function (error, logs) {
-                if (error === null) {
-                    console.log("Got " + logs.length + " Past events")
-                    var entry
-                    for (entry of logs) {
-                        console.log(entry)
-                        self.orderContract.at(entry.args.orderAddress).then(function (order_instance) {
-                            console.log("Adding order:")
-                            console.log(order_instance)
-                            self.setState({
-                                // use concat to create a new array extended with the new order
-                                outgoingOrders: self.state.outgoingOrders.concat([order_instance])
-                            })
-                        })
-                    }
-                }
-                else {
-                    console.log("Error while fetching past events:")
-                    console.log(error)
-                }
-            })
-
-            // watch for new events
-            const createdOrders = factory_instance.LogOrderCreated({fromBlock: 'pending', toBlock: 'latest'})
-            createdOrders.watch(function (error, result) {
-                // This will catch all createdOrder events, regardless of how they originated.
-                if (error === null) {
-                    console.log('LogOrderCreated event:')
-                    console.log(result.args)
-                    self.orderContract.at(result.args.orderAddress).then(function (order_instance) {
-                        console.log("Got contract at " + result.args.orderAddress + ":")
-                        console.log(order_instance)
-                        self.setState({
-                            // use concat to create a new array extended with the new order
-                            outgoingOrders: self.state.outgoingOrders.concat([order_instance])
-                        })
-                    })
-                } else {
-                    console.log('Error while watching events:')
-                    console.log(error)
-                }
-            })
-        })
-        */
-
-        // Declaring this for later so we can chain functions on SimpleStorage.
-        // var simpleStorageInstance
-
-        // Get accounts.
-        /*
-         self.web3RPC.eth.getAccounts(function (error, accounts) {
-         console.log(accounts)
-
-         simpleStorage.deployed().then(function(instance) {
-         simpleStorageInstance = instance
-
-         // Stores a value of 5.
-         return simpleStorageInstance.set(5, {from: accounts[0]})
-         }).then(function(result) {
-         // Get the value from the contract to prove it worked.
-         return simpleStorageInstance.get.call(accounts[0])
-         }).then(function(result) {
-         // Update state with the result.
-         return self.setState({ storageValue: result.c[0] })
-         })
-         })
-         */
     }
 
     render() {
