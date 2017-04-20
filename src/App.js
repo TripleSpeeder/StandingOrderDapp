@@ -160,7 +160,11 @@ class App extends Component {
                         self.orderContract.at(entry.args.orderAddress).then(function (order_instance) {
                             console.log("Adding order:")
                             console.log(order_instance)
-                            self.orderToState(order_instance)
+                            self.setState({
+                                // use concat to create a new array extended with the new order
+                                outgoingOrders: self.state.outgoingOrders.concat([order_instance])
+                            })
+                            // self.orderToState(order_instance)
                         })
                     }
                 }
@@ -180,7 +184,11 @@ class App extends Component {
                     self.orderContract.at(result.args.orderAddress).then(function (order_instance) {
                         console.log("Got contract at " + result.args.orderAddress + ":")
                         console.log(order_instance)
-                        self.orderToState(order_instance)
+                        self.setState({
+                            // use concat to create a new array extended with the new order
+                            outgoingOrders: self.state.outgoingOrders.concat([order_instance])
+                        })
+                        // self.orderToState(order_instance)
                     })
                 } else {
                     console.log('Error while watching events:')

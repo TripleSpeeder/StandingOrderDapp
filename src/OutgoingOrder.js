@@ -1,11 +1,11 @@
 import React, {Component} from 'react'
 import {Button} from 'react-bootstrap'
 
-class OutgoingOrderRow extends Component {
+class OutgoingOrder extends Component {
 
     handleFund(event) {
         // add funds to contract
-        this.props.onFundContract(event.currentTarget.getAttribute('data-contract-address'))
+        this.props.onFundContract()
         event.preventDefault()
     }
 
@@ -17,13 +17,13 @@ class OutgoingOrderRow extends Component {
             <td>{this.props.order.paymentInterval}</td>
             <td>{this.props.order.ownerFunds}</td>
             <td>{this.props.order.funded_until}</td>
-            <td><Button bsStyle="danger"
-                        onClick={this.handleFund.bind(this)}
-                        data-contract-address={this.props.order.address}>Fund</Button>
+            <td>
+                <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>Fund</Button>
                 { this.props.order.owner_funds > 0 && <Button>Withdraw</Button> }
-                <Button bsStyle="danger">Cancel</Button></td>
+                <Button bsStyle="danger">Cancel</Button>
+            </td>
         </tr>
     }
 }
 
-export default OutgoingOrderRow
+export default OutgoingOrder
