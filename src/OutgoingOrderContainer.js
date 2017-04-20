@@ -17,6 +17,7 @@ class OutgoingOrderContainer extends Component {
             }
         }
         this.handleFundContract = this.handleFundContract.bind(this)
+        this.orderToState = this.orderToState.bind(this)
     }
 
     handleFundContract() {
@@ -40,26 +41,26 @@ class OutgoingOrderContainer extends Component {
         })
     }
 
-    orderToState(order_instance) {
+    orderToState() {
         var self = this
 
         // address is immediately available
         var flatOrder = {
-            address: order_instance.address
+            address: this.order_instance.address
         }
 
         // get all other info via call() and promises
         var promises = []
-        promises.push(order_instance.payee.call().then(function (payee) {
+        promises.push(this.order_instance.payee.call().then(function (payee) {
             flatOrder.payee = payee
         }))
-        promises.push(order_instance.paymentAmount.call().then(function (amount) {
+        promises.push(this.order_instance.paymentAmount.call().then(function (amount) {
             flatOrder.paymentAmount = amount.toString()
         }))
-        promises.push(order_instance.paymentInterval.call().then(function (interval) {
+        promises.push(this.order_instance.paymentInterval.call().then(function (interval) {
             flatOrder.paymentInterval = interval.toString()
         }))
-        promises.push(order_instance.getOwnerFunds.call().then(function (ownerFunds) {
+        promises.push(this.order_instance.getOwnerFunds.call().then(function (ownerFunds) {
             flatOrder.ownerFunds = ownerFunds.toString()
         }))
 
@@ -73,20 +74,21 @@ class OutgoingOrderContainer extends Component {
 
     componentWillMount() {
         // start filling of flatOrder object
-        this.orderToState(this.state.orderInstance)
+        this.orderToState()
     }
 
     componentDidMount() {
-        console.log("TODO: Start listening to new block events and refresh order state")
+        // Start listening to new block events and refresh order state
+        var self=this
         this.filter = window.web3.eth.filter('latest')
         this.filter.watch(function(error, result){
-            console.log('New block: ')
-            console.log(result)
+            console.log('New block!')
+            self.orderToState()
         })
     }
 
     componentWillUnmount() {
-        console.log("TODO: Stop listening to new block events")
+        // Stop listening to new block events
         this.filter.stopWatching()
     }
 
