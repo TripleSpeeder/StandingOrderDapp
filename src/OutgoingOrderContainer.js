@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import OutgoingOrder from 'OutgoingOrder'
+import OutgoingOrder from './OutgoingOrder'
 
 class OutgoingOrderContainer extends Component {
 
