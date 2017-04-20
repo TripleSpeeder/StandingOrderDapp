@@ -72,7 +72,7 @@ class App extends Component {
         var self = this
         // get accounts
         self.web3RPC.eth.getAccounts(function (error, accounts) {
-            return self.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
+            return self.state.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
                 from: accounts[0],
                 gas: 500000
             }).then(function (result) {
@@ -102,7 +102,6 @@ class App extends Component {
         const contract = require('truffle-contract')
         self.factoryContract = contract(standingOrderFactory_artifacts)
         self.factoryContract.setProvider(provider)
-        self.factoryInstance = null
         self.orderContract = contract(standingOrder_artifacts)
         self.orderContract.setProvider(provider)
 
