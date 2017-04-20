@@ -18,6 +18,11 @@ class OutgoingOrderContainer extends Component {
         }
         this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)
+        this.handleWithdraw = this.handleWithdraw.bind(this)
+    }
+
+    handleWithdraw() {
+        console.log("Withdrawing owned funds from contract")
     }
 
     handleFundContract() {
@@ -96,6 +101,7 @@ class OutgoingOrderContainer extends Component {
         return <OutgoingOrder
             order={this.state.flatOrder}
             onFundContract={this.handleFundContract}
+            onWithdrawOwnerFunds={this.handleWithdraw}
         />
     }
 }

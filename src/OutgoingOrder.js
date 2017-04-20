@@ -9,6 +9,12 @@ class OutgoingOrder extends Component {
         event.preventDefault()
     }
 
+    handleWithdraw(event) {
+        // Withdraw ownerfunds from contract
+        this.props.onWithdrawOwnerFunds()
+        event.preventDefault()
+    }
+
     render() {
         return <tr>
             <td>{this.props.order.address}</td>
@@ -19,7 +25,7 @@ class OutgoingOrder extends Component {
             <td>{this.props.order.funded_until}</td>
             <td>
                 <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>Fund</Button>
-                { this.props.order.owner_funds > 0 && <Button>Withdraw</Button> }
+                { this.props.order.ownerFunds > 0 && <Button bsStyle="danger" onclick={this.handleWithdraw.bind(this)}>Withdraw</Button> }
                 <Button bsStyle="danger">Cancel</Button>
             </td>
         </tr>
