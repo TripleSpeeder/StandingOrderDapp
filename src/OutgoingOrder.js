@@ -25,7 +25,7 @@ class OutgoingOrder extends Component {
             <td>{this.props.order.funded_until}</td>
             <td>
                 <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>Fund</Button>
-                { this.props.order.ownerFunds > 0 && <Button bsStyle="danger" onclick={this.handleWithdraw.bind(this)}>Withdraw</Button> }
+                { this.props.order.ownerFunds > 0 && <Button bsStyle="danger" onClick={this.handleWithdraw.bind(this)}>Withdraw</Button> }
                 <Button bsStyle="danger">Cancel</Button>
             </td>
         </tr>
