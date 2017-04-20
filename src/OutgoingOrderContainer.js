@@ -6,7 +6,15 @@ class OutgoingOrderContainer extends Component {
     constructor(props){
         super(props)
         this.state = {
-            orderInstance: props.orderInstance
+            orderInstance: props.orderInstance,
+            flatOrder: {
+                address: '0x0',
+                payee:   '0x0',
+                paymentAmount: 0,
+                paymentInterval: 0,
+                ownerFunds: 0,
+                funded_until: ''
+            }
         }
         this.handleFundContract = this.handleFundContract.bind(this)
     }
@@ -32,6 +40,37 @@ class OutgoingOrderContainer extends Component {
         })
     }
 
+    orderToState(order_instance) {
+        var self = this
+
+        // address is immediately available
+        var flatOrder = {
+            address: order_instance.address
+        }
+
+        // get all other info via call() and promises
+        var promises = []
+        promises.push(order_instance.payee.call().then(function (payee) {
+            flatOrder.payee = payee
+        }))
+        promises.push(order_instance.paymentAmount.call().then(function (amount) {
+            flatOrder.paymentAmount = amount.toString()
+        }))
+        promises.push(order_instance.paymentInterval.call().then(function (interval) {
+            flatOrder.paymentInterval = interval.toString()
+        }))
+        promises.push(order_instance.getOwnerFunds.call().then(function (ownerFunds) {
+            flatOrder.ownerFunds = ownerFunds.toString()
+        }))
+
+        Promise.all(promises).then(function () {
+            console.log("All promises resolved!")
+            self.setState({
+                flatOrder: flatOrder
+            })
+        })
+    }
+
     // Create flatOrder dictionary from orderInstance
     _extract(orderInstance) {
         // TODO: real implementation
@@ -46,9 +85,11 @@ class OutgoingOrderContainer extends Component {
     }
 
     render() {
-        var flatOrder = this._extract(this.state.orderInstance)
+        // start update of flatOrder
+        this.orderToState(this.state.orderInstance)
+        // var flatOrder = this._extract(this.state.orderInstance)
         return <OutgoingOrder
-            order={flatOrder}
+            order={this.state.flatOrder}
             onFundContract={this.handleFundContract}
         />
     }

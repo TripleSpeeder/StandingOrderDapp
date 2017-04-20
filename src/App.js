@@ -83,38 +83,6 @@ class App extends Component {
     }
 
 
-    orderToState(order_instance) {
-        var self = this
-
-        // address is immediately available
-        var flatOrder = {
-            address: order_instance.address
-        }
-
-        // get all other info via call() and promises
-        var promises = []
-        promises.push(order_instance.payee.call().then(function (payee) {
-            flatOrder.payee = payee
-        }))
-        promises.push(order_instance.paymentAmount.call().then(function (amount) {
-            flatOrder.paymentAmount = amount.toString()
-        }))
-        promises.push(order_instance.paymentInterval.call().then(function (interval) {
-            flatOrder.paymentInterval = interval.toString()
-        }))
-        promises.push(order_instance.getOwnerFunds.call().then(function (ownerFunds) {
-            flatOrder.ownerFunds = ownerFunds.toString()
-        }))
-
-        Promise.all(promises).then(function () {
-            console.log("All promises resolved!")
-            self.setState({
-                // use concat to create a new array extended with the new order
-                outgoingOrders: self.state.outgoingOrders.concat([flatOrder])
-            })
-        })
-    }
-
     componentWillMount() {
         /*
          * SMART CONTRACT EXAMPLE
