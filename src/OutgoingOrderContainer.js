@@ -46,21 +46,21 @@ class OutgoingOrderContainer extends Component {
 
         // address is immediately available
         var flatOrder = {
-            address: this.state.order_instance.address
+            address: this.state.orderInstance.address
         }
 
         // get all other info via call() and promises
         var promises = []
-        promises.push(this.state.order_instance.payee.call().then(function (payee) {
+        promises.push(this.state.orderInstance.payee.call().then(function (payee) {
             flatOrder.payee = payee
         }))
-        promises.push(this.state.order_instance.paymentAmount.call().then(function (amount) {
+        promises.push(this.state.orderInstance.paymentAmount.call().then(function (amount) {
             flatOrder.paymentAmount = amount.toString()
         }))
-        promises.push(this.state.order_instance.paymentInterval.call().then(function (interval) {
+        promises.push(this.state.orderInstance.paymentInterval.call().then(function (interval) {
             flatOrder.paymentInterval = interval.toString()
         }))
-        promises.push(this.state.order_instance.getOwnerFunds.call().then(function (ownerFunds) {
+        promises.push(this.state.orderInstance.getOwnerFunds.call().then(function (ownerFunds) {
             flatOrder.ownerFunds = ownerFunds.toString()
         }))
 
