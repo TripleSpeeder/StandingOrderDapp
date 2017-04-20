@@ -96,7 +96,6 @@ class OutgoingOrderListContainer extends Component {
 
         return <OutgoingOrderList
             outgoingOrders={this.state.outgoingOrders}
-            account={this.state.account}
         />
     }
 }
