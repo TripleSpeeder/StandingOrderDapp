@@ -12,8 +12,8 @@ class OutgoingOrderListContainer extends Component {
     }
 
     retrieveOrders(count) {
-        var self=this
-        console.log("Start retrieving " + count + " outgoing orders owned by " + self.props.account +"...")
+        var self = this
+        console.log("Start retrieving " + count + " outgoing orders owned by " + self.props.account + "...")
         var index
         for (index = 0; index < count; index++) {
             // get address of order contract
@@ -21,9 +21,10 @@ class OutgoingOrderListContainer extends Component {
                 index,
                 {from: self.props.account}
             ).then(function (address) {
-                console.log("Order " + index + " located at address " + address)
-                // get contract instance
-                return self.props.orderContract.at(address)}
+                    console.log("Order " + index + " located at address " + address)
+                    // get contract instance
+                    return self.props.orderContract.at(address)
+                }
             ).then(function (order_instance) {
                 console.log("Order " + index + ":")
                 console.log(order_instance)
@@ -63,7 +64,10 @@ class OutgoingOrderListContainer extends Component {
         })
 
         // Start watching for new contracts
-        this.createdOrders = self.props.factoryInstance.LogOrderCreated({owner: self.props.account},{fromBlock: 'pending', toBlock: 'latest'})
+        this.createdOrders = self.props.factoryInstance.LogOrderCreated({owner: self.props.account}, {
+            fromBlock: 'pending',
+            toBlock: 'latest'
+        })
         this.createdOrders.watch(function (error, result) {
             if (error === null) {
                 console.log('LogOrderCreated event:')
@@ -96,6 +100,18 @@ class OutgoingOrderListContainer extends Component {
     componentWillUnmount() {
         // Stop watching for new contracts
         this.tryStopWatching()
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.account !== this.props.account) {
+            console.log("OrderListContainer getting new account " + nextProps.account)
+            // stop watching for events of old owner
+            this.tryStopWatching()
+            // clear all existing orders as they are from old owner
+            this.setState({
+                outgoingOrders: [],
+            })
+        }
     }
 
     render() {

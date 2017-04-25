@@ -102,12 +102,16 @@ class App extends Component {
         orderContract.setProvider(provider)
         self.setState({orderContract: orderContract})
 
-        // Get accounts.
-        self.web3RPC.eth.getAccounts(function (error, accounts) {
-            console.log("Got accounts: ")
-            console.log(accounts)
-            self.setState({account: accounts[0]})
-        })
+        // Get currently selected account
+        self.setState({account: self.web3RPC.eth.accounts[0]})
+        // keep an eye on the account - the user might switch his current account in Metamask
+        // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
+        var accountInterval = setInterval(function() {
+            if (self.web3RPC.eth.accounts[0] !== self.state.account) {
+                console.log("User switched account from " + self.state.account + " to " + self.web3RPC.eth.accounts[0])
+                self.setState({account: self.web3RPC.eth.accounts[0]})
+            }
+        }, 100);
 
         // Get factory
         self.factoryContract.deployed().then(function (factory_instance) {
