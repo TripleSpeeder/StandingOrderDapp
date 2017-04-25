@@ -22,6 +22,10 @@ class IncomingOrderContainer extends Component {
 
     handleCollect() {
         console.log("TODO: Collecting funds from contract")
+        this.props.orderInstance.collectFunds({from: this.state.flatOrder.payee}).then(function(result){
+            console.log("CollectFunds issued: ")
+            console.log(result)
+        })
     }
 
     orderToState() {
