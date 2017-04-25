@@ -6,7 +6,6 @@ class IncomingOrderContainer extends Component {
     constructor(props){
         super(props)
         this.state = {
-            orderInstance: props.orderInstance,
             flatOrder: {
                 address: '0x0',
                 owner: '0x0',
@@ -30,24 +29,24 @@ class IncomingOrderContainer extends Component {
 
         // address is immediately available
         var flatOrder = {
-            address: this.state.orderInstance.address
+            address: this.props.orderInstance.address
         }
 
         // get all other info via call() and promises
         var promises = []
-        promises.push(this.state.orderInstance.payee.call().then(function (payee) {
+        promises.push(this.props.orderInstance.payee.call().then(function (payee) {
             flatOrder.payee = payee
         }))
-        promises.push(this.state.orderInstance.owner.call().then(function (owner) {
+        promises.push(this.props.orderInstance.owner.call().then(function (owner) {
             flatOrder.owner = owner
         }))
-        promises.push(this.state.orderInstance.paymentAmount.call().then(function (amount) {
+        promises.push(this.props.orderInstance.paymentAmount.call().then(function (amount) {
             flatOrder.paymentAmount = amount.toString()
         }))
-        promises.push(this.state.orderInstance.paymentInterval.call().then(function (interval) {
+        promises.push(this.props.orderInstance.paymentInterval.call().then(function (interval) {
             flatOrder.paymentInterval = interval.toString()
         }))
-        promises.push(this.state.orderInstance.getUnclaimedFunds.call().then(function (unclaimedFunds) {
+        promises.push(this.props.orderInstance.getUnclaimedFunds.call().then(function (unclaimedFunds) {
             flatOrder.collectibleFunds = unclaimedFunds.toString()
         }))
 
