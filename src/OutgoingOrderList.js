@@ -5,7 +5,7 @@ import OutgoingOrderContainer from './OutgoingOrderContainer'
 class OutgoingOrderList extends Component {
 
     render() {
-        // Prepare table rows for incoming orders
+        // Prepare table rows for outgoing orders
         var rows = []
         this.props.outgoingOrders.forEach((order) => {
             rows.push(<OutgoingOrderContainer

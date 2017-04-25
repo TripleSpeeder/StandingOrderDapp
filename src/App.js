@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap'
-import IncomingOrderList from './IncomingOrderList'
+import IncomingOrderListContainer from './IncomingOrderListContainer'
 import OutgoingOrderListContainer from './OutgoingOrderListContainer'
 import ContractForm from './ContractForm'
 
@@ -33,42 +33,12 @@ class App extends Component {
 
         // Setup some dummy orders
         this.state = {
-            incomingOrders: [
-                {
-                    sender: '0x11111111',
-                    rate: 100,
-                    period: 2000,
-                    available_amount: 200
-                },
-                {
-                    sender: '0x222222',
-                    rate: 40,
-                    period: 1230,
-                    available_amount: 0
-                },
-                {
-                    sender: '0x333333333',
-                    rate: 120,
-                    period: 2000,
-                    available_amount: 1200
-                }
-            ],
-            outgoingOrders: [],
             orderContract: null,
             factoryInstance: null,
             account: null,
         }
 
-        this.handleNewIncomingOrder = this.handleNewIncomingOrder.bind(this)
         this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
-    }
-
-    handleNewIncomingOrder(orderDetails) {
-        // Explicitly need to call SetState(), otherwise the change will be ignored
-        this.setState({
-            // use concat to create a new array extended with the new order
-            incomingOrders: this.state.incomingOrders.concat([orderDetails])
-        })
     }
 
     handleNewOutgoingOrder(order) {
@@ -149,8 +119,10 @@ class App extends Component {
                 <Grid>
                     <Row className="show-grid">
                         <Col md={8}>
-                            <IncomingOrderList
-                                incomingOrders={this.state.incomingOrders}
+                            <IncomingOrderListContainer
+                                account={this.state.account}
+                                factoryInstance={this.state.factoryInstance}
+                                orderContract={this.state.orderContract}
                             />
                         </Col>
                     </Row>
