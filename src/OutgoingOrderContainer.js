@@ -22,8 +22,8 @@ class OutgoingOrderContainer extends Component {
     }
 
     handleWithdraw() {
-        console.log("Withdrawing owned funds from contract. Account: " + this.props.account)
-        // this.state.orderInstance.WithdrawOwnerFunds({from:this.props.account})
+        console.log("Withdrawing owned funds from contract")
+        this.state.orderInstance.WithdrawOwnerFunds({from:this.props.account})
     }
 
     handleFundContract() {
