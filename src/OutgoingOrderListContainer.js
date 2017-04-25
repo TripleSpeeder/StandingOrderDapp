@@ -63,15 +63,16 @@ class OutgoingOrderListContainer extends Component {
         })
 
         // Start watching for new contracts
-        this.createdOrders = self.props.factoryInstance.LogOrderCreated({fromBlock: 'pending', toBlock: 'latest'})
+        this.createdOrders = self.props.factoryInstance.LogOrderCreated({owner: self.props.account},{fromBlock: 'pending', toBlock: 'latest'})
         this.createdOrders.watch(function (error, result) {
-            // This will catch all createdOrder events, regardless of how they originated.
             if (error === null) {
                 console.log('LogOrderCreated event:')
                 console.log(result.args)
                 self.props.orderContract.at(result.args.orderAddress).then(function (order_instance) {
                     console.log("Got contract at " + result.args.orderAddress + ":")
                     console.log(order_instance)
+                    // TODO: There is a risk the order has changed ownership in the meantime. So I need to
+                    // double-check here that I'm really the owner
                     self.setState({
                         // use concat to create a new array extended with the new order
                         outgoingOrders: self.state.outgoingOrders.concat([order_instance])

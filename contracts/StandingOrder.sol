@@ -115,7 +115,11 @@ contract StandingOrderFactory {
     mapping (address => StandingOrder[]) public standingOrdersByPayee;
 
     // Events
-    event LogOrderCreated(address orderAddress, address payee);
+    event LogOrderCreated(
+        address orderAddress,
+        address indexed owner,
+        address indexed payee
+    );
 
     // Create a new standing order. Allow to fund contract while creating, therefor "payable"
     function createStandingOrder(address payee, uint rate, uint interval) returns (StandingOrder) {
@@ -125,7 +129,7 @@ contract StandingOrderFactory {
         so.transferOwnership(msg.sender);
         standingOrdersByOwner[msg.sender].push(so);
         standingOrdersByPayee[payee].push(so);
-        LogOrderCreated(so, payee);
+        LogOrderCreated(so, msg.sender, payee);
         return so;
     }
 
