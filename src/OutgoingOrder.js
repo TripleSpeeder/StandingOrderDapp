@@ -18,6 +18,7 @@ class OutgoingOrder extends Component {
     render() {
         return <tr>
             <td>{this.props.order.address}</td>
+            <td>{this.props.order.owner}</td>
             <td>{this.props.order.payee}</td>
             <td>{this.props.order.paymentAmount}</td>
             <td>{this.props.order.paymentInterval}</td>

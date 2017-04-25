@@ -15,12 +15,15 @@ class OutgoingOrderList extends Component {
             />)
         })
 
+        console.log("Rendering OutgoingOrderList for account " + this.props.account)
+
         return <div>
                 <h3>Outgoing orders</h3>
                 <Table striped bordered condensed hover>
                     <thead>
                     <tr>
                         <th>Address</th>
+                        <th>Owner</th>
                         <th>Payee</th>
                         <th>Amount</th>
                         <th>Interval</th>
