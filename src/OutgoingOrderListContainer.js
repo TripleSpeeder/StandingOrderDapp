@@ -10,6 +10,7 @@ class OutgoingOrderListContainer extends Component {
         }
         this.isWatching = false
         this.onRemoveOrder = this.onRemoveOrder.bind(this)
+        this.onAddOrder = this.onAddOrder.bind(this)
     }
 
     retrieveOrders(count) {
@@ -29,11 +30,8 @@ class OutgoingOrderListContainer extends Component {
             ).then(function (order_instance) {
                     console.log("Got order instance " + index + ":")
                     console.log(order_instance)
-                    // use concat to create a new array extended with the new order
-                    self.setState({
-                        outgoingOrders: self.state.outgoingOrders.concat([order_instance])
-                    })
-                }
+                    self.onAddOrder(order_instance)
+                 }
             )
         }
     }
@@ -79,10 +77,7 @@ class OutgoingOrderListContainer extends Component {
                     console.log(order_instance)
                     // TODO: There is a risk the order has changed ownership in the meantime. So I need to
                     // double-check here that I'm really the owner
-                    self.setState({
-                        // use concat to create a new array extended with the new order
-                        outgoingOrders: self.state.outgoingOrders.concat([order_instance])
-                    })
+                    self.onAddOrder(order_instance)
                 })
             } else {
                 console.log('Error while watching events:')
@@ -121,6 +116,14 @@ class OutgoingOrderListContainer extends Component {
             return (instance.address != orderInstance.address)
         });
         this.setState({outgoingOrders: newOrderArray});
+    }
+
+    onAddOrder(orderInstance) {
+        // TODO Check for duplicates!
+        this.setState({
+            // use concat to create a new array extended with the new order
+            outgoingOrders: this.state.outgoingOrders.concat([orderInstance])
+        })
     }
 
     render() {

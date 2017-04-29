@@ -55,7 +55,6 @@ class App extends Component {
         })
     }
 
-
     componentWillMount() {
         // So we can update state later.
         var self = this
