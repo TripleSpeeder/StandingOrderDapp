@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Table} from 'react-bootstrap';
-import IncomingOrderContainer from './IncomingOrderContainer'
+import StandingOrderContainer from './StandingOrderContainer'
 
 class IncomingOrderList extends Component {
 
@@ -8,9 +8,10 @@ class IncomingOrderList extends Component {
         // Prepare table rows for incoming orders
         var rows = []
         this.props.incomingOrders.forEach((order) => {
-            rows.push(<IncomingOrderContainer
+            rows.push(<StandingOrderContainer
                 orderInstance={order}
                 key={order.address}
+                outgoing={false}
             />)
         })
 

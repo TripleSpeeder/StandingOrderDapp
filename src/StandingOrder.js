@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import {Button} from 'react-bootstrap'
 
-class OutgoingOrder extends Component {
+class StandingOrder extends Component {
 
     handleFund(event) {
         // add funds to contract
@@ -21,14 +21,33 @@ class OutgoingOrder extends Component {
         event.preventDefault()
     }
 
-    BigNumWeiToDisplayString(bignum)
-    {
-        var unit='ether'
+    handleCollect(event) {
+        // Withdraw ownerfunds from contract
+        this.props.onCollectFunds()
+        event.preventDefault()
+    }
+
+    BigNumWeiToDisplayString(bignum) {
+        var unit = 'ether'
         var decimalPlaces = 6
         return window.web3.fromWei(bignum, unit).round(decimalPlaces).toString()
     }
 
-    render() {
+    renderAsIncoming() {
+        return <tr>
+            <td>{this.props.order.address}</td>
+            <td>{this.props.order.owner}</td>
+            <td>{this.props.order.payee}</td>
+            <td>{this.props.order.paymentInterval.toString()}</td>
+            <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
+            <td>{this.props.order.next_payment}</td>
+            <td>
+                <Button onClick={this.handleCollect.bind(this)}>Collect</Button>
+            </td>
+        </tr>
+    }
+
+    renderAsOutgoing() {
         return <tr>
             <td>{this.props.order.address}</td>
             <td>{this.props.order.owner}</td>
@@ -56,6 +75,13 @@ class OutgoingOrder extends Component {
             </td>
         </tr>
     }
+
+    render() {
+        if (this.props.outgoing)
+            return this.renderAsOutgoing()
+        else
+            return this.renderAsIncoming()
+    }
 }
 
-export default OutgoingOrder
+export default StandingOrder

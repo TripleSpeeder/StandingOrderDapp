@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
-import OutgoingOrder from './OutgoingOrder'
+import StandingOrder from './StandingOrder'
 
-class OutgoingOrderContainer extends Component {
+class StandingOrderContainer extends Component {
 
     constructor(props){
         super(props)
@@ -9,18 +9,30 @@ class OutgoingOrderContainer extends Component {
             orderInstance: props.orderInstance,
             flatOrder: {
                 address: '0x0',
+                owner: '0x0',
                 payee:   '0x0',
                 paymentAmount: window.web3.toBigNumber('0'),
                 paymentInterval: 0,
                 ownerFunds: window.web3.toBigNumber('0'),
+                collectibleFunds: window.web3.toBigNumber('0'),
                 funded_until: '',
-                balance: window.web3.toBigNumber('0')
+                balance: window.web3.toBigNumber('0'),
+                next_payment: ''
             }
         }
         this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)
         this.handleWithdraw = this.handleWithdraw.bind(this)
         this.handleCancelContract = this.handleCancelContract.bind(this)
+        this.handleCollect = this.handleCollect.bind(this)
+    }
+
+    handleCollect() {
+        console.log("Collecting funds from contract")
+        this.props.orderInstance.collectFunds({from: this.state.flatOrder.payee}).then(function(result){
+            console.log("CollectFunds issued: ")
+            console.log(result)
+        })
     }
 
     handleWithdraw() {
@@ -92,6 +104,10 @@ class OutgoingOrderContainer extends Component {
         promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
             flatOrder.balance = balance
         }))
+        promises.push(this.props.orderInstance.getUnclaimedFunds.call().then(function (unclaimedFunds) {
+            flatOrder.collectibleFunds = unclaimedFunds
+        }))
+
 
         Promise.all(promises).then(function () {
             // console.log("All promises resolved!")
@@ -122,13 +138,14 @@ class OutgoingOrderContainer extends Component {
     }
 
     render() {
-        return <OutgoingOrder
+        return <StandingOrder
             order={this.state.flatOrder}
             onFundContract={this.handleFundContract}
             onWithdrawOwnerFunds={this.handleWithdraw}
             onCancelContract={this.handleCancelContract}
+            onCollectFunds={this.handleCollect}
         />
     }
 }
 
-export default OutgoingOrderContainer
+export default StandingOrderContainer
