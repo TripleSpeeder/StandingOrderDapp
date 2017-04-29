@@ -115,11 +115,11 @@ contract StandingOrder is Ownable {
         selfdestruct(owner);
     }
 
-    function setOwnerLabel(string _label) onlyOwner {
+    function SetOwnerLabel(string _label) onlyOwner {
         ownerLabel = _label;
     }
 
-    function setPayeeLabel(string _label) onlyPayee {
+    function SetPayeeLabel(string _label) onlyPayee {
         payeeLabel = _label;
     }
 

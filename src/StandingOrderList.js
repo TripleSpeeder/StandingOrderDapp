@@ -11,6 +11,7 @@ class StandingOrderList extends Component {
             rows.push(<StandingOrderContainer
                 orderInstance={order}
                 key={order.address}
+                account={this.props.account}
                 outgoing={this.props.outgoing}
             />)
         })

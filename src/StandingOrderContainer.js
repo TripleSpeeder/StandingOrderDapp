@@ -8,6 +8,8 @@ class StandingOrderContainer extends Component {
         this.state = {
             orderInstance: props.orderInstance,
             flatOrder: {
+                ownerLabel: '',
+                payeeLabel: '',
                 address: '0x0',
                 owner: '0x0',
                 payee:   '0x0',
@@ -25,6 +27,7 @@ class StandingOrderContainer extends Component {
         this.handleWithdraw = this.handleWithdraw.bind(this)
         this.handleCancelContract = this.handleCancelContract.bind(this)
         this.handleCollect = this.handleCollect.bind(this)
+        this.handleRelabel = this.handleRelabel.bind(this)
     }
 
     handleCollect() {
@@ -74,6 +77,36 @@ class StandingOrderContainer extends Component {
                 }
             })
         })
+    }
+
+    handleRelabel(_label) {
+        var self=this
+        if (self.props.outgoing) {
+            console.log("Setting new owner label " + _label + ", account: " + self.props.account)
+            self.state.orderInstance.SetOwnerLabel(_label, {from: self.props.account})
+                .then(function (result) {
+                    console.log("Successfully set new label.")
+                    // update order
+                    self.orderToState()
+                })
+                .catch(function (e) {
+                    console.log("Error while setting owner label:")
+                    console.log(e)
+                })
+        }
+        else {
+            console.log("Setting new payee label " + _label + ", account: " + self.props.account)
+            self.state.orderInstance.SetPayeeLabel(_label, {from: self.props.account})
+                .then(function (result) {
+                    console.log("Successfully set new label.")
+                    // update order
+                    self.orderToState()
+                })
+                .catch(function (e) {
+                    console.log("Error while setting payee label:")
+                    console.log(e)
+                })
+        }
     }
 
     orderToState() {
@@ -150,6 +183,7 @@ class StandingOrderContainer extends Component {
             onWithdrawOwnerFunds={this.handleWithdraw}
             onCancelContract={this.handleCancelContract}
             onCollectFunds={this.handleCollect}
+            onRelabel={this.handleRelabel}
             outgoing={this.props.outgoing}
         />
     }

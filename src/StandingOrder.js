@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
+import RelabelButton from "./RelabelButton"
 
 class StandingOrder extends Component {
 
@@ -36,7 +37,10 @@ class StandingOrder extends Component {
 
     renderAsIncoming() {
         return <tr>
-            <td>{this.props.order.payeeLabel}</td>
+            <td>
+                {this.props.order.payeeLabel}
+                <RelabelButton label={this.props.order.payeeLabel} onRelabel={this.props.onRelabel}/>
+            </td>
             <td>{this.props.order.owner}</td>
             <td>{this.props.order.paymentInterval.toString()}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
@@ -49,7 +53,10 @@ class StandingOrder extends Component {
 
     renderAsOutgoing() {
         return <tr>
-            <td>{this.props.order.ownerLabel}</td>
+            <td>
+                {this.props.order.ownerLabel}
+                <RelabelButton label={this.props.order.ownerLabel} onRelabel={this.props.onRelabel}/>
+            </td>
             <td>{this.props.order.payee}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
             <td>{this.props.order.paymentInterval.toString()}</td>
