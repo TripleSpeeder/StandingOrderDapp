@@ -11,6 +11,8 @@ class OutgoingOrderList extends Component {
             rows.push(<OutgoingOrderContainer
                 orderInstance={order}
                 key={order.address}
+                account={this.props.account}
+                onRemoveOrder={this.props.onRemoveOrder}
             />)
         })
 

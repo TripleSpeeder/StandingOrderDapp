@@ -13,17 +13,34 @@ class OutgoingOrderContainer extends Component {
                 paymentAmount: 0,
                 paymentInterval: 0,
                 ownerFunds: 0,
-                funded_until: ''
+                funded_until: '',
+                balance: window.web3.toBigNumber('0')
             }
         }
         this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)
         this.handleWithdraw = this.handleWithdraw.bind(this)
+        this.handleCancelContract = this.handleCancelContract.bind(this)
     }
 
     handleWithdraw() {
         console.log("Withdrawing owned funds from contract")
         this.state.orderInstance.WithdrawOwnerFunds({from:this.props.account})
+    }
+
+    handleCancelContract() {
+        var self=this
+        console.log("Cancelling contract (Owner: " + this.props.account)
+        this.state.orderInstance.Cancel({from: this.props.account})
+            .then(function(result){
+                console.log("Successfully cancelled order.")
+                // notify parent
+                self.props.onRemoveOrder(self.state.orderInstance)
+            })
+            .catch(function(e){
+                console.log("Error while cancelling contract:")
+                console.log(e)
+            })
     }
 
     handleFundContract() {
@@ -72,6 +89,9 @@ class OutgoingOrderContainer extends Component {
         promises.push(this.state.orderInstance.getOwnerFunds.call().then(function (ownerFunds) {
             flatOrder.ownerFunds = ownerFunds.toString()
         }))
+        promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
+            flatOrder.balance = balance
+        }))
 
         Promise.all(promises).then(function () {
             // console.log("All promises resolved!")
@@ -106,6 +126,7 @@ class OutgoingOrderContainer extends Component {
             order={this.state.flatOrder}
             onFundContract={this.handleFundContract}
             onWithdrawOwnerFunds={this.handleWithdraw}
+            onCancelContract={this.handleCancelContract}
         />
     }
 }

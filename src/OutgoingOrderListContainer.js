@@ -9,6 +9,7 @@ class OutgoingOrderListContainer extends Component {
             outgoingOrders: [],
         }
         this.isWatching = false
+        this.onRemoveOrder = this.onRemoveOrder.bind(this)
     }
 
     retrieveOrders(count) {
@@ -21,18 +22,19 @@ class OutgoingOrderListContainer extends Component {
                 index,
                 {from: self.props.account}
             ).then(function (address) {
-                    console.log("Order " + index + " located at address " + address)
+                    console.log("Retrieving order " + index + " located at address " + address)
                     // get contract instance
-                    return self.props.orderContract.at(address)
+                    return (self.props.orderContract.at(address))
                 }
             ).then(function (order_instance) {
-                console.log("Order " + index + ":")
-                console.log(order_instance)
-                self.setState({
+                    console.log("Got order instance " + index + ":")
+                    console.log(order_instance)
                     // use concat to create a new array extended with the new order
-                    outgoingOrders: self.state.outgoingOrders.concat([order_instance])
-                })
-            })
+                    self.setState({
+                        outgoingOrders: self.state.outgoingOrders.concat([order_instance])
+                    })
+                }
+            )
         }
     }
 
@@ -114,6 +116,13 @@ class OutgoingOrderListContainer extends Component {
         }
     }
 
+    onRemoveOrder(orderInstance) {
+        var newOrderArray = this.state.outgoingOrders.filter((instance)=>{
+            return (instance.address != orderInstance.address)
+        });
+        this.setState({outgoingOrders: newOrderArray});
+    }
+
     render() {
         console.log("Rendering OutgoingOrderListContainer!")
         console.log("Props: ")
@@ -125,6 +134,7 @@ class OutgoingOrderListContainer extends Component {
         return <OutgoingOrderList
             outgoingOrders={this.state.outgoingOrders}
             account={this.props.account}
+            onRemoveOrder={this.onRemoveOrder}
         />
     }
 }

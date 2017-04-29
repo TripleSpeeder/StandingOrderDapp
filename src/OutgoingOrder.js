@@ -15,6 +15,12 @@ class OutgoingOrder extends Component {
         event.preventDefault()
     }
 
+    handleCancel(event) {
+        // Completely cancel contract
+        this.props.onCancelContract()
+        event.preventDefault()
+    }
+
     render() {
         return <tr>
             <td>{this.props.order.address}</td>
@@ -27,7 +33,9 @@ class OutgoingOrder extends Component {
             <td>
                 <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>Fund</Button>
                 { this.props.order.ownerFunds > 0 && <Button bsStyle="danger" onClick={this.handleWithdraw.bind(this)}>Withdraw</Button> }
-                <Button bsStyle="danger">Cancel</Button>
+                { this.props.order.balance == 0 && <Button
+                    bsStyle="danger"
+                    onClick={this.handleCancel.bind(this)}>Cancel</Button> }
             </td>
         </tr>
     }
