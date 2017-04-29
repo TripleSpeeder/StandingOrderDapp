@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import IncomingOrderList from './IncomingOrderList'
+import StandingOrderList from './StandingOrderList'
 
 class IncomingOrderListContainer extends Component {
 
@@ -120,9 +120,10 @@ class IncomingOrderListContainer extends Component {
             this.tryStartWatching()
         }
 
-        return <IncomingOrderList
-            incomingOrders={this.state.incomingOrders}
+        return <StandingOrderList
+            Orders={this.state.incomingOrders}
             account={this.props.account}
+            outgoing={false}
         />
     }
 }

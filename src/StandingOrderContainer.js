@@ -144,6 +144,7 @@ class StandingOrderContainer extends Component {
             onWithdrawOwnerFunds={this.handleWithdraw}
             onCancelContract={this.handleCancelContract}
             onCollectFunds={this.handleCollect}
+            outgoing={this.props.outgoing}
         />
     }
 }

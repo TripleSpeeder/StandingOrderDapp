@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {Button} from 'react-bootstrap'
 
 class StandingOrder extends Component {
@@ -82,6 +83,12 @@ class StandingOrder extends Component {
         else
             return this.renderAsIncoming()
     }
+}
+
+StandingOrder.propTypes = {
+    outgoing: PropTypes.bool.isRequired,
+    // allow "any" for order as we may render with a dummy order until the real one is loaded
+    order: PropTypes.any.isRequired
 }
 
 export default StandingOrder
