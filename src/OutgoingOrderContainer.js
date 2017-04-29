@@ -10,9 +10,9 @@ class OutgoingOrderContainer extends Component {
             flatOrder: {
                 address: '0x0',
                 payee:   '0x0',
-                paymentAmount: 0,
+                paymentAmount: window.web3.toBigNumber('0'),
                 paymentInterval: 0,
-                ownerFunds: 0,
+                ownerFunds: window.web3.toBigNumber('0'),
                 funded_until: '',
                 balance: window.web3.toBigNumber('0')
             }
@@ -81,13 +81,13 @@ class OutgoingOrderContainer extends Component {
             flatOrder.owner = owner
         }))
         promises.push(this.state.orderInstance.paymentAmount.call().then(function (amount) {
-            flatOrder.paymentAmount = amount.toString()
+            flatOrder.paymentAmount = amount
         }))
         promises.push(this.state.orderInstance.paymentInterval.call().then(function (interval) {
-            flatOrder.paymentInterval = interval.toString()
+            flatOrder.paymentInterval = interval
         }))
         promises.push(this.state.orderInstance.getOwnerFunds.call().then(function (ownerFunds) {
-            flatOrder.ownerFunds = ownerFunds.toString()
+            flatOrder.ownerFunds = ownerFunds
         }))
         promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
             flatOrder.balance = balance

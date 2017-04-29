@@ -21,21 +21,38 @@ class OutgoingOrder extends Component {
         event.preventDefault()
     }
 
+    BigNumWeiToDisplayString(bignum)
+    {
+        var unit='ether'
+        var decimalPlaces = 6
+        return window.web3.fromWei(bignum, unit).round(decimalPlaces).toString()
+    }
+
     render() {
         return <tr>
             <td>{this.props.order.address}</td>
             <td>{this.props.order.owner}</td>
             <td>{this.props.order.payee}</td>
-            <td>{this.props.order.paymentAmount}</td>
-            <td>{this.props.order.paymentInterval}</td>
-            <td>{this.props.order.ownerFunds}</td>
+            <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
+            <td>{this.props.order.paymentInterval.toString()}</td>
+            <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}</td>
             <td>{this.props.order.funded_until}</td>
             <td>
-                <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>Fund</Button>
-                { this.props.order.ownerFunds > 0 && <Button bsStyle="danger" onClick={this.handleWithdraw.bind(this)}>Withdraw</Button> }
-                { this.props.order.balance == 0 && <Button
-                    bsStyle="danger"
-                    onClick={this.handleCancel.bind(this)}>Cancel</Button> }
+                <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>
+                    Fund
+                </Button>
+                {
+                    this.props.order.ownerFunds > 0 &&
+                    <Button bsStyle="danger" onClick={this.handleWithdraw.bind(this)}>
+                        Withdraw
+                    </Button>
+                }
+                {
+                    this.props.order.balance.isZero() &&
+                    <Button bsStyle="danger" onClick={this.handleCancel.bind(this)}>
+                        Cancel
+                    </Button>
+                }
             </td>
         </tr>
     }
