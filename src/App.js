@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap'
-import IncomingOrderListContainer from './IncomingOrderListContainer'
-import OutgoingOrderListContainer from './OutgoingOrderListContainer'
+import StandingOrderListContainer from './StandingOrderListContainer'
 import ContractForm from './ContractForm'
 
 /*
@@ -118,19 +117,21 @@ class App extends Component {
                 <Grid>
                     <Row className="show-grid">
                         <Col md={8}>
-                            <IncomingOrderListContainer
+                            <StandingOrderListContainer
                                 account={this.state.account}
                                 factoryInstance={this.state.factoryInstance}
                                 orderContract={this.state.orderContract}
+                                outgoing={false}
                             />
                         </Col>
                     </Row>
                     <Row>
                         <Col md={8}>
-                            <OutgoingOrderListContainer
+                            <StandingOrderListContainer
                                 account={this.state.account}
                                 factoryInstance={this.state.factoryInstance}
                                 orderContract={this.state.orderContract}
+                                outgoing={true}
                             />
                         </Col>
                     </Row>

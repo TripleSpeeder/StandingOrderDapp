@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import StandingOrderList from './StandingOrderList'
 
-class OutgoingOrderListContainer extends Component {
+class StandingOrderListContainer extends Component {
 
     constructor(props) {
         super(props)
@@ -19,7 +20,7 @@ class OutgoingOrderListContainer extends Component {
         var index
         for (index = 0; index < count; index++) {
             // get address of order contract
-            self.props.factoryInstance.getOwnOrderByIndex.call(
+            self.retrievalFunction.call(
                 index,
                 {from: self.props.account}
             ).then(function (address) {
@@ -31,7 +32,7 @@ class OutgoingOrderListContainer extends Component {
                     console.log("Got order instance " + index + ":")
                     console.log(order_instance)
                     self.onAddOrder(order_instance)
-                 }
+                }
             )
         }
     }
@@ -56,19 +57,34 @@ class OutgoingOrderListContainer extends Component {
         // Okay, I'm watching
         self.isWatching = true
 
+        // setup event listener/filters/retrieval functions
+        if (self.props.outgoing) {
+            // Set filter to look for outgoing events
+            self.eventFilter = {owner: self.props.account}
+            self.retrievalCountFunction = self.props.factoryInstance.getNumOrdersByOwner
+            self.retrievalFunction = self.props.factoryInstance.getOwnOrderByIndex
+        } else {
+            // Set filter to look for incoming events
+            self.eventFilter = {payee: self.props.account}
+            self.retrievalCountFunction = self.props.factoryInstance.getNumOrdersByPayee
+            self.retrievalFunction = self.props.factoryInstance.getPaidOrderByIndex
+        }
+
         // Get all existing outgoing ordercontracts from current account
         var numOrders = 0
         console.log("Looking for orders owned by " + self.props.account)
-        self.props.factoryInstance.getNumOrdersByOwner({from: self.props.account}).then(function (result) {
+        self.retrievalCountFunction({from: self.props.account}).then(function (result) {
             self.retrieveOrders(result)
         })
 
         // Start watching for new contracts
-        this.createdOrders = self.props.factoryInstance.LogOrderCreated({owner: self.props.account}, {
-            fromBlock: 'pending',
-            toBlock: 'latest'
-        })
-        this.createdOrders.watch(function (error, result) {
+        this.OrderCreatedEvent = self.props.factoryInstance.LogOrderCreated(
+            this.eventFilter,
+            {
+                fromBlock: 'pending',
+                toBlock: 'latest'
+            })
+        this.OrderCreatedEvent.watch(function (error, result) {
             if (error === null) {
                 console.log('LogOrderCreated event:')
                 console.log(result.args)
@@ -90,7 +106,7 @@ class OutgoingOrderListContainer extends Component {
     tryStopWatching() {
         if (this.isWatching) {
             this.isWatching = false
-            this.createdOrders.stopWatching()
+            this.OrderCreatedEvent.stopWatching()
         }
     }
 
@@ -112,10 +128,10 @@ class OutgoingOrderListContainer extends Component {
     }
 
     onRemoveOrder(orderInstance) {
-        var newOrderArray = this.state.outgoingOrders.filter((instance)=>{
+        var newOrderArray = this.state.outgoingOrders.filter((instance) => {
             return (instance.address != orderInstance.address)
-        });
-        this.setState({outgoingOrders: newOrderArray});
+        })
+        this.setState({outgoingOrders: newOrderArray})
     }
 
     onAddOrder(orderInstance) {
@@ -127,7 +143,7 @@ class OutgoingOrderListContainer extends Component {
     }
 
     render() {
-        console.log("Rendering OutgoingOrderListContainer!")
+        console.log("Rendering StandingOrderListContainer!")
         console.log("Props: ")
         console.log(this.props)
         if (!this.isWatching) {
@@ -138,9 +154,14 @@ class OutgoingOrderListContainer extends Component {
             Orders={this.state.outgoingOrders}
             account={this.props.account}
             onRemoveOrder={this.onRemoveOrder}
-            outgoing={true}
+            outgoing={this.props.outgoing}
         />
     }
 }
 
-export default OutgoingOrderListContainer
+StandingOrderListContainer.propTypes = {
+    outgoing: PropTypes.bool.isRequired,
+}
+
+
+export default StandingOrderListContainer
