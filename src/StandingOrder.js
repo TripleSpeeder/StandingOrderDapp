@@ -36,9 +36,8 @@ class StandingOrder extends Component {
 
     renderAsIncoming() {
         return <tr>
-            <td>{this.props.order.address}</td>
+            <td>{this.props.order.payeeLabel}</td>
             <td>{this.props.order.owner}</td>
-            <td>{this.props.order.payee}</td>
             <td>{this.props.order.paymentInterval.toString()}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
             <td>{this.props.order.next_payment}</td>
@@ -50,8 +49,7 @@ class StandingOrder extends Component {
 
     renderAsOutgoing() {
         return <tr>
-            <td>{this.props.order.address}</td>
-            <td>{this.props.order.owner}</td>
+            <td>{this.props.order.ownerLabel}</td>
             <td>{this.props.order.payee}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
             <td>{this.props.order.paymentInterval.toString()}</td>

@@ -44,9 +44,9 @@ class App extends Component {
         var self = this
         // get accounts
         self.web3RPC.eth.getAccounts(function (error, accounts) {
-            return self.state.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, {
+            return self.state.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.label, {
                 from: accounts[0],
-                gas: 500000
+                gas: 1000000
             }).then(function (result) {
                 console.log('Created StandingOrder - transaction: ' + result.tx)
                 console.log(result.receipt)

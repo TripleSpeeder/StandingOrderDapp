@@ -1,35 +1,48 @@
 pragma solidity ^0.4.4;
 
+
 import 'zeppelin/ownership/Ownable.sol';
 
-contract StandingOrder is Ownable{
+
+contract StandingOrder is Ownable {
 
     address public payee;
     uint public startTime;
     uint public paymentInterval;
     uint public paymentAmount;
-    uint public claimedFunds;  // How much funds have been claimed already
-    
-    function StandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount) payable {
+    uint public claimedFunds;   // How much funds have been claimed already
+    string public ownerLabel;   // Label managed by contract owner
+    string public payeeLabel;   // Label managed by payee
+
+    function StandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
         payee = _payee;
         paymentInterval = _paymentInterval;
         paymentAmount = _paymentAmount;
+        ownerLabel = _label;
+        payeeLabel = _label;
         startTime = now;
     }
 
+    modifier onlyPayee() {
+        if (msg.sender != payee) {
+            throw;
+        }
+        _;
+    }
+
     /* Allow adding funds to existing order */
-    function () payable {
+    function() payable {
         // TODO: Log entry
     }
-    
+
     /* How much funds are owned by Payee but not yet withdrawn */
-    function getUnclaimedFunds() constant returns(uint) {
+    function getUnclaimedFunds() constant returns (uint) {
         // sanity check
         if (now < startTime) {
             // bad miner trying to mess with block time?
             return 0;
         }
-        
+
         // Calculate theoretical amount that payee should own right now
         uint age = now - startTime;
         if (age == 0) {
@@ -37,43 +50,44 @@ contract StandingOrder is Ownable{
             return 0;
         }
 
-        uint completeIntervals = age/paymentInterval; // implicitly rounding down
+        uint completeIntervals = age / paymentInterval;
+        // implicitly rounding down
         uint totalAmount = completeIntervals * paymentAmount;
-        
+
         // subtract already withdrawn funds
         uint entitledAmount = totalAmount - claimedFunds;
-        
+
         /* entitledAmount might be more than available balance. In this case 
          * available balance is the limit */
         uint availableAmount = min(entitledAmount, this.balance);
-        
+
         return availableAmount;
     }
-    
+
     /* How much funds are still owned by owner (not yet reserved for payee) */
-    function getOwnerFunds() constant returns(uint) {
+    function getOwnerFunds() constant returns (uint) {
         return this.balance - getUnclaimedFunds();
     }
-    
+
     /* Collect payment */
     function collectFunds() {
         // only payee can collect funds
         if (msg.sender != payee) {
             throw;
         }
-        
+
         uint amount = getUnclaimedFunds();
-        
+
         if (amount <= 0) {
             // nothing to collect :-(
             throw;
         }
-        
+
         claimedFunds += amount;
         if (payee.send(amount) == false)
-            throw;
+        throw;
     }
-    
+
     /* Returns remaining funds to owner. 
      * Note that this does not return unclaimed funds - They 
      * can only be claimed by payee!
@@ -83,13 +97,13 @@ contract StandingOrder is Ownable{
     function WithdrawOwnerFunds() onlyOwner {
         uint ownerFunds = getOwnerFunds();
         if (ownerFunds <= 0)
-            throw;
-        
-        if (owner.send(ownerFunds)==false)
-            throw;
+        throw;
+
+        if (owner.send(ownerFunds) == false)
+        throw;
         // TODO: Log event
     }
-    
+
     /* Completely cancel this standingOrder */
     function Cancel() onlyOwner {
 
@@ -97,15 +111,24 @@ contract StandingOrder is Ownable{
         if (this.balance > 0) {
             throw;
         }
-        
+
         selfdestruct(owner);
     }
-    
+
+    function setOwnerLabel(string _label) onlyOwner {
+        ownerLabel = _label;
+    }
+
+    function setPayeeLabel(string _label) onlyPayee {
+        payeeLabel = _label;
+    }
+
     function min(uint a, uint b) returns (uint) {
         if (a < b) return a;
-            else return b;
+        else return b;
     }
 }
+
 
 contract StandingOrderFactory {
 
@@ -116,15 +139,15 @@ contract StandingOrderFactory {
 
     // Events
     event LogOrderCreated(
-        address orderAddress,
-        address indexed owner,
-        address indexed payee
+    address orderAddress,
+    address indexed owner,
+    address indexed payee
     );
 
     // Create a new standing order. Allow to fund contract while creating, therefor "payable"
-    function createStandingOrder(address payee, uint rate, uint interval) returns (StandingOrder) {
+    function createStandingOrder(address payee, uint rate, uint interval, string label) returns (StandingOrder) {
         // StandingOrder so = (new StandingOrder).value(msg.value)(msg.sender, payee, interval, rate);
-        StandingOrder so = new StandingOrder(payee, interval, rate);
+        StandingOrder so = new StandingOrder(payee, interval, rate, label);
         // Now the factory is the owner. Give ownershop to real owner.
         so.transferOwnership(msg.sender);
         standingOrdersByOwner[msg.sender].push(so);
@@ -133,19 +156,19 @@ contract StandingOrderFactory {
         return so;
     }
 
-    function getNumOrdersByOwner() constant returns(uint) {
+    function getNumOrdersByOwner() constant returns (uint) {
         return standingOrdersByOwner[msg.sender].length;
     }
 
-    function getOwnOrderByIndex(uint index) constant returns(StandingOrder) {
+    function getOwnOrderByIndex(uint index) constant returns (StandingOrder) {
         return standingOrdersByOwner[msg.sender][index];
     }
 
-    function getNumOrdersByPayee() constant returns(uint) {
+    function getNumOrdersByPayee() constant returns (uint) {
         return standingOrdersByPayee[msg.sender].length;
     }
 
-    function getPaidOrderByIndex(uint index) constant returns(StandingOrder) {
+    function getPaidOrderByIndex(uint index) constant returns (StandingOrder) {
         return standingOrdersByPayee[msg.sender][index];
     }
 }

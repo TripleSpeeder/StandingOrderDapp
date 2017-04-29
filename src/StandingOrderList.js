@@ -22,9 +22,8 @@ class StandingOrderList extends Component {
                 <Table striped bordered condensed hover>
                     <thead>
                     <tr>
-                        <th>Address</th>
-                        <th>Owner</th>
-                        <th>Payee</th>
+                        <th>Label</th>
+                        <th>From</th>
                         <th>Interval</th>
                         <th>Collectable amount</th>
                         <th>Next payment</th>
@@ -58,9 +57,8 @@ class StandingOrderList extends Component {
                 <Table striped bordered condensed hover>
                     <thead>
                     <tr>
-                        <th>Address</th>
-                        <th>Owner</th>
-                        <th>Payee</th>
+                        <th>Label</th>
+                        <th>To</th>
                         <th>Amount</th>
                         <th>Interval</th>
                         <th>Owned funds remaining</th>

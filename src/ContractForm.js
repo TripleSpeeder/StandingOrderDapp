@@ -8,6 +8,7 @@ class ContractForm extends Component {
             receiver: '',
             rate: '',
             period: '',
+            label: '',
         };
 
         this.handleInputChange = this.handleInputChange.bind(this);
@@ -26,6 +27,7 @@ class ContractForm extends Component {
     handleSubmit(event) {
         // add a new entry to outgoing contracts
         var order = {
+                    label: this.state.label,
                     receiver: this.state.receiver,
                     rate: parseInt(this.state.rate),
                     period: parseInt(this.state.period),
@@ -41,6 +43,15 @@ class ContractForm extends Component {
     render() {
         return (
             <form onSubmit={this.handleSubmit}>
+                <label>
+                    Label:
+                    <input
+                        name="label"
+                        type="text"
+                        value={this.state.label}
+                        onChange={this.handleInputChange}/>
+                </label>
+                <br />
                 <label>
                     Receiver:
                     <input

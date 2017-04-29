@@ -89,8 +89,14 @@ class StandingOrderContainer extends Component {
         promises.push(this.state.orderInstance.payee.call().then(function (payee) {
             flatOrder.payee = payee
         }))
+        promises.push(this.state.orderInstance.payeeLabel.call().then(function (payeeLabel) {
+            flatOrder.payeeLabel = payeeLabel
+        }))
         promises.push(this.state.orderInstance.owner.call().then(function (owner) {
             flatOrder.owner = owner
+        }))
+        promises.push(this.state.orderInstance.ownerLabel.call().then(function (ownerLabel) {
+            flatOrder.ownerLabel = ownerLabel
         }))
         promises.push(this.state.orderInstance.paymentAmount.call().then(function (amount) {
             flatOrder.paymentAmount = amount
