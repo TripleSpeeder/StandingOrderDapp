@@ -6,33 +6,38 @@ import NewOrderButton from "./NewOrderButton"
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 
-window.addEventListener('load', function () {
-    // Checking if Web3 has been injected by the browser (Mist/MetaMask)
-    if (typeof web3 !== 'undefined') {
-        console.warn('Using web3 detected from external source.')
-        // Use Mist/MetaMask's provider
-        // eslint-disable-next-line no-undef
-        window.web3 = new Web3(web3.currentProvider)
-    } else {
-        console.warn('No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask')
-        // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-        window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
-    }
-})
 
 class App extends Component {
 
     constructor(props) {
         super(props)
 
-        // Setup some dummy orders
+        // Setup initial state
         this.state = {
             orderContract: null,
             factoryInstance: null,
             account: null,
+            web3Available: false
         }
 
         this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
+        this.initialize = this.initialize.bind(this)
+
+        var self=this
+        window.addEventListener('load', function () {
+            // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+            if (typeof web3 !== 'undefined') {
+                console.warn('Using web3 detected from external source.')
+                // Use Mist/MetaMask's provider
+                // eslint-disable-next-line no-undef
+                window.web3 = new Web3(web3.currentProvider)
+            } else {
+                console.warn('No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask')
+                // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+                window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
+            }
+            self.initialize();
+        })
     }
 
     handleNewOutgoingOrder(order) {
@@ -49,9 +54,8 @@ class App extends Component {
         })
     }
 
-    componentWillMount() {
-        // So we can update state later.
-        var self = this
+    initialize() {
+        var self=this
 
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
@@ -66,7 +70,12 @@ class App extends Component {
         self.setState({orderContract: orderContract})
 
         // Get currently selected account
-        self.setState({account: self.web3RPC.eth.accounts[0]})
+        var acc = self.web3RPC.eth.accounts[0]
+        // This might be a bug in metamask? Anyway, make sure that account is NULL if it is undefined...
+        if (acc === undefined)
+            acc = null
+        self.setState({account: acc})
+
         // keep an eye on the account - the user might switch his current account in Metamask
         // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
         var accountInterval = setInterval(function() {
@@ -80,9 +89,18 @@ class App extends Component {
         self.factoryContract.deployed().then(function (factory_instance) {
             self.setState({factoryInstance: factory_instance})
         })
+
+        self.setState({web3Available: true})
     }
 
     render() {
+        if (this.state.web3Available === false) {
+            console.log("App.render: Web3 not yet injected!")
+            return <div>
+                <h1>Waiting for web3...</h1>
+            </div>
+        }
+
         return (
             <div>
                 <Navbar inverse fixedTop>
