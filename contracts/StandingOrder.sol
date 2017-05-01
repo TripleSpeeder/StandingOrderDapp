@@ -14,12 +14,16 @@ contract StandingOrder is Ownable {
     string public ownerLabel;    // Label managed by contract owner
     string public payeeLabel;    // Label managed by payee
 
-    function StandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
+    function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
         // Sanity check parameters
         if (_paymentInterval < 1)
             throw;
         if (_paymentAmount < 1)
             throw;
+
+        // override default behaviour of Ownable base contract
+        // Explicitly set owner to _owner, as msg.sender is the StandingOrderFactory contract
+        owner = _owner;
 
         payee = _payee;
         paymentInterval = _paymentInterval;
@@ -150,12 +154,9 @@ contract StandingOrderFactory {
     address indexed payee
     );
 
-    // Create a new standing order. Allow to fund contract while creating, therefor "payable"
+    // Create a new standing order.
     function createStandingOrder(address payee, uint rate, uint interval, string label) returns (StandingOrder) {
-        // StandingOrder so = (new StandingOrder).value(msg.value)(msg.sender, payee, interval, rate);
-        StandingOrder so = new StandingOrder(payee, interval, rate, label);
-        // Now the factory is the owner. Give ownershop to real owner.
-        so.transferOwnership(msg.sender);
+        StandingOrder so = new StandingOrder(msg.sender, payee, interval, rate, label);
         standingOrdersByOwner[msg.sender].push(so);
         standingOrdersByPayee[payee].push(so);
         LogOrderCreated(so, msg.sender, payee);
