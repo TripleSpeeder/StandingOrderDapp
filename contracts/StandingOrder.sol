@@ -6,15 +6,21 @@ import 'zeppelin/ownership/Ownable.sol';
 
 contract StandingOrder is Ownable {
 
-    address public payee;
-    uint public startTime;
-    uint public paymentInterval;
-    uint public paymentAmount;
-    uint public claimedFunds;   // How much funds have been claimed already
-    string public ownerLabel;   // Label managed by contract owner
-    string public payeeLabel;   // Label managed by payee
+    address public payee;        // The payee gets the money
+    uint public startTime;       // Time the order was created
+    uint public paymentInterval; // How often can payee claim paymentAmount
+    uint public paymentAmount;   // How much can payee claim per period
+    uint public claimedFunds;    // How much funds have been claimed already
+    string public ownerLabel;    // Label managed by contract owner
+    string public payeeLabel;    // Label managed by payee
 
     function StandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
+        // Sanity check parameters
+        if (_paymentInterval < 1)
+            throw;
+        if (_paymentAmount < 1)
+            throw;
+
         payee = _payee;
         paymentInterval = _paymentInterval;
         paymentAmount = _paymentAmount;
