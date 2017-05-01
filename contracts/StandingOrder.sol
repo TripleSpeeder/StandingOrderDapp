@@ -18,9 +18,9 @@ contract StandingOrder is Ownable, SafeMath {
     function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
         // Sanity check parameters
         if (_paymentInterval < 1)
-        throw;
+            throw;
         if (_paymentAmount < 1)
-        throw;
+            throw;
 
         // override default behaviour of Ownable base contract
         // Explicitly set owner to _owner, as msg.sender is the StandingOrderFactory contract
