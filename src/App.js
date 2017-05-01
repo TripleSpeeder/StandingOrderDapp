@@ -1,15 +1,10 @@
 import React, {Component} from 'react'
 import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap'
+import { default as Web3 } from 'web3'
 import StandingOrderListContainer from './StandingOrderListContainer'
-import ContractForm from './ContractForm'
-
-/*
- Import our contract artifacts and turn them into usable abstractions.
- */
+import NewOrderButton from "./NewOrderButton"
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
-
-import { default as Web3 } from 'web3'
 
 window.addEventListener('load', function () {
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
@@ -137,9 +132,7 @@ class App extends Component {
                     </Row>
                     <Row>
                         <Col md={8}>
-                            <ContractForm
-                                onNewOutgoingOrder={this.handleNewOutgoingOrder}
-                            />
+                            <NewOrderButton onNewOrder={this.handleNewOutgoingOrder}/>
                         </Col>
                     </Row>
                 </Grid>
