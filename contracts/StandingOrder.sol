@@ -2,9 +2,10 @@ pragma solidity ^0.4.4;
 
 
 import 'zeppelin/ownership/Ownable.sol';
+import 'zeppelin/SafeMath.sol';
 
 
-contract StandingOrder is Ownable {
+contract StandingOrder is Ownable, SafeMath {
 
     address public payee;        // The payee gets the money
     uint public startTime;       // Time the order was created
@@ -17,9 +18,9 @@ contract StandingOrder is Ownable {
     function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
         // Sanity check parameters
         if (_paymentInterval < 1)
-            throw;
+        throw;
         if (_paymentAmount < 1)
-            throw;
+        throw;
 
         // override default behaviour of Ownable base contract
         // Explicitly set owner to _owner, as msg.sender is the StandingOrderFactory contract
@@ -54,29 +55,27 @@ contract StandingOrder is Ownable {
         }
 
         // Calculate theoretical amount that payee should own right now
-        uint age = now - startTime;
+        uint age = safeSub(now, startTime);
         if (age == 0) {
             // order has just been created
             return 0;
         }
-
-        uint completeIntervals = age / paymentInterval;
-        // implicitly rounding down
-        uint totalAmount = completeIntervals * paymentAmount;
+        uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
+        uint totalAmount = safeMul(completeIntervals, paymentAmount);
 
         // subtract already withdrawn funds
-        uint entitledAmount = totalAmount - claimedFunds;
+        uint entitledAmount = safeSub(totalAmount, claimedFunds);
 
         /* entitledAmount might be more than available balance. In this case 
          * available balance is the limit */
-        uint availableAmount = min(entitledAmount, this.balance);
+        uint availableAmount = min256(entitledAmount, this.balance);
 
         return availableAmount;
     }
 
     /* How much funds are still owned by owner (not yet reserved for payee) */
     function getOwnerFunds() constant returns (uint) {
-        return this.balance - getUnclaimedFunds();
+        return safeSub(this.balance, getUnclaimedFunds());
     }
 
     /* Collect payment */
@@ -93,9 +92,11 @@ contract StandingOrder is Ownable {
             throw;
         }
 
-        claimedFunds += amount;
+        // keep track of collected funds
+        claimedFunds = safeAdd(claimedFunds, amount);
+
         if (payee.send(amount) == false)
-        throw;
+            throw;
     }
 
     /* Returns remaining funds to owner. 
@@ -110,13 +111,12 @@ contract StandingOrder is Ownable {
         throw;
 
         if (owner.send(ownerFunds) == false)
-        throw;
+            throw;
         // TODO: Log event
     }
 
     /* Completely cancel this standingOrder */
     function Cancel() onlyOwner {
-
         // only possible when no funds are left in the contract
         if (this.balance > 0) {
             throw;
@@ -132,11 +132,6 @@ contract StandingOrder is Ownable {
     function SetPayeeLabel(string _label) onlyPayee {
         payeeLabel = _label;
     }
-
-    function min(uint a, uint b) returns (uint) {
-        if (a < b) return a;
-        else return b;
-    }
 }
 
 
@@ -149,9 +144,9 @@ contract StandingOrderFactory {
 
     // Events
     event LogOrderCreated(
-    address orderAddress,
-    address indexed owner,
-    address indexed payee
+        address orderAddress,
+        address indexed owner,
+        address indexed payee
     );
 
     // Create a new standing order.
