@@ -38,7 +38,7 @@ contract UserMockB {
     }
 
     function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount) returns(StandingOrder) {
-        return new StandingOrder(_payee, _paymentInterval, _paymentAmount, 'fromUserB');
+        return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, 'fromUserB');
     }
 
     function doFundStandingOrder(StandingOrder _so, uint _amount) returns(bool) {
