@@ -7,7 +7,7 @@ import "../contracts/StandingOrder.sol";
 contract UserMock {
 
     function doCreateStandingOrder(StandingOrderFactory _factory, address _payee, uint _rate, uint _interval) returns(StandingOrder){
-        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval);
+        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval, 'fromUserMock');
         return so;
     }
 
@@ -37,7 +37,7 @@ contract UserMock {
     }
 
     function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount) returns(StandingOrder) {
-        return new StandingOrder(_payee, _paymentInterval, _paymentAmount);
+        return new StandingOrder(_payee, _paymentInterval, _paymentAmount, 'fromUserMock');
     }
 
     function doCancelStandingOrder(StandingOrder _so) {

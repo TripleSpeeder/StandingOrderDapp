@@ -11,7 +11,7 @@ contract UserMockB {
     }
 
     function doCreateStandingOrder(StandingOrderFactory _factory, address _payee, uint _rate, uint _interval) returns(StandingOrder){
-        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval);
+        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval, 'fromUserB');
         return so;
     }
 
@@ -38,7 +38,7 @@ contract UserMockB {
     }
 
     function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount) returns(StandingOrder) {
-        return new StandingOrder(_payee, _paymentInterval, _paymentAmount);
+        return new StandingOrder(_payee, _paymentInterval, _paymentAmount, 'fromUserB');
     }
 
     function doFundStandingOrder(StandingOrder _so, uint _amount) returns(bool) {
