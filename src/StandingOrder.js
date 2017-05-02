@@ -42,7 +42,7 @@ class StandingOrder extends Component {
                 <RelabelButton label={this.props.order.payeeLabel} onRelabel={this.props.onRelabel}/>
             </td>
             <td>{this.props.order.owner}</td>
-            <td>{this.props.order.paymentInterval.toString()}</td>
+            <td>{this.props.order.paymentInterval.toString()} seconds</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
             <td>{this.props.order.next_payment}</td>
             <td>
@@ -59,7 +59,7 @@ class StandingOrder extends Component {
             </td>
             <td>{this.props.order.payee}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
-            <td>{this.props.order.paymentInterval.toString()}</td>
+            <td>{this.props.order.paymentInterval.toString()} seconds</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}</td>
             <td>{this.props.order.funded_until}</td>
             <td>
