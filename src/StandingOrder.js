@@ -2,6 +2,8 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, ButtonGroup, Glyphicon, Label} from 'react-bootstrap'
 import RelabelButton from "./RelabelButton"
+import moment from 'moment'
+import 'moment-duration-format'
 
 class StandingOrder extends Component {
 
@@ -35,6 +37,12 @@ class StandingOrder extends Component {
         return window.web3.fromWei(bignum, unit).round(decimalPlaces).toString()
     }
 
+    secondsToDisplayString(seconds) {
+        if (seconds < 60*60*24) // less than one day?
+            return moment.duration(seconds, "seconds").format("hh:mm.ss", { trim: false })
+        return moment.duration(seconds, "seconds").format("d [days]")
+    }
+
     renderAsIncoming() {
         return <tr>
             <td>#</td>
@@ -66,7 +74,7 @@ class StandingOrder extends Component {
             </td>
             <td>{this.props.order.payee}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
-            <td>{this.props.order.paymentInterval.toString()} seconds</td>
+            <td>{this.secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}
                 <ButtonGroup>
                     <Button bsStyle="success" bsSize="small" title="Add Funds" onClick={this.handleFund.bind(this)}>
