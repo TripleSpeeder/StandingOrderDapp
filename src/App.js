@@ -1,6 +1,20 @@
 import React, {Component} from 'react'
-import {Grid, Row, Col, Navbar, Jumbotron, Button} from 'react-bootstrap'
-import { default as Web3 } from 'web3'
+import {
+    Grid,
+    Row,
+    Col,
+    Navbar,
+    NavItem,
+    Jumbotron,
+    Button,
+    Nav,
+    Glyphicon,
+    Panel,
+    Label,
+    Table,
+    ButtonGroup,
+} from 'react-bootstrap'
+import {default as Web3} from 'web3'
 import StandingOrderListContainer from './StandingOrderListContainer'
 import NewOrderButton from "./NewOrderButton"
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
@@ -23,7 +37,7 @@ class App extends Component {
         this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
         this.initialize = this.initialize.bind(this)
 
-        var self=this
+        var self = this
         window.addEventListener('load', function () {
             // Checking if Web3 has been injected by the browser (Mist/MetaMask)
             if (typeof web3 !== 'undefined') {
@@ -36,7 +50,7 @@ class App extends Component {
                 // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
                 window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
             }
-            self.initialize();
+            self.initialize()
         })
     }
 
@@ -55,7 +69,7 @@ class App extends Component {
     }
 
     initialize() {
-        var self=this
+        var self = this
 
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
@@ -78,12 +92,12 @@ class App extends Component {
 
         // keep an eye on the account - the user might switch his current account in Metamask
         // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-        var accountInterval = setInterval(function() {
+        var accountInterval = setInterval(function () {
             if (self.web3RPC.eth.accounts[0] !== self.state.account) {
                 console.log("User switched account from " + self.state.account + " to " + self.web3RPC.eth.accounts[0])
                 self.setState({account: self.web3RPC.eth.accounts[0]})
             }
-        }, 100);
+        }, 100)
 
         // Get factory
         self.factoryContract.deployed().then(function (factory_instance) {
@@ -93,7 +107,160 @@ class App extends Component {
         self.setState({web3Available: true})
     }
 
+    newRender() {
+        var incomingHeader = <div>
+            <h4>Incoming orders <Label bsStyle="success">5.234 ETH available!</Label></h4>
+            </div>
+
+        var outgoingHeader = <div>
+            <h4>Outgoing orders <Label bsStyle="danger">1 Order with insufficient funds!</Label></h4>
+            </div>
+
+        return <div>
+            <Navbar>
+                <Navbar.Header>
+                    <Navbar.Brand>
+                        <a href="#">STORSDapp</a>
+                    </Navbar.Brand>
+                </Navbar.Header>
+                <Nav>
+                    <NavItem eventKey={1} href="#">Info</NavItem>
+                    <NavItem eventKey={2} href="#">FAQ</NavItem>
+                    <NavItem eventKey={2} href="#">Contract</NavItem>
+                    <NavItem eventKey={2} href="#">Github</NavItem>
+                </Nav>
+            </Navbar>
+
+            <Grid>
+                <Jumbotron>
+                    <h2>Address: 0x12345678901234567890</h2>
+                </Jumbotron>
+
+                <Panel collapsible defaultExpanded header={outgoingHeader} bsStyle="primary">
+                    <Table fill striped hover>
+                        <thead>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>Label</td>
+                            <td>To</td>
+                            <td>Amount</td>
+                            <td>Intervall</td>
+                            <td>Remaining</td>
+                            <td>Unclaimed</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>
+                                <strong>Rent</strong>
+                            </td>
+                            <td>0x1823455667788999</td>
+                            <td>0.5 ETH</td>
+                            <td>1 month</td>
+                            <td>1.45 ETH <ButtonGroup>
+                                    <Button bsStyle="success" bsSize="small" title="Add Funds">
+                                        <Glyphicon glyph="upload"/>
+                                    </Button>
+                                    <Button bsStyle="warning" bsSize="small" title="Withdraw Funds">
+                                        <Glyphicon glyph="download"/>
+                                    </Button>
+                                </ButtonGroup>
+                            </td>
+                            <td>0.2 ETH</td>
+                            <td>
+                                <Button bsStyle="danger" bsSize="small" title="Delete">
+                                    <Glyphicon glyph="trash"/>
+                                </Button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>
+                                <Label bsStyle="danger" title="Insufficient funds!">
+                                    <Glyphicon glyph="alert"/>
+                                </Label>
+                                <strong> Monthly paycheck John</strong>
+                            </td>
+                            <td>0x1823455667788999</td>
+                            <td>1.5 ETH</td>
+                            <td>1 month</td>
+                            <td>0.00 ETH <ButtonGroup>
+                                    <Button bsStyle="success" bsSize="small" title="Add Funds">
+                                        <Glyphicon glyph="upload"/>
+                                    </Button>
+                                    <Button bsStyle="warning" bsSize="small" disabled title="Withdraw Funds">
+                                        <Glyphicon glyph="download"/>
+                                    </Button>
+                                </ButtonGroup>
+                            </td>
+                            <td>1.258805 ETH</td>
+                            <td>
+                                <Button bsStyle="danger" bsSize="small" title="Delete">
+                                    <Glyphicon glyph="trash"/>
+                                </Button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </Table>
+                    <p>
+                        <Button bsStyle="primary" >Create new Order</Button>
+                    </p>
+                </Panel>
+
+                <Panel collapsible defaultExpanded header={incomingHeader} bsStyle="success">
+                    <Table fill striped hover>
+                        <thead>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>Label</td>
+                            <td>From</td>
+                            <td>Available</td>
+                            <td>Next Payment</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td><strong>Rent</strong></td>
+                            <td>0x1823455667788999</td>
+                            <td>1.45 ETH <Button bsStyle="primary" bsSize="small" title="Collect">
+                                <Glyphicon glyph="download"/>
+                            </Button>
+                            </td>
+                            <td>05.03.2017</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td><strong>Weekly support</strong></td>
+                            <td>0x1823455667788999</td>
+                            <td>0.00 ETH <Button bsStyle="primary" bsSize="small" disabled>
+                                <Glyphicon glyph="download"/>
+                            </Button>
+                            </td>
+                            <td>15.05.2017</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td><strong>Thanks for your work on github!</strong></td>
+                            <td>0x1823455667788999</td>
+                            <td>0.45 ETH <Button bsStyle="primary" bsSize="small" title="Collect">
+                                <Glyphicon glyph="download"/>
+                            </Button></td>
+                            <td>05.03.2017</td>
+                        </tr>
+                        </tbody>
+                    </Table>
+                </Panel>
+            </Grid>
+
+        </div>
+    }
+
     render() {
+        return this.newRender()
+
         if (this.state.web3Available === false) {
             console.log("App.render: Web3 not yet injected!")
             return <div>
