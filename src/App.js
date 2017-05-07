@@ -16,7 +16,6 @@ import {
 } from 'react-bootstrap'
 import {default as Web3} from 'web3'
 import StandingOrderListContainer from './StandingOrderListContainer'
-import NewOrderButton from "./NewOrderButton"
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import HeaderAddress from "./HeaderAddress"
@@ -97,7 +96,13 @@ class App extends Component {
         })
     }
 
-    newRender() {
+    render() {
+        if (this.state.web3Available === false) {
+            console.log("App.render: Web3 not yet injected!")
+            return <div>
+                <h1>Waiting for web3...</h1>
+            </div>
+        }
 
         return <div>
             <Navbar>
@@ -134,73 +139,7 @@ class App extends Component {
                 />
             </Grid>
         </div>
-    }
 
-    render() {
-        if (this.state.web3Available === false) {
-            console.log("App.render: Web3 not yet injected!")
-            return <div>
-                <h1>Waiting for web3...</h1>
-            </div>
-        }
-
-        return this.newRender()
-
-        return (
-            <div>
-                <Navbar inverse fixedTop>
-                    <Grid>
-                        <Navbar.Header>
-                            <Navbar.Brand>
-                                <a href="/">React App</a>
-                            </Navbar.Brand>
-                            <Navbar.Toggle />
-                        </Navbar.Header>
-                    </Grid>
-                </Navbar>
-                <Jumbotron>
-                    <Grid>
-                        <h1>Welcome to React</h1>
-                        <p>
-                            <Button
-                                bsStyle="success"
-                                bsSize="large"
-                                href="http://react-bootstrap.github.io/components.html"
-                                target="_blank">
-                                View React Bootstrap Docs
-                            </Button>
-                        </p>
-                    </Grid>
-                </Jumbotron>
-                <Grid>
-                    <Row className="show-grid">
-                        <Col md={8}>
-                            <StandingOrderListContainer
-                                account={this.state.account}
-                                factoryInstance={this.state.factoryInstance}
-                                orderContract={this.state.orderContract}
-                                outgoing={false}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={8}>
-                            <StandingOrderListContainer
-                                account={this.state.account}
-                                factoryInstance={this.state.factoryInstance}
-                                orderContract={this.state.orderContract}
-                                outgoing={true}
-                            />
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={8}>
-                            <NewOrderButton onNewOrder={this.handleNewOutgoingOrder}/>
-                        </Col>
-                    </Row>
-                </Grid>
-            </div>
-        )
     }
 }
 

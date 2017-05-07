@@ -7,20 +7,7 @@ class StandingOrderContainer extends Component {
         super(props)
         this.state = {
             orderInstance: props.orderInstance,
-            flatOrder: {
-                ownerLabel: '',
-                payeeLabel: '',
-                address: '0x0',
-                owner: '0x0',
-                payee:   '0x0',
-                paymentAmount: window.web3.toBigNumber('0'),
-                paymentInterval: 0,
-                ownerFunds: window.web3.toBigNumber('0'),
-                collectibleFunds: window.web3.toBigNumber('0'),
-                funded_until: '',
-                balance: window.web3.toBigNumber('0'),
-                next_payment: ''
-            }
+            flatOrder: null
         }
         this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)

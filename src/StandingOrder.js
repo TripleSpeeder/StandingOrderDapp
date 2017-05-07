@@ -94,6 +94,12 @@ class StandingOrder extends Component {
     }
 
     render() {
+        if (!this.props.order) {
+            return <tr>
+                <td colSpan={8}>Loading...</td>
+            </tr>
+        }
+
         if (this.props.outgoing)
             return this.renderAsOutgoing()
         else
@@ -102,9 +108,7 @@ class StandingOrder extends Component {
 }
 
 StandingOrder.propTypes = {
-    outgoing: PropTypes.bool.isRequired,
-    // allow "any" for order as we may render with a dummy order until the real one is loaded
-    order: PropTypes.any.isRequired
+    outgoing: PropTypes.bool.isRequired
 }
 
 export default StandingOrder
