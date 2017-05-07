@@ -34,7 +34,7 @@ class StandingOrder extends Component {
     BigNumWeiToDisplayString(bignum) {
         var unit = 'ether'
         var decimalPlaces = 10
-        return window.web3.fromWei(bignum, unit).round(decimalPlaces).toString()
+        return window.web3.fromWei(bignum, unit).toFixed()
     }
 
     secondsToDisplayString(seconds) {

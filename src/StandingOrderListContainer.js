@@ -24,12 +24,12 @@ class StandingOrderListContainer extends Component {
                 index,
                 {from: self.props.account}
             ).then(function (address) {
-                    console.log("Retrieving order " + index + " located at address " + address)
+                    console.log("Retrieving order located at address " + address)
                     // get contract instance
                     return (self.props.orderContract.at(address))
                 }
             ).then(function (order_instance) {
-                    console.log("Got order instance " + index + ":")
+                    console.log("Got order instance:")
                     console.log(order_instance)
                     self.onAddOrder(order_instance)
                 }
