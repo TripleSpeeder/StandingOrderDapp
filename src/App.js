@@ -19,6 +19,7 @@ import StandingOrderListContainer from './StandingOrderListContainer'
 import NewOrderButton from "./NewOrderButton"
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
+import HeaderAddress from "./HeaderAddress"
 
 
 class App extends Component {
@@ -133,7 +134,7 @@ class App extends Component {
 
             <Grid>
                 <Jumbotron>
-                    <h2>Address: 0x12345678901234567890</h2>
+                    <HeaderAddress account={this.state.account}/>
                 </Jumbotron>
 
                 <Panel collapsible defaultExpanded header={outgoingHeader} bsStyle="primary">
@@ -259,14 +260,14 @@ class App extends Component {
     }
 
     render() {
-        return this.newRender()
-
         if (this.state.web3Available === false) {
             console.log("App.render: Web3 not yet injected!")
             return <div>
                 <h1>Waiting for web3...</h1>
             </div>
         }
+
+        return this.newRender()
 
         return (
             <div>
