@@ -89,7 +89,7 @@ class NewOrderForm extends Component {
                                      value={this.state.period}
                                      placeholder="Enter Payment period"
                                      onChange={this.handleInputChange}/>
-                        <HelpBlock>Payment will occur every &lt;period&gt; blocks</HelpBlock>
+                        <HelpBlock>Payment will occur every &lt;period&gt; seconds</HelpBlock>
                     </Col>
                 </FormGroup>
 
