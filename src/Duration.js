@@ -73,10 +73,10 @@ class Duration extends Component {
                     onSelect={this.onUnitSelected}
                 >
                     <MenuItem eventKey='seconds' active={(this.state.unit === 'seconds')}>seconds</MenuItem>
-                    <MenuItem eventKey='minutes'>minutes</MenuItem>
-                    <MenuItem eventKey='hours'>hours</MenuItem>
-                    <MenuItem eventKey='days'>days</MenuItem>
-                    <MenuItem eventKey='weeks'>weeks</MenuItem>
+                    <MenuItem eventKey='minutes' active={(this.state.unit === 'minutes')}>minutes</MenuItem>
+                    <MenuItem eventKey='hours' active={(this.state.unit === 'hours')}>hours</MenuItem>
+                    <MenuItem eventKey='days' active={(this.state.unit === 'days')}>days</MenuItem>
+                    <MenuItem eventKey='weeks' active={(this.state.unit === 'weeks')}>weeks</MenuItem>
                 </DropdownButton>
             </InputGroup>
     }
