@@ -18,7 +18,8 @@ import {default as Web3} from 'web3'
 import StandingOrderListContainer from './StandingOrderListContainer'
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
-import HeaderAddress from "./HeaderAddress"
+import HeaderAddress from './HeaderAddress'
+import Duration from './Duration'
 
 
 class App extends Component {

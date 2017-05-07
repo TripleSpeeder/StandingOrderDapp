@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Form, ControlLabel, FormGroup, FormControl, Col, HelpBlock} from 'react-bootstrap'
+import Duration from "./Duration"
 
 
 class NewOrderForm extends Component {
@@ -9,9 +10,11 @@ class NewOrderForm extends Component {
         super(props)
         this.state = {
             label: props.label,
+            period: 60*60*24*7, // 1 week
         }
 
         this.handleInputChange = this.handleInputChange.bind(this)
+        this.handleDurationChange = this.handleDurationChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
     }
 
@@ -21,6 +24,12 @@ class NewOrderForm extends Component {
         const value = target.value
         this.setState({
             [name]: value
+        })
+    }
+
+    handleDurationChange(seconds) {
+        this.setState({
+            period: seconds
         })
     }
 
@@ -84,12 +93,11 @@ class NewOrderForm extends Component {
                         Payment Period
                     </Col>
                     <Col sm={10}>
-                        <FormControl name="period"
-                                     type="number"
-                                     value={this.state.period}
-                                     placeholder="Enter Payment period"
-                                     onChange={this.handleInputChange}/>
-                        <HelpBlock>Payment will occur every &lt;period&gt; seconds</HelpBlock>
+                        <Duration
+                            seconds={this.state.period}
+                            unit="weeks"
+                            onChange={this.handleDurationChange}/>
+                        <HelpBlock>Duration between payments</HelpBlock>
                     </Col>
                 </FormGroup>
 
