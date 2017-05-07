@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button} from 'react-bootstrap'
+import {Button, ButtonGroup, Glyphicon, Label} from 'react-bootstrap'
 import RelabelButton from "./RelabelButton"
 
 class StandingOrder extends Component {
@@ -31,54 +31,65 @@ class StandingOrder extends Component {
 
     BigNumWeiToDisplayString(bignum) {
         var unit = 'ether'
-        var decimalPlaces = 6
+        var decimalPlaces = 10
         return window.web3.fromWei(bignum, unit).round(decimalPlaces).toString()
     }
 
     renderAsIncoming() {
         return <tr>
+            <td>#</td>
             <td>
-                {this.props.order.payeeLabel}
-                <RelabelButton label={this.props.order.payeeLabel} onRelabel={this.props.onRelabel}/>
+                <strong>{this.props.order.payeeLabel}</strong> <RelabelButton label={this.props.order.payeeLabel} onRelabel={this.props.onRelabel}/>
             </td>
             <td>{this.props.order.owner}</td>
-            <td>{this.props.order.paymentInterval.toString()} seconds</td>
-            <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
-            <td>{this.props.order.next_payment}</td>
             <td>
-                <Button onClick={this.handleCollect.bind(this)}>Collect</Button>
+                {this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)} <Button
+                    bsStyle="primary"
+                    bsSize="small"
+                    title="Collect"
+                    onClick={this.handleCollect.bind(this)}>
+                    <Glyphicon glyph="download"/>
+                </Button>
             </td>
+            <td>{this.props.order.next_payment}</td>
         </tr>
     }
 
     renderAsOutgoing() {
         return <tr>
+            <td>#</td>
             <td>
-                {this.props.order.ownerLabel}
-                <RelabelButton label={this.props.order.ownerLabel} onRelabel={this.props.onRelabel}/>
+                {this.props.order.fundsInsufficient &&
+                <Label bsStyle="danger" title="Insufficient funds!">
+                    <Glyphicon glyph="alert"/>
+                </Label> }<strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.payee}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
             <td>{this.props.order.paymentInterval.toString()} seconds</td>
-            <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}</td>
-            <td>{this.props.order.funded_until}</td>
-            <td>
-                <Button bsStyle="danger" onClick={this.handleFund.bind(this)}>
-                    Fund
-                </Button>
-                {
-                    this.props.order.ownerFunds > 0 &&
-                    <Button bsStyle="danger" onClick={this.handleWithdraw.bind(this)}>
-                        Withdraw
+            <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}
+                <ButtonGroup>
+                    <Button bsStyle="success" bsSize="small" title="Add Funds" onClick={this.handleFund.bind(this)}>
+                        <Glyphicon glyph="upload"/>
                     </Button>
-                }
-                {
-                    this.props.order.balance.isZero() &&
-                    <Button bsStyle="danger" onClick={this.handleCancel.bind(this)}>
-                        Cancel
+                    <Button bsStyle="warning" bsSize="small" title="Withdraw Funds" disabled={!this.props.order.withdrawEnabled}
+                            onClick={this.handleWithdraw.bind(this)}>
+                        <Glyphicon glyph="download"/>
                     </Button>
-                }
+                </ButtonGroup>
             </td>
+            <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
+            <td>
+                <Button
+                    bsStyle="danger"
+                    bsSize="small"
+                    title="Delete"
+                    disabled={!this.props.order.cancelEnabled}
+                    onClick={this.handleCancel.bind(this)}>
+                    <Glyphicon glyph="trash"/>
+                </Button>
+            </td>
+
         </tr>
     }
 

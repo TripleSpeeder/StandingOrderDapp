@@ -141,7 +141,15 @@ class StandingOrderContainer extends Component {
             flatOrder.ownerFunds = ownerFunds
         }))
         promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
-            flatOrder.balance = balance
+            if (error) {
+                console.log("Error retrieving balance: " + error)
+                flatOrder.balance = window.web3.toBigNumber('0')
+            } else {
+                flatOrder.balance = balance
+            }
+        }))
+        promises.push(this.props.orderInstance.getEntitledFunds.call().then(function (entitledFunds) {
+            flatOrder.entitledFunds = entitledFunds
         }))
         promises.push(this.props.orderInstance.getUnclaimedFunds.call().then(function (unclaimedFunds) {
             flatOrder.collectibleFunds = unclaimedFunds
@@ -149,7 +157,9 @@ class StandingOrderContainer extends Component {
 
 
         Promise.all(promises).then(function () {
-            // console.log("All promises resolved!")
+            flatOrder.fundsInsufficient = flatOrder.entitledFunds > flatOrder.collectibleFunds
+            flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
+            flatOrder.cancelEnabled = flatOrder.balance.isZero()
             self.setState({
                 flatOrder: flatOrder
             })
@@ -166,7 +176,6 @@ class StandingOrderContainer extends Component {
         var self=this
         this.filter = window.web3.eth.filter('latest')
         this.filter.watch(function(error, result){
-            // console.log('New block!')
             self.orderToState()
         })
     }

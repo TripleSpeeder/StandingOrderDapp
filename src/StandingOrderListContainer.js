@@ -16,7 +16,7 @@ class StandingOrderListContainer extends Component {
 
     retrieveOrders(count) {
         var self = this
-        console.log("Start retrieving " + count + " outgoing orders owned by " + self.props.account + "...")
+        console.log("Start retrieving " + count + " orders owned by " + self.props.account + "...")
         var index
         for (index = 0; index < count; index++) {
             // get address of order contract
@@ -155,12 +155,14 @@ class StandingOrderListContainer extends Component {
             account={this.props.account}
             onRemoveOrder={this.onRemoveOrder}
             outgoing={this.props.outgoing}
+            factoryInstance={this.props.factoryInstance}
         />
     }
 }
 
 StandingOrderListContainer.propTypes = {
     outgoing: PropTypes.bool.isRequired,
+    factoryInstance: PropTypes.any.isRequired, // TODO: Use specifc protype instead of any!
 }
 
 

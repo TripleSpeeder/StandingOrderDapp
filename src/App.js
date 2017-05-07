@@ -35,7 +35,6 @@ class App extends Component {
             web3Available: false
         }
 
-        this.handleNewOutgoingOrder = this.handleNewOutgoingOrder.bind(this)
         this.initialize = this.initialize.bind(this)
 
         var self = this
@@ -55,22 +54,9 @@ class App extends Component {
         })
     }
 
-    handleNewOutgoingOrder(order) {
-        var self = this
-        // get accounts
-        self.web3RPC.eth.getAccounts(function (error, accounts) {
-            return self.state.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.label, {
-                from: accounts[0],
-                gas: 1000000
-            }).then(function (result) {
-                console.log('Created StandingOrder - transaction: ' + result.tx)
-                console.log(result.receipt)
-            })
-        })
-    }
-
     initialize() {
         var self = this
+        var promises = []
 
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
@@ -101,21 +87,17 @@ class App extends Component {
         }, 100)
 
         // Get factory
-        self.factoryContract.deployed().then(function (factory_instance) {
+        promises.push(self.factoryContract.deployed().then(function (factory_instance) {
             self.setState({factoryInstance: factory_instance})
-        })
+        }))
 
-        self.setState({web3Available: true})
+        Promise.all(promises).then(function () {
+            // console.log("app initialization complete!")
+            self.setState({web3Available: true})
+        })
     }
 
     newRender() {
-        var incomingHeader = <div>
-            <h4>Incoming orders <Label bsStyle="success">5.234 ETH available!</Label></h4>
-            </div>
-
-        var outgoingHeader = <div>
-            <h4>Outgoing orders <Label bsStyle="danger">1 Order with insufficient funds!</Label></h4>
-            </div>
 
         return <div>
             <Navbar>
@@ -137,125 +119,20 @@ class App extends Component {
                     <HeaderAddress account={this.state.account}/>
                 </Jumbotron>
 
-                <Panel collapsible defaultExpanded header={outgoingHeader} bsStyle="primary">
-                    <Table fill striped hover>
-                        <thead>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td>Label</td>
-                            <td>To</td>
-                            <td>Amount</td>
-                            <td>Intervall</td>
-                            <td>Remaining</td>
-                            <td>Unclaimed</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>
-                                <strong>Rent</strong>
-                            </td>
-                            <td>0x1823455667788999</td>
-                            <td>0.5 ETH</td>
-                            <td>1 month</td>
-                            <td>1.45 ETH <ButtonGroup>
-                                    <Button bsStyle="success" bsSize="small" title="Add Funds">
-                                        <Glyphicon glyph="upload"/>
-                                    </Button>
-                                    <Button bsStyle="warning" bsSize="small" title="Withdraw Funds">
-                                        <Glyphicon glyph="download"/>
-                                    </Button>
-                                </ButtonGroup>
-                            </td>
-                            <td>0.2 ETH</td>
-                            <td>
-                                <Button bsStyle="danger" bsSize="small" title="Delete">
-                                    <Glyphicon glyph="trash"/>
-                                </Button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>
-                                <Label bsStyle="danger" title="Insufficient funds!">
-                                    <Glyphicon glyph="alert"/>
-                                </Label>
-                                <strong> Monthly paycheck John</strong>
-                            </td>
-                            <td>0x1823455667788999</td>
-                            <td>1.5 ETH</td>
-                            <td>1 month</td>
-                            <td>0.00 ETH <ButtonGroup>
-                                    <Button bsStyle="success" bsSize="small" title="Add Funds">
-                                        <Glyphicon glyph="upload"/>
-                                    </Button>
-                                    <Button bsStyle="warning" bsSize="small" disabled title="Withdraw Funds">
-                                        <Glyphicon glyph="download"/>
-                                    </Button>
-                                </ButtonGroup>
-                            </td>
-                            <td>1.258805 ETH</td>
-                            <td>
-                                <Button bsStyle="danger" bsSize="small" title="Delete">
-                                    <Glyphicon glyph="trash"/>
-                                </Button>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </Table>
-                    <p>
-                        <Button bsStyle="primary" >Create new Order</Button>
-                    </p>
-                </Panel>
+                <StandingOrderListContainer
+                    account={this.state.account}
+                    factoryInstance={this.state.factoryInstance}
+                    orderContract={this.state.orderContract}
+                    outgoing={true}
+                />
 
-                <Panel collapsible defaultExpanded header={incomingHeader} bsStyle="success">
-                    <Table fill striped hover>
-                        <thead>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td>Label</td>
-                            <td>From</td>
-                            <td>Available</td>
-                            <td>Next Payment</td>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td><strong>Rent</strong></td>
-                            <td>0x1823455667788999</td>
-                            <td>1.45 ETH <Button bsStyle="primary" bsSize="small" title="Collect">
-                                <Glyphicon glyph="download"/>
-                            </Button>
-                            </td>
-                            <td>05.03.2017</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td><strong>Weekly support</strong></td>
-                            <td>0x1823455667788999</td>
-                            <td>0.00 ETH <Button bsStyle="primary" bsSize="small" disabled>
-                                <Glyphicon glyph="download"/>
-                            </Button>
-                            </td>
-                            <td>15.05.2017</td>
-                        </tr>
-                        <tr>
-                            <td>3</td>
-                            <td><strong>Thanks for your work on github!</strong></td>
-                            <td>0x1823455667788999</td>
-                            <td>0.45 ETH <Button bsStyle="primary" bsSize="small" title="Collect">
-                                <Glyphicon glyph="download"/>
-                            </Button></td>
-                            <td>05.03.2017</td>
-                        </tr>
-                        </tbody>
-                    </Table>
-                </Panel>
+                <StandingOrderListContainer
+                    account={this.state.account}
+                    factoryInstance={this.state.factoryInstance}
+                    orderContract={this.state.orderContract}
+                    outgoing={false}
+                />
             </Grid>
-
         </div>
     }
 

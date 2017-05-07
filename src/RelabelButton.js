@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, Modal, OverlayTrigger, Popover, Tooltip} from 'react-bootstrap'
+import {Button, Modal, OverlayTrigger, Popover, Tooltip, Glyphicon} from 'react-bootstrap'
 import RelabelForm from './RelabelForm'
 
 class RelabelButton extends Component {
@@ -42,12 +42,12 @@ class RelabelButton extends Component {
             </Tooltip>
         )
 
-        return <div>
+        return <span>
             <Button
                 bsStyle="primary"
                 bsSize="small"
                 onClick={this.open}>
-                Rename
+                <Glyphicon glyph="edit"/>
             </Button>
             <Modal bsSize="small" show={this.state.showModal} onHide={this.close}>
                 <Modal.Header closeButton>
@@ -61,7 +61,7 @@ class RelabelButton extends Component {
                 </Modal.Body>
             </Modal>
 
-        </div>
+        </span>
     }
 }
 

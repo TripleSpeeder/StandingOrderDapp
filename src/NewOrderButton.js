@@ -17,8 +17,17 @@ class NewOrderButton extends Component {
     }
 
     onNewOrder(order) {
-        // Form submitted a new label. Pass on event to parent and close self
-        this.props.onNewOrder(order)
+        var self = this
+        // get accounts
+        window.web3.eth.getAccounts(function (error, accounts) {
+            return self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.label, {
+                from: accounts[0],
+                gas: 1000000
+            }).then(function (result) {
+                console.log('Created StandingOrder - transaction: ' + result.tx)
+                console.log(result.receipt)
+            })
+        })
         this.close()
     }
 
@@ -45,9 +54,8 @@ class NewOrderButton extends Component {
         return <div>
             <Button
                 bsStyle="primary"
-                bsSize="small"
                 onClick={this.open}>
-                Create new standing order
+                {this.props.label}
             </Button>
             <Modal show={this.state.showModal} onHide={this.close}>
                 <Modal.Header closeButton>
@@ -67,7 +75,7 @@ class NewOrderButton extends Component {
 
 NewOrderButton.propTypes = {
     label: PropTypes.string.isRequired,
-    onNewOrder: PropTypes.func.isRequired,
+    factoryInstance: PropTypes.any.isRequired, // TODO: Use specifc protype instead of any!
 }
 
 export default NewOrderButton

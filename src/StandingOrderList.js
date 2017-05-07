@@ -1,12 +1,13 @@
-import React, {Component} from 'react';
-import {Table} from 'react-bootstrap';
+import React, {Component} from 'react'
+import {Panel, Label, Button, Table} from 'react-bootstrap'
 import StandingOrderContainer from './StandingOrderContainer'
+import NewOrderButton from "./NewOrderButton"
 
 class StandingOrderList extends Component {
 
-    renderAsIncoming(){
+    renderAsIncoming() {
         // Prepare table rows for incoming orders
-        var rows = []
+        let rows = []
         this.props.Orders.forEach((order) => {
             rows.push(<StandingOrderContainer
                 orderInstance={order}
@@ -18,29 +19,31 @@ class StandingOrderList extends Component {
 
         console.log("Rendering IncomingOrderList for account " + this.props.account)
 
-        return <div>
-                <h3>Incoming orders</h3>
-                <Table striped bordered condensed hover>
-                    <thead>
-                    <tr>
-                        <th>Label</th>
-                        <th>From</th>
-                        <th>Interval</th>
-                        <th>Collectable amount</th>
-                        <th>Next payment</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        {rows}
-                    </tbody>
-                </Table>
-            </div>
+        const incomingHeader = <div>
+            <h4>Incoming orders <Label bsStyle="success">5.234 ETH available!</Label></h4>
+        </div>
+
+        return <Panel collapsible defaultExpanded header={incomingHeader} bsStyle="success">
+            <Table fill striped hover>
+                <thead>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>Label</td>
+                    <td>From</td>
+                    <td>Available</td>
+                    <td>Next Payment</td>
+                </tr>
+                </thead>
+                <tbody>
+                    {rows}
+                </tbody>
+            </Table>
+        </Panel>
     }
 
-    renderAsOutgoing(){
+    renderAsOutgoing() {
         // Prepare table rows for outgoing orders
-        var rows = []
+        let rows = []
         this.props.Orders.forEach((order) => {
             rows.push(<StandingOrderContainer
                 orderInstance={order}
@@ -53,25 +56,30 @@ class StandingOrderList extends Component {
 
         console.log("Rendering StandingOrderList for account " + this.props.account)
 
-        return <div>
-                <h3>Outgoing orders</h3>
-                <Table striped bordered condensed hover>
-                    <thead>
-                    <tr>
-                        <th>Label</th>
-                        <th>To</th>
-                        <th>Amount</th>
-                        <th>Interval</th>
-                        <th>Owned funds remaining</th>
-                        <th>Funded until</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                        {rows}
-                    </tbody>
-                </Table>
-            </div>
+        const outgoingHeader = <div>
+            <h4>Outgoing orders <Label bsStyle="danger">1 Order with insufficient funds!</Label></h4>
+        </div>
+
+        return <Panel collapsible defaultExpanded header={outgoingHeader} bsStyle="primary">
+            <Table fill striped hover>
+                <thead>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>Label</td>
+                    <td>To</td>
+                    <td>Amount</td>
+                    <td>Intervall</td>
+                    <td>Remaining</td>
+                    <td>Unclaimed</td>
+                    <td>&nbsp;</td>
+                </tr>
+                </thead>
+                <tbody>
+                {rows}
+                </tbody>
+            </Table>
+            <NewOrderButton label="Create new Order" factoryInstance={this.props.factoryInstance}/>
+        </Panel>
     }
 
     render() {

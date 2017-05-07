@@ -43,11 +43,12 @@ contract StandingOrder is Ownable, SafeMath {
 
     /* Allow adding funds to existing order */
     function() payable {
-        // TODO: Log entry
+        // TODO: Log entry?
     }
 
-    /* How much funds are owned by Payee but not yet withdrawn */
-    function getUnclaimedFunds() constant returns (uint) {
+    // How much funds should be available for withdraw right now.
+    // Note that this might be more than actually available!
+    function getEntitledFunds() constant returns (uint) {
         // sanity check
         if (now < startTime) {
             // bad miner trying to mess with block time?
@@ -64,13 +65,14 @@ contract StandingOrder is Ownable, SafeMath {
         uint totalAmount = safeMul(completeIntervals, paymentAmount);
 
         // subtract already withdrawn funds
-        uint entitledAmount = safeSub(totalAmount, claimedFunds);
+        return safeSub(totalAmount, claimedFunds);
+    }
 
-        /* entitledAmount might be more than available balance. In this case 
+    /* How much funds are owned by Payee but not yet withdrawn */
+    function getUnclaimedFunds() constant returns (uint) {
+        /* entitledAmount might be more than available balance. In this case
          * available balance is the limit */
-        uint availableAmount = min256(entitledAmount, this.balance);
-
-        return availableAmount;
+        return min256(this.getEntitledFunds(), this.balance);
     }
 
     /* How much funds are still owned by owner (not yet reserved for payee) */
