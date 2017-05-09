@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Form, ControlLabel, FormGroup, FormControl, Col, HelpBlock} from 'react-bootstrap'
 import Duration from "./Duration"
+import EtherAmount from './EtherAmount'
 
 
 class NewOrderForm extends Component {
@@ -11,10 +12,12 @@ class NewOrderForm extends Component {
         this.state = {
             label: props.label,
             period: 60*60*24*7, // 1 week
+            rate: window.web3.toBigNumber('0')
         }
 
         this.handleInputChange = this.handleInputChange.bind(this)
         this.handleDurationChange = this.handleDurationChange.bind(this)
+        this.handleAmountChange = this.handleAmountChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
     }
 
@@ -33,12 +36,18 @@ class NewOrderForm extends Component {
         })
     }
 
+    handleAmountChange(wei) {
+        this.setState({
+            rate: wei
+        })
+    }
+
     handleSubmit(event) {
         event.preventDefault()
         var order = {
             label: this.state.label,
             receiver: this.state.receiver,
-            rate: parseInt(this.state.rate),
+            rate: this.state.rate,
             period: parseInt(this.state.period),
         }
         console.log(order)
@@ -79,11 +88,10 @@ class NewOrderForm extends Component {
                         Payment Amount
                     </Col>
                     <Col sm={10}>
-                        <FormControl name="rate"
-                                     type="number"
-                                     value={this.state.rate}
-                                     placeholder="Enter Payment Amount"
-                                     onChange={this.handleInputChange}/>
+                        <EtherAmount
+                            wei={this.state.rate}
+                            unit="ether"
+                            onChange={this.handleAmountChange}/>
                         <HelpBlock>Amount Receiver gets per payment period</HelpBlock>
                     </Col>
                 </FormGroup>
