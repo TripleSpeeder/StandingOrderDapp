@@ -75,9 +75,11 @@ contract StandingOrder is Ownable, SafeMath {
         return min256(this.getEntitledFunds(), this.balance);
     }
 
-    /* How much funds are still owned by owner (not yet reserved for payee) */
-    function getOwnerFunds() constant returns (uint) {
-        return safeSub(this.balance, getUnclaimedFunds());
+    /* How much funds are still owned by owner (not yet reserved for payee)
+     This can be negative in cases when contract was not funded enough!
+    */
+    function getOwnerFunds() constant returns (int) {
+        return int256(this.balance) - int256(getEntitledFunds());
     }
 
     /* Collect payment */
@@ -108,11 +110,11 @@ contract StandingOrder is Ownable, SafeMath {
      * fund it again!
      */
     function WithdrawOwnerFunds() onlyOwner {
-        uint ownerFunds = getOwnerFunds();
+        int ownerFunds = getOwnerFunds();
         if (ownerFunds <= 0)
-        throw;
-
-        if (owner.send(ownerFunds) == false)
+            throw;
+        // conversion int -> uint should be safe as I'm checking <= 0 above!
+        if (owner.send(uint256(ownerFunds)) == false)
             throw;
         // TODO: Log event
     }
