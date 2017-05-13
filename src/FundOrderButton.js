@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {
+    Alert,
     Button,
     Modal,
     Glyphicon,
@@ -8,9 +9,10 @@ import {
     Col,
     Form,
     FormGroup,
-    HelpBlock,
+    Panel,
     FormControl,
-    ControlLabel
+    ControlLabel,
+    Well
 } from 'react-bootstrap'
 import moment from 'moment'
 import 'moment-duration-format'
@@ -111,43 +113,52 @@ class FundOrderButton extends Component {
                 <Modal.Body>
 
                     <Row>
-                        <Col md={5}>
-                            <h3>Contract Info</h3>
+                        <Col md={6}>
+                            <Well>
+                                <h4>Contract Info</h4>
+                                <Row>
+                                    <Col md={6}>
+                                        Payment amount:
+                                    </Col>
+                                    <Col md={6}>
+                                        {this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col md={6}>
+                                        Payment interval:
+                                    </Col>
+                                    <Col md={6}>
+                                        {this.secondsToDisplayString(this.props.order.paymentInterval.toNumber())}
+                                    </Col>
+                                </Row>
+
+                                <Row>
+                                    <Col md={12}>
+                                        <hr/>
+                                        <Alert bsStyle="info">
+                                            <strong>Current funding state:</strong>
+                                            <p>
+                                                Next <strong>{this.props.order.paymentsCovered.toNumber()}</strong> payments
+                                                covered until <strong>todo: Date here!</strong>
+                                            </p>
+                                        </Alert>
+                                    </Col>
+                                </Row>
+
+                            </Well>
                         </Col>
-                        <Col md={7}>
-                            <h3>Setup Funding</h3>
-                        </Col>
-                    </Row>
 
-                    <Row>
-                        <Col md={5}>
-
-                            <Row>
-                                <Col md={6}>
-                                    Payment amount:
-                                </Col>
-                                <Col md={6}>
-                                    {this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}
-                                </Col>
-                            </Row>
-
-                            <Row>
-                                <Col md={6}>
-                                    Payment interval:
-                                </Col>
-                                <Col md={6}>
-                                    {this.secondsToDisplayString(this.props.order.paymentInterval.toNumber())}
-                                </Col>
-                            </Row>
-
-                        </Col>
-                        <Col md={7}>
+                        <Col md={6}>
+                            <Well>
+                            <h4>Setup Funding</h4>
                             <Form horizontal onSubmit={this.handleSubmit}>
                                 <FormGroup>
-                                    <Col componentClass={ControlLabel} md={2}>
+                                    <Col componentClass={ControlLabel} md={4}>
                                         Payment Amount
                                     </Col>
-                                    <Col md={10}>
+                                    <Col md={8}>
                                         <EtherAmount
                                             wei={this.state.amount}
                                             unit="ether"
@@ -156,10 +167,10 @@ class FundOrderButton extends Component {
                                 </FormGroup>
 
                                 <FormGroup>
-                                    <Col componentClass={ControlLabel} md={2}>
+                                    <Col componentClass={ControlLabel} md={4}>
                                         # of payments
                                     </Col>
-                                    <Col md={10}>
+                                    <Col md={8}>
                                         <FormControl name="numberPayments"
                                                      type="number"
                                                      value={this.state.numberOfPayments}
@@ -167,24 +178,15 @@ class FundOrderButton extends Component {
                                     </Col>
                                 </FormGroup>
                             </Form>
-                        </Col>
-                    </Row>
-
-                    <Row>
-                        <Col md={5}>
                             <Row>
                                 <Col md={12}>
-                                    <h3>Current funding state:</h3>
-                                    <p>{this.props.order.paymentsCovered.toNumber()} payments covered (until todo: Date here!)</p>
-                                </Col>
-                            </Row>
-                        </Col>
-
-                        <Col md={7}>
-                            <Row>
-                                <Col md={12}>
-                                    <h3>Resulting funding state:</h3>
-                                    <p>{this.getTotalCoveredPayments()} covered until (todo: Date here!)</p>
+                                    <Alert bsStyle="info">
+                                        <strong>Resulting funding state:</strong>
+                                        <p>
+                                            Next <strong>{this.getTotalCoveredPayments()}</strong> payments
+                                            covered until <strong>todo: Date here!</strong>
+                                        </p>
+                                    </Alert>
                                 </Col>
                             </Row>
 
@@ -200,8 +202,10 @@ class FundOrderButton extends Component {
                                     </Button>
                                 </Col>
                             </Row>
+                            </Well>
                         </Col>
                     </Row>
+
                 </Modal.Body>
             </Modal>
         )
