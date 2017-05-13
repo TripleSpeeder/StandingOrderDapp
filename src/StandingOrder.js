@@ -4,14 +4,9 @@ import {Button, ButtonGroup, Glyphicon, Label} from 'react-bootstrap'
 import RelabelButton from "./RelabelButton"
 import moment from 'moment'
 import 'moment-duration-format'
+import FundOrderButton from "./FundOrderButton"
 
 class StandingOrder extends Component {
-
-    handleFund(event) {
-        // add funds to contract
-        this.props.onFundContract()
-        event.preventDefault()
-    }
 
     handleWithdraw(event) {
         // Withdraw ownerfunds from contract
@@ -77,9 +72,7 @@ class StandingOrder extends Component {
             <td>{this.secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
             <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}
                 <ButtonGroup>
-                    <Button bsStyle="success" bsSize="small" title="Add Funds" onClick={this.handleFund.bind(this)}>
-                        <Glyphicon glyph="upload"/>
-                    </Button>
+                    <FundOrderButton order={this.props.order} onFund={this.props.onFundContract}/>
                     <Button bsStyle="warning" bsSize="small" title="Withdraw Funds" disabled={!this.props.order.withdrawEnabled}
                             onClick={this.handleWithdraw.bind(this)}>
                         <Glyphicon glyph="download"/>

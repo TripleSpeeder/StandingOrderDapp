@@ -45,7 +45,7 @@ class StandingOrderContainer extends Component {
             })
     }
 
-    handleFundContract() {
+    handleFundContract(amount) {
         var contract_address = this.state.orderInstance.address
         console.log("Funding contract " + this.state.orderInstance)
 
@@ -53,7 +53,7 @@ class StandingOrderContainer extends Component {
             var transaction_object = {
                 from: accounts[0],
                 to: contract_address,
-                value: window.web3.toWei('1', 'ether')
+                value: amount
             }
             window.web3.eth.sendTransaction(transaction_object, function (err, address) {
                 if (err) {
@@ -147,6 +147,7 @@ class StandingOrderContainer extends Component {
             flatOrder.fundsInsufficient = flatOrder.entitledFunds > flatOrder.collectibleFunds
             flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
             flatOrder.cancelEnabled = flatOrder.balance.isZero()
+            flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
             self.setState({
                 flatOrder: flatOrder
             })
