@@ -19,50 +19,41 @@ class CurrentOrderStateAlert extends Component {
 
     renderInsufficient() {
         return (
-            <div>
-            <strong>Current funding state:</strong>
             <Alert bsStyle="danger">
                 <p>
-                    Contract is missing <strong>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds.abs())}</strong> ETH!
+                    Contract is missing <strong>{this.BigNumWeiToDisplayString(this.props.ownerFunds.abs())}</strong> ETH!
                 </p>
             </Alert>
-            </div>
         )
     }
 
     renderZero() {
-        let missingAmount = this.props.order.paymentAmount.minus(this.props.order.ownerFunds)
+        let missingAmount = this.props.paymentAmount.minus(this.props.ownerFunds)
 
         return (
-            <div>
-                <strong>Current funding state:</strong>
             <Alert bsStyle="warning">
                 <p>
                     Not enough funds to cover next payment due in TODO days. Missing: {this.BigNumWeiToDisplayString(missingAmount)} ETH.
                 </p>
             </Alert>
-            </div>
         )
     }
 
     renderSufficient() {
         return (
-            <div>
-                <strong>Current funding state:</strong>
             <Alert bsStyle="info">
                 <p>
-                    Next <strong>{this.props.order.paymentsCovered.toNumber()}</strong> payments covered until <strong>todo: Date here!</strong>
+                    Next <strong>{this.props.paymentsCovered.toNumber()}</strong> payments covered until <strong>todo: Date here!</strong>
                 </p>
             </Alert>
-            </div>
         )
     }
 
     render() {
-        if (this.props.order.ownerFunds.lessThan(0))
+        if (this.props.ownerFunds.lessThan(0))
             return this.renderInsufficient()
 
-        if(this.props.order.ownerFunds.lessThan(this.props.order.paymentAmount))
+        if(this.props.ownerFunds.lessThan(this.props.paymentAmount))
             return this.renderZero()
 
         return this.renderSufficient()
@@ -70,7 +61,10 @@ class CurrentOrderStateAlert extends Component {
 }
 
 CurrentOrderStateAlert.propTypes = {
-    order: PropTypes.object.isRequired,
+    // order: PropTypes.object.isRequired,
+    paymentAmount: PropTypes.object.isRequired, // BigNumber
+    ownerFunds: PropTypes.object.isRequired, // BigNumber
+    paymentsCovered: PropTypes.object.isRequired, // BigNumber
 }
 
 export default CurrentOrderStateAlert

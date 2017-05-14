@@ -144,7 +144,12 @@ class FundOrderButton extends Component {
                                 <Row>
                                     <Col md={12}>
                                         <hr/>
-                                        <CurrentOrderStateAlert order={this.props.order}/>
+                                        <strong>Current funding state:</strong>
+                                        <CurrentOrderStateAlert
+                                            paymentAmount={this.props.order.paymentAmount}
+                                            ownerFunds={this.props.order.ownerFunds}
+                                            paymentsCovered={this.props.order.paymentsCovered}
+                                        />
                                     </Col>
                                 </Row>
 
