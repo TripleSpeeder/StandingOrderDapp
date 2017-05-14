@@ -7,20 +7,7 @@ class StandingOrderContainer extends Component {
         super(props)
         this.state = {
             orderInstance: props.orderInstance,
-            flatOrder: {
-                ownerLabel: '',
-                payeeLabel: '',
-                address: '0x0',
-                owner: '0x0',
-                payee:   '0x0',
-                paymentAmount: window.web3.toBigNumber('0'),
-                paymentInterval: 0,
-                ownerFunds: window.web3.toBigNumber('0'),
-                collectibleFunds: window.web3.toBigNumber('0'),
-                funded_until: '',
-                balance: window.web3.toBigNumber('0'),
-                next_payment: ''
-            }
+            flatOrder: null
         }
         this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)
@@ -58,7 +45,7 @@ class StandingOrderContainer extends Component {
             })
     }
 
-    handleFundContract() {
+    handleFundContract(amount) {
         var contract_address = this.state.orderInstance.address
         console.log("Funding contract " + this.state.orderInstance)
 
@@ -66,7 +53,7 @@ class StandingOrderContainer extends Component {
             var transaction_object = {
                 from: accounts[0],
                 to: contract_address,
-                value: window.web3.toWei('1', 'ether')
+                value: amount
             }
             window.web3.eth.sendTransaction(transaction_object, function (err, address) {
                 if (err) {
@@ -141,7 +128,15 @@ class StandingOrderContainer extends Component {
             flatOrder.ownerFunds = ownerFunds
         }))
         promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
-            flatOrder.balance = balance
+            if (error) {
+                console.log("Error retrieving balance: " + error)
+                flatOrder.balance = window.web3.toBigNumber('0')
+            } else {
+                flatOrder.balance = balance
+            }
+        }))
+        promises.push(this.props.orderInstance.getEntitledFunds.call().then(function (entitledFunds) {
+            flatOrder.entitledFunds = entitledFunds
         }))
         promises.push(this.props.orderInstance.getUnclaimedFunds.call().then(function (unclaimedFunds) {
             flatOrder.collectibleFunds = unclaimedFunds
@@ -149,7 +144,10 @@ class StandingOrderContainer extends Component {
 
 
         Promise.all(promises).then(function () {
-            // console.log("All promises resolved!")
+            flatOrder.fundsInsufficient = flatOrder.entitledFunds > flatOrder.collectibleFunds
+            flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
+            flatOrder.cancelEnabled = flatOrder.balance.isZero()
+            flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
             self.setState({
                 flatOrder: flatOrder
             })
@@ -166,7 +164,6 @@ class StandingOrderContainer extends Component {
         var self=this
         this.filter = window.web3.eth.filter('latest')
         this.filter.watch(function(error, result){
-            // console.log('New block!')
             self.orderToState()
         })
     }
