@@ -17,6 +17,7 @@ import {
 import moment from 'moment'
 import 'moment-duration-format'
 import EtherAmount from './EtherAmount'
+import CurrentOrderStateAlert from "./CurrentOrderStateAlert"
 
 
 class FundOrderButton extends Component {
@@ -48,10 +49,17 @@ class FundOrderButton extends Component {
     }
 
     reset() {
-        this.setState({
-            amount: this.props.order.paymentAmount,
-            numberOfPayments: 1,
-        })
+        if (this.props.order.ownerFunds < 0) {
+            // Set the missing amount as start value
+            this.handleAmountChange(this.props.order.ownerFunds.abs())
+        } else {
+            // Set one payment as start value
+            this.setState({
+                amount: this.props.order.paymentAmount,
+                numberOfPayments: 1,
+            })
+        }
+
     }
 
     handleSubmit(event) {
@@ -104,7 +112,6 @@ class FundOrderButton extends Component {
 
 
     render() {
-
         const modal = (
             <Modal bsSize="large" show={this.state.showModal} onHide={this.close}>
                 <Modal.Header closeButton>
@@ -137,13 +144,7 @@ class FundOrderButton extends Component {
                                 <Row>
                                     <Col md={12}>
                                         <hr/>
-                                        <Alert bsStyle="info">
-                                            <strong>Current funding state:</strong>
-                                            <p>
-                                                Next <strong>{this.props.order.paymentsCovered.toNumber()}</strong> payments
-                                                covered until <strong>todo: Date here!</strong>
-                                            </p>
-                                        </Alert>
+                                        <CurrentOrderStateAlert order={this.props.order}/>
                                     </Col>
                                 </Row>
 
