@@ -13,10 +13,9 @@ import {
     ControlLabel,
     Well
 } from 'react-bootstrap'
-import moment from 'moment'
-import 'moment-duration-format'
 import EtherAmount from './EtherAmount'
 import CurrentOrderStateAlert from "./CurrentOrderStateAlert"
+import { BigNumWeiToDisplayString, secondsToDisplayString} from "./Utils"
 
 
 class FundOrderButton extends Component {
@@ -67,18 +66,6 @@ class FundOrderButton extends Component {
         this.close()
     }
 
-    BigNumWeiToDisplayString(bignum) {
-        var unit = 'ether'
-        var decimalPlaces = 10
-        return window.web3.fromWei(bignum, unit).toFixed()
-    }
-
-    secondsToDisplayString(seconds) {
-        if (seconds < 60 * 60 * 24) // less than one day?
-            return moment.duration(seconds, "seconds").format("hh:mm.ss", {trim: false})
-        return moment.duration(seconds, "seconds").format("d [days]")
-    }
-
     /*
      User changed the amount he wants to fund
      */
@@ -118,7 +105,7 @@ class FundOrderButton extends Component {
         let validationState = "success"
         if (this.getTotalCoveredPayments().isZero())
             validationState = "warning"
-        if (this.getTotalCoveredPayments().lessThan(0))
+        else if (this.getTotalCoveredPayments().lessThan(0))
             validationState = "error"
 
         const modal = (
@@ -137,7 +124,7 @@ class FundOrderButton extends Component {
                                         Payment amount:
                                     </Col>
                                     <Col md={6}>
-                                        {this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}
+                                        {BigNumWeiToDisplayString(this.props.order.paymentAmount)}
                                     </Col>
                                 </Row>
 
@@ -146,7 +133,7 @@ class FundOrderButton extends Component {
                                         Payment interval:
                                     </Col>
                                     <Col md={6}>
-                                        {this.secondsToDisplayString(this.props.order.paymentInterval.toNumber())}
+                                        {secondsToDisplayString(this.props.order.paymentInterval.toNumber())}
                                     </Col>
                                 </Row>
 

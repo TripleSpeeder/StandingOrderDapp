@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import { Alert } from 'react-bootstrap'
+import { BigNumWeiToDisplayString } from './Utils'
 
 class CurrentOrderStateAlert extends Component {
 
@@ -11,17 +12,11 @@ class CurrentOrderStateAlert extends Component {
         this.renderSufficient = this.renderSufficient.bind(this)
     }
 
-    BigNumWeiToDisplayString(bignum) {
-        var unit = 'ether'
-        var decimalPlaces = 10
-        return window.web3.fromWei(bignum, unit).toFixed()
-    }
-
     renderInsufficient() {
         return (
             <Alert bsStyle="danger">
                 <p>
-                    Contract is missing <strong>{this.BigNumWeiToDisplayString(this.props.ownerFunds.abs())}</strong> ETH!
+                    Contract is missing <strong>{BigNumWeiToDisplayString(this.props.ownerFunds.abs())}</strong> ETH!
                 </p>
             </Alert>
         )
@@ -34,7 +29,7 @@ class CurrentOrderStateAlert extends Component {
             <Alert bsStyle="warning">
                 <p>
                     Not enough funds to cover next payment due in TODO days.
-                    Missing amount: <strong>{this.BigNumWeiToDisplayString(missingAmount)}</strong> ETH.
+                    Missing amount: <strong>{BigNumWeiToDisplayString(missingAmount)}</strong> ETH.
                 </p>
             </Alert>
         )

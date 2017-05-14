@@ -2,9 +2,8 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, ButtonGroup, Glyphicon, Label} from 'react-bootstrap'
 import RelabelButton from "./RelabelButton"
-import moment from 'moment'
-import 'moment-duration-format'
 import FundOrderButton from "./FundOrderButton"
+import { BigNumWeiToDisplayString, secondsToDisplayString} from "./Utils"
 
 class StandingOrder extends Component {
 
@@ -26,18 +25,6 @@ class StandingOrder extends Component {
         event.preventDefault()
     }
 
-    BigNumWeiToDisplayString(bignum) {
-        var unit = 'ether'
-        var decimalPlaces = 10
-        return window.web3.fromWei(bignum, unit).toFixed()
-    }
-
-    secondsToDisplayString(seconds) {
-        if (seconds < 60*60*24) // less than one day?
-            return moment.duration(seconds, "seconds").format("hh:mm.ss", { trim: false })
-        return moment.duration(seconds, "seconds").format("d [days]")
-    }
-
     renderAsIncoming() {
         return <tr>
             <td>#</td>
@@ -46,7 +33,7 @@ class StandingOrder extends Component {
             </td>
             <td>{this.props.order.owner}</td>
             <td>
-                {this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)} <Button
+                {BigNumWeiToDisplayString(this.props.order.collectibleFunds)} <Button
                     bsStyle="primary"
                     bsSize="small"
                     title="Collect"
@@ -68,9 +55,9 @@ class StandingOrder extends Component {
                 </Label> }<strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.payee}</td>
-            <td>{this.BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
-            <td>{this.secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
-            <td>{this.BigNumWeiToDisplayString(this.props.order.ownerFunds)}
+            <td>{BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
+            <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
+            <td>{BigNumWeiToDisplayString(this.props.order.ownerFunds)}
                 <ButtonGroup>
                     <FundOrderButton order={this.props.order} onFund={this.props.onFundContract}/>
                     <Button bsStyle="warning" bsSize="small" title="Withdraw Funds" disabled={!this.props.order.withdrawEnabled}
@@ -79,7 +66,7 @@ class StandingOrder extends Component {
                     </Button>
                 </ButtonGroup>
             </td>
-            <td>{this.BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
+            <td>{BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
             <td>
                 <Button
                     bsStyle="danger"
