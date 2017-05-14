@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import {Button, ButtonGroup, Glyphicon, Label} from 'react-bootstrap'
 import RelabelButton from "./RelabelButton"
 import FundOrderButton from "./FundOrderButton"
-import { BigNumWeiToDisplayString, secondsToDisplayString} from "./Utils"
+import { secondsToDisplayString} from "./Utils"
+import EtherDisplay from "./EtherDisplay"
 
 class StandingOrder extends Component {
 
@@ -33,7 +34,8 @@ class StandingOrder extends Component {
             </td>
             <td>{this.props.order.owner}</td>
             <td>
-                {BigNumWeiToDisplayString(this.props.order.collectibleFunds)} <Button
+                <EtherDisplay wei={this.props.order.collectibleFunds}/>
+                <Button
                     bsStyle="primary"
                     bsSize="small"
                     title="Collect"
@@ -55,9 +57,10 @@ class StandingOrder extends Component {
                 </Label> }<strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.payee}</td>
-            <td>{BigNumWeiToDisplayString(this.props.order.paymentAmount)}</td>
+            <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
             <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
-            <td>{BigNumWeiToDisplayString(this.props.order.ownerFunds)}
+            <td>
+                <EtherDisplay wei={this.props.order.ownerFunds}/>
                 <ButtonGroup>
                     <FundOrderButton order={this.props.order} onFund={this.props.onFundContract}/>
                     <Button bsStyle="warning" bsSize="small" title="Withdraw Funds" disabled={!this.props.order.withdrawEnabled}
@@ -66,7 +69,7 @@ class StandingOrder extends Component {
                     </Button>
                 </ButtonGroup>
             </td>
-            <td>{BigNumWeiToDisplayString(this.props.order.collectibleFunds)}</td>
+            <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>
             <td>
                 <Button
                     bsStyle="danger"

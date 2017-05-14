@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
-import {Panel, Label, Button, Table} from 'react-bootstrap'
+import {Panel, Label, Table} from 'react-bootstrap'
 import StandingOrderContainer from './StandingOrderContainer'
 import NewOrderButton from "./NewOrderButton"
+import EtherDisplay from "./EtherDisplay"
 
 class StandingOrderList extends Component {
 
@@ -19,8 +20,13 @@ class StandingOrderList extends Component {
 
         console.log("Rendering IncomingOrderList for account " + this.props.account)
 
+        var collectible = window.web3.toBigNumber('75542205000000000')
+
         const incomingHeader = <div>
-            <h4>Incoming orders <Label bsStyle="success">5.234 ETH available!</Label></h4>
+            <h4>Incoming orders <Label bsStyle="success">
+                <EtherDisplay wei={collectible}/> available!
+            </Label>
+            </h4>
         </div>
 
         return <Panel collapsible defaultExpanded header={incomingHeader} bsStyle="success">
