@@ -33,7 +33,8 @@ class CurrentOrderStateAlert extends Component {
         return (
             <Alert bsStyle="warning">
                 <p>
-                    Not enough funds to cover next payment due in TODO days. Missing: {this.BigNumWeiToDisplayString(missingAmount)} ETH.
+                    Not enough funds to cover next payment due in TODO days.
+                    Missing amount: <strong>{this.BigNumWeiToDisplayString(missingAmount)}</strong> ETH.
                 </p>
             </Alert>
         )
@@ -41,7 +42,7 @@ class CurrentOrderStateAlert extends Component {
 
     renderSufficient() {
         return (
-            <Alert bsStyle="info">
+            <Alert bsStyle="success">
                 <p>
                     Next <strong>{this.props.paymentsCovered.toNumber()}</strong> payments covered until <strong>todo: Date here!</strong>
                 </p>

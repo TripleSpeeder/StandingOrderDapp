@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {
-    Alert,
     Button,
     Modal,
     Glyphicon,
@@ -9,7 +8,7 @@ import {
     Col,
     Form,
     FormGroup,
-    Panel,
+    HelpBlock,
     FormControl,
     ControlLabel,
     Well
@@ -84,6 +83,8 @@ class FundOrderButton extends Component {
      User changed the amount he wants to fund
      */
     handleAmountChange(wei) {
+        if (wei.lessThan(0))
+            wei = window.web3.toBigNumber(0)
         // Calculate resulting number of payments that are covered
         const numberOfPayments = wei.dividedBy(this.props.order.paymentAmount)
         this.setState({
@@ -97,7 +98,9 @@ class FundOrderButton extends Component {
      */
     handleNumPaymentsChange(event) {
         const target = event.target
-        const number = target.value
+        let number = target.value
+        if (number < 0)
+            number = 0;
         const amount = this.props.order.paymentAmount.times(number)
         this.setState({
             amount: amount,
@@ -107,11 +110,17 @@ class FundOrderButton extends Component {
 
     getTotalCoveredPayments() {
         // add number of future payments based on current funding settings
-        return this.props.order.paymentsCovered.plus(this.state.numberOfPayments).toFixed()
+        return this.props.order.paymentsCovered.plus(this.state.numberOfPayments)
     }
 
 
     render() {
+        let validationState = "success"
+        if (this.getTotalCoveredPayments().isZero())
+            validationState = "warning"
+        if (this.getTotalCoveredPayments().lessThan(0))
+            validationState = "error"
+
         const modal = (
             <Modal bsSize="large" show={this.state.showModal} onHide={this.close}>
                 <Modal.Header closeButton>
@@ -158,41 +167,42 @@ class FundOrderButton extends Component {
 
                         <Col md={6}>
                             <Well>
-                            <h4>Setup Funding</h4>
+                            <h4>Add Funds</h4>
                             <Form horizontal onSubmit={this.handleSubmit}>
-                                <FormGroup>
+                                <FormGroup validationState={validationState}>
                                     <Col componentClass={ControlLabel} md={4}>
-                                        Payment Amount
+                                        Amount
                                     </Col>
                                     <Col md={8}>
                                         <EtherAmount
                                             wei={this.state.amount}
                                             unit="ether"
                                             onChange={this.handleAmountChange}/>
+                                        <HelpBlock>Change this value to directly set the ether amount to transfer to contract</HelpBlock>
                                     </Col>
                                 </FormGroup>
 
-                                <FormGroup>
+                                <FormGroup validationState={validationState}>
                                     <Col componentClass={ControlLabel} md={4}>
-                                        # of payments
+                                        Number of payments
                                     </Col>
                                     <Col md={8}>
                                         <FormControl name="numberPayments"
                                                      type="number"
                                                      value={this.state.numberOfPayments}
                                                      onChange={this.handleNumPaymentsChange}/>
+                                        <HelpBlock>Change this value to automatically set ether amount based on the number of payments you want to cover.</HelpBlock>
                                     </Col>
                                 </FormGroup>
                             </Form>
                             <Row>
                                 <Col md={12}>
-                                    <Alert bsStyle="info">
-                                        <strong>Resulting funding state:</strong>
-                                        <p>
-                                            Next <strong>{this.getTotalCoveredPayments()}</strong> payments
-                                            covered until <strong>todo: Date here!</strong>
-                                        </p>
-                                    </Alert>
+                                    <strong>Resulting funding state:</strong>
+                                    <CurrentOrderStateAlert
+                                        paymentAmount={this.props.order.paymentAmount}
+                                        ownerFunds={this.props.order.ownerFunds.plus(this.state.amount)}
+                                        paymentsCovered={this.getTotalCoveredPayments()}
+                                    />
                                 </Col>
                             </Row>
 
