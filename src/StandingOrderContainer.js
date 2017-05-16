@@ -170,21 +170,17 @@ class StandingOrderContainer extends Component {
 
         // timestamp of last payment
         let lastPayment = window.web3.toBigNumber(donePayments * flatOrder.paymentInterval).plus(flatOrder.startTime).floor()
-        let lastPaymentMoment = moment.unix(lastPayment.toNumber())
+        flatOrder.lastPaymentDate = moment.unix(lastPayment.toNumber())
 
         // timestamp of next payment
         let nextPayment = lastPayment.plus(flatOrder.paymentInterval)
-        let nextPaymentMoment = moment.unix(nextPayment.toNumber())
-
-        flatOrder.nextPaymentDate = nextPaymentMoment
-        flatOrder.lastPaymentDate = lastPaymentMoment
+        flatOrder.nextPaymentDate = moment.unix(nextPayment.toNumber())
     }
 
     // When will the last full payment be made
     calculateFailureDate(flatOrder) {
         let secondsToFailure = flatOrder.paymentsCovered.floor() * flatOrder.paymentInterval
-        let failureDate = flatOrder.nextPaymentDate.add(secondsToFailure, 's')
-        flatOrder.failureDate = failureDate
+        flatOrder.failureDate = flatOrder.nextPaymentDate.clone().add(secondsToFailure, 's')
     }
 
     componentWillMount() {

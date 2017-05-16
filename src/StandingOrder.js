@@ -43,7 +43,7 @@ class StandingOrder extends Component {
                     <Glyphicon glyph="download"/>
                 </Button>
             </td>
-            <td>{this.props.order.next_payment}</td>
+            <td>{this.props.order.nextPaymentDate.format()}</td>
         </tr>
     }
 
