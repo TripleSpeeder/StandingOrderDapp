@@ -71,7 +71,6 @@ class StandingOrderListContainer extends Component {
         }
 
         // Get all existing outgoing ordercontracts from current account
-        var numOrders = 0
         console.log("Looking for orders owned by " + self.props.account)
         self.retrievalCountFunction({from: self.props.account}).then(function (result) {
             self.retrieveOrders(result)
@@ -129,7 +128,7 @@ class StandingOrderListContainer extends Component {
 
     onRemoveOrder(orderInstance) {
         var newOrderArray = this.state.outgoingOrders.filter((instance) => {
-            return (instance.address != orderInstance.address)
+            return (instance.address !== orderInstance.address)
         })
         this.setState({outgoingOrders: newOrderArray})
     }

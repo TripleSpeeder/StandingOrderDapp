@@ -1,18 +1,10 @@
 import React, {Component} from 'react'
 import {
     Grid,
-    Row,
-    Col,
     Navbar,
     NavItem,
     Jumbotron,
-    Button,
     Nav,
-    Glyphicon,
-    Panel,
-    Label,
-    Table,
-    ButtonGroup,
 } from 'react-bootstrap'
 import {default as Web3} from 'web3'
 import StandingOrderListContainer from './StandingOrderListContainer'
@@ -78,7 +70,7 @@ class App extends Component {
 
         // keep an eye on the account - the user might switch his current account in Metamask
         // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-        var accountInterval = setInterval(function () {
+        setInterval(function () {
             if (self.web3RPC.eth.accounts[0] !== self.state.account) {
                 console.log("User switched account from " + self.state.account + " to " + self.web3RPC.eth.accounts[0])
                 self.setState({account: self.web3RPC.eth.accounts[0]})

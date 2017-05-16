@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {FormGroup, InputGroup, FormControl, DropdownButton, MenuItem} from 'react-bootstrap'
+import {InputGroup, FormControl, DropdownButton, MenuItem} from 'react-bootstrap'
 
 class EtherAmount extends Component {
 

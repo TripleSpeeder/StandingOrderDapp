@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import { Alert } from 'react-bootstrap'
-import { BigNumWeiToDisplayString } from './Utils'
 import EtherDisplay from "./EtherDisplay"
 
 class CurrentOrderStateAlert extends Component {

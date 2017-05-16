@@ -2,7 +2,6 @@ import moment from 'moment'
 import 'moment-duration-format'
 
 export function BigNumWeiToDisplayString(bignum, unit='ether') {
-        var decimalPlaces = 10
         return window.web3.fromWei(bignum, unit).toFixed()
     }
 

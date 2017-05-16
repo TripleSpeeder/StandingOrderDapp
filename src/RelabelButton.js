@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, Modal, OverlayTrigger, Popover, Tooltip, Glyphicon} from 'react-bootstrap'
+import {Button, Modal, Glyphicon} from 'react-bootstrap'
 import RelabelForm from './RelabelForm'
 
 class RelabelButton extends Component {
@@ -31,17 +31,6 @@ class RelabelButton extends Component {
     }
 
     render() {
-        const popover = (
-            <Popover id="modal-popover" title="popover">
-                very popover. such engagement
-            </Popover>
-        )
-        const tooltip = (
-            <Tooltip id="modal-tooltip">
-                wow.
-            </Tooltip>
-        )
-
         return <span>
             <Button
                 bsStyle="primary"

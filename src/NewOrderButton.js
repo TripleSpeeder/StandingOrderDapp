@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, Modal, OverlayTrigger, Popover, Tooltip} from 'react-bootstrap'
+import {Button, Modal} from 'react-bootstrap'
 import NewOrderForm from './NewOrderForm'
 
 class NewOrderButton extends Component {
@@ -40,17 +40,6 @@ class NewOrderButton extends Component {
     }
 
     render() {
-        const popover = (
-            <Popover id="modal-popover" title="popover">
-                very popover. such engagement
-            </Popover>
-        )
-        const tooltip = (
-            <Tooltip id="modal-tooltip">
-                wow.
-            </Tooltip>
-        )
-
         return <div>
             <Button
                 bsStyle="primary"

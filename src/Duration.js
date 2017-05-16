@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {FormGroup, InputGroup, FormControl, DropdownButton, MenuItem} from 'react-bootstrap'
+import {InputGroup, FormControl, DropdownButton, MenuItem} from 'react-bootstrap'
 
 class Duration extends Component {
 
@@ -26,6 +26,8 @@ class Duration extends Component {
                 return seconds / (60 * 60 * 24)
             case 'weeks':
                 return seconds / (60 * 60 * 24 * 7)
+            default:
+                return seconds
         }
     }
 
@@ -41,20 +43,17 @@ class Duration extends Component {
                 return value * (60 * 60 * 24)
             case 'weeks':
                 return value * (60 * 60 * 24 * 7)
+            default:
+                return value
         }
     }
 
     handleInputChange(event) {
-        const target = event.target
-        const name = target.name
-        const value = target.value
+        const value = event.target.value
         this.props.onChange(this.secondsFromUnit(value))
     }
 
     onUnitSelected(key, event) {
-        const target = event.target
-        const name = target.name
-        const value = target.value
         console.log("Selectd unit: " + key)
         this.setState({unit: key})
     }
