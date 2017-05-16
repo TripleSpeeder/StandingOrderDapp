@@ -6,8 +6,8 @@ import "../contracts/StandingOrder.sol";
 
 contract UserMock {
 
-    function doCreateStandingOrder(StandingOrderFactory _factory, address _payee, uint _rate, uint _interval) returns(StandingOrder){
-        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval, 'fromUserMock');
+    function doCreateStandingOrder(StandingOrderFactory _factory, address _payee, uint _rate, uint _interval, uint _startTime) returns(StandingOrder){
+        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval, _startTime, 'fromUserMock');
         return so;
     }
 
@@ -36,31 +36,13 @@ contract UserMock {
     function fund() payable {
     }
 
-    function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount) returns(StandingOrder) {
-        return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, 'fromUserMock');
+    function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount, uint _startTime) returns(StandingOrder) {
+        return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, _startTime, 'fromUserMock');
     }
 
     function doCancelStandingOrder(StandingOrder _so) {
         _so.Cancel();
     }
-
-    /*
-    function doDeposit(Bank bank, uint amount){
-        bank.deposit.value(amount)();
-    }
-
-    function doWithDraw(Bank bank, uint amount) {
-        bank.withdraw(amount);
-    }
-
-    // Needed so the bank can actually send back money in the Withdrawal tests!!!
-    function() payable {
-    }
-
-    function doGetBalance(Bank bank) returns(uint) {
-        return bank.getBalance();
-    }
-    */
 }
 
 contract TestStandingOrderFactory {
@@ -104,7 +86,7 @@ contract TestStandingOrderFactory {
         Assert.equal(num, expected, "No standing orders should be paying for user2");
 
         // now create one order from user1 for user2
-        StandingOrder so = user1.doCreateStandingOrder(sof, user2, 100, 10);
+        user1.doCreateStandingOrder(sof, user2, 100, 10, now);
 
         // check after creating one order
         expected = 1;
@@ -114,7 +96,7 @@ contract TestStandingOrderFactory {
         Assert.equal(num, expected, "One standing order should be paying for user2");
 
         // now create one order from user3 for user2
-        StandingOrder so2 = user3.doCreateStandingOrder(sof, user2, 100, 10);
+        user3.doCreateStandingOrder(sof, user2, 100, 10, now);
 
         // check after creating one order
         expected = 1;
@@ -129,9 +111,9 @@ contract TestStandingOrderFactory {
 
     function testStandingOrderAccess() {
         // create multiple standing orders
-        StandingOrder so1 = user1.doCreateStandingOrder(sof, user2, 100, 1);
-        StandingOrder so2 = user1.doCreateStandingOrder(sof, user2, 100, 2);
-        StandingOrder so3 = user3.doCreateStandingOrder(sof, user2, 100, 3);
+        StandingOrder so1 = user1.doCreateStandingOrder(sof, user2, 100, 1, now);
+        StandingOrder so2 = user1.doCreateStandingOrder(sof, user2, 100, 2, now);
+        StandingOrder so3 = user3.doCreateStandingOrder(sof, user2, 100, 3, now);
 
         // retrieve Owner orders by index and check if they are the right instances
         StandingOrder so1_test = user1.doGetOwnOrderByIndex(sof, 0);

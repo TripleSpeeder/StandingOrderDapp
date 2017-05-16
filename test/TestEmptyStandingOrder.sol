@@ -7,8 +7,8 @@ import "../contracts/StandingOrder.sol";
 
 contract UserMockA {
 
-    function doCreateStandingOrder(StandingOrderFactory _factory, address _payee, uint _rate, uint _interval) returns(StandingOrder){
-        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval, 'fromUserA');
+    function doCreateStandingOrder(StandingOrderFactory _factory, address _payee, uint _rate, uint _interval, uint _startTime) returns(StandingOrder){
+        StandingOrder so = _factory.createStandingOrder(_payee, _rate, _interval, _startTime, 'fromUserA');
         return so;
     }
 
@@ -37,31 +37,14 @@ contract UserMockA {
     function fund() payable {
     }
 
-    function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount) returns(StandingOrder) {
-        return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, 'fromUserA');
+    function doCreateStandingOrder(address _payee, uint _paymentInterval, uint _paymentAmount, uint _startTime) returns(StandingOrder) {
+        return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, _startTime, 'fromUserA');
     }
 
     function doCancelStandingOrder(StandingOrder _so) {
         _so.Cancel();
     }
 
-    /*
-    function doDeposit(Bank bank, uint amount){
-        bank.deposit.value(amount)();
-    }
-
-    function doWithDraw(Bank bank, uint amount) {
-        bank.withdraw(amount);
-    }
-
-    // Needed so the bank can actually send back money in the Withdrawal tests!!!
-    function() payable {
-    }
-
-    function doGetBalance(Bank bank) returns(uint) {
-        return bank.getBalance();
-    }
-    */
 }
 
 contract TestEmptyStandingOrder {
@@ -79,8 +62,8 @@ contract TestEmptyStandingOrder {
 
     function beforeEach() {
         // create an empty (unfunded) standingorder
-        // emptyStandingOrder = new StandingOrder(owner, payee, paymentInterval, paymentAmount);
-        emptyStandingOrder = owner.doCreateStandingOrder(payee, paymentInterval, paymentAmount);
+        // emptyStandingOrder = new StandingOrder(owner, payee, paymentInterval, paymentAmount, now);
+        emptyStandingOrder = owner.doCreateStandingOrder(payee, paymentInterval, paymentAmount, now);
     }
 
     function testEmptyStandingOrder() {

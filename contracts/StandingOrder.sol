@@ -8,14 +8,14 @@ import 'zeppelin/SafeMath.sol';
 contract StandingOrder is Ownable, SafeMath {
 
     address public payee;        // The payee gets the money
-    uint public startTime;       // Time the order was created
+    uint public startTime;       // Time when first payment should take place
     uint public paymentInterval; // How often can payee claim paymentAmount
     uint public paymentAmount;   // How much can payee claim per period
     uint public claimedFunds;    // How much funds have been claimed already
     string public ownerLabel;    // Label managed by contract owner
     string public payeeLabel;    // Label managed by payee
 
-    function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, string _label) payable {
+    function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, uint _startTime, string _label) payable {
         // Sanity check parameters
         if (_paymentInterval < 1)
             throw;
@@ -31,7 +31,7 @@ contract StandingOrder is Ownable, SafeMath {
         paymentAmount = _paymentAmount;
         ownerLabel = _label;
         payeeLabel = _label;
-        startTime = now;
+        startTime = _startTime;
     }
 
     modifier onlyPayee() {
@@ -51,7 +51,6 @@ contract StandingOrder is Ownable, SafeMath {
     function getEntitledFunds() constant returns (uint) {
         // sanity check
         if (now < startTime) {
-            // bad miner trying to mess with block time?
             return 0;
         }
 
@@ -61,6 +60,7 @@ contract StandingOrder is Ownable, SafeMath {
             // order has just been created
             return 0;
         }
+
         uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
         uint totalAmount = safeMul(completeIntervals, paymentAmount);
 
@@ -116,7 +116,6 @@ contract StandingOrder is Ownable, SafeMath {
         // conversion int -> uint should be safe as I'm checking <= 0 above!
         if (owner.send(uint256(ownerFunds)) == false)
             throw;
-        // TODO: Log event
     }
 
     /* Completely cancel this standingOrder */
@@ -154,8 +153,8 @@ contract StandingOrderFactory {
     );
 
     // Create a new standing order.
-    function createStandingOrder(address payee, uint rate, uint interval, string label) returns (StandingOrder) {
-        StandingOrder so = new StandingOrder(msg.sender, payee, interval, rate, label);
+    function createStandingOrder(address payee, uint rate, uint interval, uint startTime, string label) returns (StandingOrder) {
+        StandingOrder so = new StandingOrder(msg.sender, payee, interval, rate, startTime, label);
         standingOrdersByOwner[msg.sender].push(so);
         standingOrdersByPayee[payee].push(so);
         LogOrderCreated(so, msg.sender, payee);
