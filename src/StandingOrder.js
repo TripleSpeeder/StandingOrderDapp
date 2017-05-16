@@ -69,6 +69,7 @@ class StandingOrder extends Component {
                     </Button>
                 </ButtonGroup>
             </td>
+            <td>{this.props.order.failureDate.format()}</td>
             <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>
             <td>
                 <Button

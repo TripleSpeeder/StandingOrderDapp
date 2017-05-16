@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import moment from 'moment'
 import StandingOrder from './StandingOrder'
 
 class StandingOrderContainer extends Component {
@@ -106,6 +107,9 @@ class StandingOrderContainer extends Component {
 
         // get all other info via call() and promises
         var promises = []
+        promises.push(this.state.orderInstance.startTime.call().then(function (startTime) {
+            flatOrder.startTime = startTime
+        }))
         promises.push(this.state.orderInstance.payee.call().then(function (payee) {
             flatOrder.payee = payee
         }))
@@ -148,10 +152,39 @@ class StandingOrderContainer extends Component {
             flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
             flatOrder.cancelEnabled = flatOrder.balance.isZero()
             flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
+            self.calculateNextPaymentDate(flatOrder)
+            self.calculateFailureDate(flatOrder)
             self.setState({
                 flatOrder: flatOrder
             })
         })
+    }
+
+    // When will the next payment be made
+    calculateNextPaymentDate(flatOrder) {
+        // get seconds elapsed since order startdate
+        let secondsElapsed = Math.floor((Date.now()/1000)) - flatOrder.startTime.toNumber()
+
+        // how many paymentIntervals are done
+        let donePayments = Math.floor(secondsElapsed / flatOrder.paymentInterval.toNumber())
+
+        // timestamp of last payment
+        let lastPayment = window.web3.toBigNumber(donePayments * flatOrder.paymentInterval).plus(flatOrder.startTime).floor()
+        let lastPaymentMoment = moment.unix(lastPayment.toNumber())
+
+        // timestamp of next payment
+        let nextPayment = lastPayment.plus(flatOrder.paymentInterval)
+        let nextPaymentMoment = moment.unix(nextPayment.toNumber())
+
+        flatOrder.nextPaymentDate = nextPaymentMoment
+        flatOrder.lastPaymentDate = lastPaymentMoment
+    }
+
+    // When will the last full payment be made
+    calculateFailureDate(flatOrder) {
+        let secondsToFailure = flatOrder.paymentsCovered.floor() * flatOrder.paymentInterval
+        let failureDate = flatOrder.nextPaymentDate.add(secondsToFailure, 's')
+        flatOrder.failureDate = failureDate
     }
 
     componentWillMount() {
