@@ -57,7 +57,7 @@ class NewOrderForm extends Component {
     render() {
         return (
             <Form horizontal onSubmit={this.handleSubmit}>
-                <FormGroup controlID="controlOrderLabel">
+                <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>
                         Label
                     </Col>
@@ -70,7 +70,7 @@ class NewOrderForm extends Component {
                     </Col>
                 </FormGroup>
 
-                <FormGroup controlID="controlOrderReceiverAddress">
+                <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>
                         Receiver
                     </Col>
@@ -83,7 +83,7 @@ class NewOrderForm extends Component {
                     </Col>
                 </FormGroup>
 
-                <FormGroup controlID="controlOrderRate">
+                <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>
                         Payment Amount
                     </Col>
@@ -96,7 +96,7 @@ class NewOrderForm extends Component {
                     </Col>
                 </FormGroup>
 
-                <FormGroup controlID="controlOrderRate">
+                <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>
                         Payment Period
                     </Col>
