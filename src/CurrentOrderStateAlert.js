@@ -28,7 +28,7 @@ class CurrentOrderStateAlert extends Component {
         return (
             <Alert bsStyle="warning">
                 <p>
-                    Not enough funds to cover next payment due in TODO days.
+                    Not enough funds to cover next payment due {this.props.nextPaymentDate.format()}.
                     Missing amount: <strong><EtherDisplay wei={missingAmount}/></strong>.
                 </p>
             </Alert>
@@ -39,7 +39,7 @@ class CurrentOrderStateAlert extends Component {
         return (
             <Alert bsStyle="success">
                 <p>
-                    Next <strong>{this.props.paymentsCovered.toNumber()}</strong> payments covered until <strong>todo: Date here!</strong>
+                    Next <strong>{this.props.paymentsCovered.toNumber()}</strong> payments covered until <strong>{this.props.failureDate.format()}</strong>
                 </p>
             </Alert>
         )
@@ -57,10 +57,11 @@ class CurrentOrderStateAlert extends Component {
 }
 
 CurrentOrderStateAlert.propTypes = {
-    // order: PropTypes.object.isRequired,
     paymentAmount: PropTypes.object.isRequired, // BigNumber
     ownerFunds: PropTypes.object.isRequired, // BigNumber
     paymentsCovered: PropTypes.object.isRequired, // BigNumber
+    nextPaymentDate: PropTypes.object.isRequired, // Moment
+    failureDate: PropTypes.object.isRequired, // Moment
 }
 
 export default CurrentOrderStateAlert

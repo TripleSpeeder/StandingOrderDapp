@@ -35,6 +35,7 @@ class FundOrderButton extends Component {
         this.handleNumPaymentsChange = this.handleNumPaymentsChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
         this.getTotalCoveredPayments = this.getTotalCoveredPayments.bind(this)
+        this.getNewFailureDate = this.getNewFailureDate.bind(this)
     }
 
     close() {
@@ -100,6 +101,11 @@ class FundOrderButton extends Component {
         return this.props.order.paymentsCovered.plus(this.state.numberOfPayments)
     }
 
+    getNewFailureDate(){
+        let secondsToFailure = this.getTotalCoveredPayments().floor() * this.props.order.paymentInterval
+        return this.props.order.nextPaymentDate.clone().add(secondsToFailure, 's')
+    }
+
 
     render() {
         let validationState = "success"
@@ -145,6 +151,8 @@ class FundOrderButton extends Component {
                                             paymentAmount={this.props.order.paymentAmount}
                                             ownerFunds={this.props.order.ownerFunds}
                                             paymentsCovered={this.props.order.paymentsCovered}
+                                            nextPaymentDate={this.props.order.nextPaymentDate}
+                                            failureDate={this.props.order.failureDate}
                                         />
                                     </Col>
                                 </Row>
@@ -189,6 +197,8 @@ class FundOrderButton extends Component {
                                         paymentAmount={this.props.order.paymentAmount}
                                         ownerFunds={this.props.order.ownerFunds.plus(this.state.amount)}
                                         paymentsCovered={this.getTotalCoveredPayments()}
+                                        nextPaymentDate={this.props.order.nextPaymentDate}
+                                        failureDate={this.getNewFailureDate()}
                                     />
                                 </Col>
                             </Row>
