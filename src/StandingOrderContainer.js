@@ -162,6 +162,12 @@ class StandingOrderContainer extends Component {
 
     // When will the next payment be made
     calculateNextPaymentDate(flatOrder) {
+        // If startime is not yet reached the next payment date is the starttime!
+        if (Date.now()/1000 < flatOrder.startTime.toNumber()) {
+            flatOrder.nextPaymentDate = moment.unix(flatOrder.startTime.toNumber())
+            return
+        }
+
         // get seconds elapsed since order startdate
         let secondsElapsed = Math.floor((Date.now()/1000)) - flatOrder.startTime.toNumber()
 

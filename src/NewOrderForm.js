@@ -1,8 +1,11 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Form, ControlLabel, FormGroup, FormControl, Col, HelpBlock} from 'react-bootstrap'
+import moment from 'moment'
 import Duration from "./Duration"
 import EtherAmount from './EtherAmount'
+import DateTime from 'react-datetime'
+import 'react-datetime/css/react-datetime.css';
 
 
 class NewOrderForm extends Component {
@@ -11,13 +14,15 @@ class NewOrderForm extends Component {
         super(props)
         this.state = {
             label: props.label,
-            period: 60*60*24*7, // 1 week
-            rate: window.web3.toBigNumber('0')
+            period: 60 * 60 * 24 * 7, // 1 week
+            rate: window.web3.toBigNumber('0'),
+            startTime: moment()
         }
 
         this.handleInputChange = this.handleInputChange.bind(this)
         this.handleDurationChange = this.handleDurationChange.bind(this)
         this.handleAmountChange = this.handleAmountChange.bind(this)
+        this.handleStartTimeChange = this.handleStartTimeChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
     }
 
@@ -42,6 +47,12 @@ class NewOrderForm extends Component {
         })
     }
 
+    handleStartTimeChange(startTime) {
+        this.setState({
+            startTime: startTime
+        })
+    }
+
     handleSubmit(event) {
         event.preventDefault()
         var order = {
@@ -49,6 +60,7 @@ class NewOrderForm extends Component {
             receiver: this.state.receiver,
             rate: this.state.rate,
             period: parseInt(this.state.period),
+            startTime: this.state.startTime,
         }
         console.log(order)
         this.props.onNewOrder(order)
@@ -93,6 +105,18 @@ class NewOrderForm extends Component {
                             unit="ether"
                             onChange={this.handleAmountChange}/>
                         <HelpBlock>Amount Receiver gets per payment period</HelpBlock>
+                    </Col>
+                </FormGroup>
+
+                <FormGroup>
+                    <Col componentClass={ControlLabel} sm={2}>
+                        First payment
+                    </Col>
+                    <Col sm={10}>
+                        <DateTime
+                            value={this.state.startTime}
+                            onChange={this.handleStartTimeChange}
+                        />
                     </Col>
                 </FormGroup>
 

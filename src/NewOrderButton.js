@@ -20,7 +20,7 @@ class NewOrderButton extends Component {
         var self = this
         // get accounts
         window.web3.eth.getAccounts(function (error, accounts) {
-            return self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.label, {
+            return self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
                 from: accounts[0],
                 gas: 1000000
             }).then(function (result) {
