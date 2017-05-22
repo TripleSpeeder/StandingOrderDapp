@@ -11,6 +11,7 @@ class FundsButton extends Component {
         super(props)
 
         this.handleSelect = this.handleSelect.bind(this)
+        this.determineStyle = this.determineStyle.bind(this)
     }
 
     handleSelect(key, event) {
@@ -27,24 +28,33 @@ class FundsButton extends Component {
         }
     }
 
+    determineStyle(){
+        if (this.props.order.fundsInsufficient)
+            return 'danger'
+        if (this.props.order.withdrawEnabled)
+            return 'success'
+        return 'warning'
+    }
+
     render() {
         let etherDisplay = <EtherDisplay wei={this.props.order.ownerFunds}/>
+        let bsStyle = this.determineStyle()
         return (
-            <div>
-                <DropdownButton
-                    title={etherDisplay}
-                    id="dropDownButtonID"
-                    bsSize="small"
-                    onSelect={this.handleSelect}
-                >
-                    <MenuItem eventKey="fund">Fund <Glyphicon glyph="upload"/></MenuItem>
-                    <MenuItem
-                        eventKey="withdraw"
-                        disabled={!this.props.order.withdrawEnabled}>
-                        Withdraw <Glyphicon glyph="download"/>
-                    </MenuItem>
-                </DropdownButton>
-            </div>
+            <DropdownButton
+                title={etherDisplay}
+                id="dropDownButtonID"
+                bsSize="small"
+                onSelect={this.handleSelect}
+                bsStyle={bsStyle}
+                block
+            >
+                <MenuItem eventKey="fund">Fund <Glyphicon glyph="upload"/></MenuItem>
+                <MenuItem
+                    eventKey="withdraw"
+                    disabled={!this.props.order.withdrawEnabled}>
+                    Withdraw <Glyphicon glyph="download"/>
+                </MenuItem>
+            </DropdownButton>
         )
     }
 

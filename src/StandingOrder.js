@@ -45,12 +45,7 @@ class StandingOrder extends Component {
 
     renderAsOutgoing() {
         return <tr>
-            <td>
-                {this.props.order.fundsInsufficient &&
-                <Label bsStyle="danger" title="Insufficient funds!">
-                    <Glyphicon glyph="alert"/>
-                </Label> }<strong>{this.props.order.ownerLabel}</strong>
-            </td>
+            <td><strong>{this.props.order.ownerLabel}</strong></td>
             <td>{this.props.order.payee}</td>
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
             <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
