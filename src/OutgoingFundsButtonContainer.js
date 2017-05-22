@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import FundsButton from './FundsButton'
+import OutgoingFundsButton from './OutgoingFundsButton'
 import FundOrderModal from "./FundOrderModal"
 
 
@@ -32,7 +32,7 @@ class OutgoingFundsButtonContainer extends Component {
 
     render() {
         return <div>
-            <FundsButton
+            <OutgoingFundsButton
                 order={this.props.order}
                 onWithdraw={this.props.onWithdraw}
                 onFund={this.handleOpenModal}

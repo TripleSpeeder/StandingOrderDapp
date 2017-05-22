@@ -3,9 +3,7 @@ import PropTypes from 'prop-types'
 import {Button, ButtonGroup, DropdownButton, MenuItem, Glyphicon, Label} from 'react-bootstrap'
 import EtherDisplay from "./EtherDisplay"
 
-import moment from 'moment'
-
-class FundsButton extends Component {
+class OutgoingFundsButton extends Component {
 
     constructor(props) {
         super(props)
@@ -60,10 +58,10 @@ class FundsButton extends Component {
 
 }
 
-FundsButton.propTypes = {
+OutgoingFundsButton.propTypes = {
     order: PropTypes.object.isRequired,
     onFund: PropTypes.func.isRequired,
     onWithdraw: PropTypes.func.isRequired,
 }
 
-export default FundsButton
+export default OutgoingFundsButton
