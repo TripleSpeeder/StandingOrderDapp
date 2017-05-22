@@ -32,6 +32,7 @@ class StandingOrderList extends Component {
                     <td>Amount</td>
                     <td>Intervall</td>
                     <td>Available</td>
+                    <td>Collected</td>
                     <td>Next Payment</td>
                 </tr>
                 </thead>

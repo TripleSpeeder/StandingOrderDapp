@@ -27,7 +27,7 @@ class IncomingFundsButton extends Component {
         if (this.props.order.collectibleFunds.greaterThan(0))
             return 'success'
         if (this.props.order.fundsInsufficient)
-            return 'danger'
+            return 'warning'
         return 'default'
     }
 

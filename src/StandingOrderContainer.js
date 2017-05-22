@@ -144,6 +144,10 @@ class StandingOrderContainer extends Component {
         promises.push(this.props.orderInstance.getUnclaimedFunds.call().then(function (unclaimedFunds) {
             flatOrder.collectibleFunds = unclaimedFunds
         }))
+        promises.push(this.state.orderInstance.claimedFunds.call().then(function (claimedFunds) {
+            flatOrder.claimedFunds = claimedFunds
+        }))
+
 
 
         Promise.all(promises).then(function (results) {

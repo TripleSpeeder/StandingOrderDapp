@@ -40,6 +40,7 @@ class StandingOrder extends Component {
                     order={this.props.order}
                     onCollect={this.handleCollect}/>
             </td>
+            <td><EtherDisplay wei={this.props.order.claimedFunds}/></td>
             <td>{this.props.order.nextPaymentDate.format()}</td>
         </tr>
     }
