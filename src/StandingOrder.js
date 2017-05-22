@@ -1,18 +1,13 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, ButtonGroup, Glyphicon, Label} from 'react-bootstrap'
+import {Button, ButtonGroup, DropdownButton, MenuItem, Glyphicon, Label} from 'react-bootstrap'
 import RelabelButton from "./RelabelButton"
 import FundOrderButton from "./FundOrderButton"
-import { secondsToDisplayString} from "./Utils"
+import {secondsToDisplayString} from "./Utils"
 import EtherDisplay from "./EtherDisplay"
+import FundsButtonContainer from "./FundsButtonContainer"
 
 class StandingOrder extends Component {
-
-    handleWithdraw(event) {
-        // Withdraw ownerfunds from contract
-        this.props.onWithdrawOwnerFunds()
-        event.preventDefault()
-    }
 
     handleCancel(event) {
         // Completely cancel contract
@@ -29,7 +24,8 @@ class StandingOrder extends Component {
     renderAsIncoming() {
         return <tr>
             <td>
-                <strong>{this.props.order.payeeLabel}</strong> <RelabelButton label={this.props.order.payeeLabel} onRelabel={this.props.onRelabel}/>
+                <strong>{this.props.order.payeeLabel}</strong> <RelabelButton label={this.props.order.payeeLabel}
+                                                                              onRelabel={this.props.onRelabel}/>
             </td>
             <td>{this.props.order.owner}</td>
             <td>
@@ -59,14 +55,11 @@ class StandingOrder extends Component {
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
             <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
             <td>
-                <EtherDisplay wei={this.props.order.ownerFunds}/>
-                <ButtonGroup>
-                    <FundOrderButton order={this.props.order} onFund={this.props.onFundContract}/>
-                    <Button bsStyle="warning" bsSize="small" title="Withdraw Funds" disabled={!this.props.order.withdrawEnabled}
-                            onClick={this.handleWithdraw.bind(this)}>
-                        <Glyphicon glyph="download"/>
-                    </Button>
-                </ButtonGroup>
+                <FundsButtonContainer
+                    order={this.props.order}
+                    onFund={this.props.onFundContract}
+                    onWithdraw={this.props.onWithdrawOwnerFunds}
+                />
             </td>
             <td>{this.props.order.failureDate.format()}</td>
             <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>
