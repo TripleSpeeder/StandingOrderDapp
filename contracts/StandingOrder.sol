@@ -53,14 +53,15 @@ contract StandingOrder is Ownable, SafeMath {
         }
 
         // Calculate theoretical amount that payee should own right now
+        uint totalAmount = 0;
         uint age = safeSub(now, startTime);
         if (age == 0) {
-            // order has just been created
-            return 0;
+            totalAmount = paymentAmount;
+        } else {
+            uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
+            totalAmount = safeMul(completeIntervals, paymentAmount);
+            totalAmount = safeAdd(totalAmount, paymentAmount); // first payment is due at startDate already!
         }
-
-        uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
-        uint totalAmount = safeMul(completeIntervals, paymentAmount);
 
         // subtract already withdrawn funds
         return safeSub(totalAmount, claimedFunds);
