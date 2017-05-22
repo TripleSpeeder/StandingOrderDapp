@@ -28,7 +28,6 @@ class StandingOrder extends Component {
 
     renderAsIncoming() {
         return <tr>
-            <td>#</td>
             <td>
                 <strong>{this.props.order.payeeLabel}</strong> <RelabelButton label={this.props.order.payeeLabel} onRelabel={this.props.onRelabel}/>
             </td>
@@ -49,7 +48,6 @@ class StandingOrder extends Component {
 
     renderAsOutgoing() {
         return <tr>
-            <td>#</td>
             <td>
                 {this.props.order.fundsInsufficient &&
                 <Label bsStyle="danger" title="Insufficient funds!">

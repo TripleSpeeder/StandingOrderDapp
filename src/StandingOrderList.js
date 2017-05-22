@@ -20,20 +20,14 @@ class StandingOrderList extends Component {
 
         console.log("Rendering IncomingOrderList for account " + this.props.account)
 
-        var collectible = window.web3.toBigNumber('75542205000000000')
-
         const incomingHeader = <div>
-            <h4>Incoming orders <Label bsStyle="success">
-                <EtherDisplay wei={collectible}/> available!
-            </Label>
-            </h4>
+            <h4>Incoming orders</h4>
         </div>
 
         return <Panel collapsible defaultExpanded header={incomingHeader} bsStyle="success">
             <Table fill striped hover>
                 <thead>
                 <tr>
-                    <td>&nbsp;</td>
                     <td>Label</td>
                     <td>From</td>
                     <td>Available</td>
@@ -63,14 +57,13 @@ class StandingOrderList extends Component {
         console.log("Rendering StandingOrderList for account " + this.props.account)
 
         const outgoingHeader = <div>
-            <h4>Outgoing orders <Label bsStyle="danger">1 Order with insufficient funds!</Label></h4>
+            <h4>Outgoing orders</h4>
         </div>
 
         return <Panel collapsible defaultExpanded header={outgoingHeader} bsStyle="primary">
             <Table fill striped hover>
                 <thead>
                 <tr>
-                    <td>&nbsp;</td>
                     <td>Label</td>
                     <td>To</td>
                     <td>Amount</td>
