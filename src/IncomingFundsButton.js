@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, ButtonGroup, DropdownButton, MenuItem, Glyphicon, Label} from 'react-bootstrap'
+import {DropdownButton, MenuItem, Glyphicon} from 'react-bootstrap'
 import EtherDisplay from "./EtherDisplay"
 
 class IncomingFundsButton extends Component {
@@ -26,6 +26,8 @@ class IncomingFundsButton extends Component {
     determineStyle(){
         if (this.props.order.collectibleFunds.greaterThan(0))
             return 'success'
+        if (this.props.order.fundsInsufficient)
+            return 'danger'
         return 'default'
     }
 

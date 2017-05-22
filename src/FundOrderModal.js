@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import {
     Button,
     Modal,
-    Glyphicon,
     Row,
     Col,
     Form,
@@ -36,7 +35,7 @@ class FundOrderModal extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.showModal != this.state.showModal){
+        if (nextProps.showModal !== this.state.showModal){
             if (nextProps.showModal)
                 this.reset()
         }

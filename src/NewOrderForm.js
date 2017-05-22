@@ -59,7 +59,7 @@ class NewOrderForm extends Component {
             label: this.state.label,
             receiver: this.state.receiver,
             rate: this.state.rate,
-            period: parseInt(this.state.period),
+            period: parseInt(this.state.period, 10),
             startTime: this.state.startTime,
         }
         console.log(order)

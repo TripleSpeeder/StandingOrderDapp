@@ -1,8 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, ButtonGroup, DropdownButton, MenuItem, Glyphicon, Label} from 'react-bootstrap'
-import RelabelButton from "./RelabelButton"
-import FundOrderButton from "./FundOrderButton"
+import {Button, Glyphicon} from 'react-bootstrap'
 import {secondsToDisplayString} from "./Utils"
 import EtherDisplay from "./EtherDisplay"
 import OutgoingFundsButtonContainer from "./OutgoingFundsButtonContainer"
@@ -35,6 +33,8 @@ class StandingOrder extends Component {
                 <strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.owner}</td>
+            <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
+            <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
             <td>
                 <IncomingFundsButtonContainer
                     order={this.props.order}

@@ -1,8 +1,7 @@
 import React, {Component} from 'react'
-import {Panel, Label, Table} from 'react-bootstrap'
+import {Panel, Table} from 'react-bootstrap'
 import StandingOrderContainer from './StandingOrderContainer'
 import NewOrderButton from "./NewOrderButton"
-import EtherDisplay from "./EtherDisplay"
 
 class StandingOrderList extends Component {
 
@@ -30,6 +29,8 @@ class StandingOrderList extends Component {
                 <tr>
                     <td>Label</td>
                     <td>From</td>
+                    <td>Amount</td>
+                    <td>Intervall</td>
                     <td>Available</td>
                     <td>Next Payment</td>
                 </tr>

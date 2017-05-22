@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Button, ButtonGroup, DropdownButton, MenuItem, Glyphicon, Label} from 'react-bootstrap'
+import {DropdownButton, MenuItem, Glyphicon} from 'react-bootstrap'
 import EtherDisplay from "./EtherDisplay"
 
 class OutgoingFundsButton extends Component {
