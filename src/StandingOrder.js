@@ -6,8 +6,16 @@ import FundOrderButton from "./FundOrderButton"
 import {secondsToDisplayString} from "./Utils"
 import EtherDisplay from "./EtherDisplay"
 import OutgoingFundsButtonContainer from "./OutgoingFundsButtonContainer"
+import IncomingFundsButtonContainer from "./IncomingFundsButtonContainer"
 
 class StandingOrder extends Component {
+
+    constructor(props) {
+        super(props)
+
+        this.handleCancel = this.handleCancel.bind(this)
+        this.handleCollect= this.handleCollect.bind(this)
+    }
 
     handleCancel(event) {
         // Completely cancel contract
@@ -15,10 +23,10 @@ class StandingOrder extends Component {
         event.preventDefault()
     }
 
-    handleCollect(event) {
-        // Withdraw ownerfunds from contract
+    // Withdraw ownerfunds from contract
+    handleCollect() {
+        // TODO: Show Feedback like progressbar, transaction details, ...
         this.props.onCollectFunds()
-        event.preventDefault()
     }
 
     renderAsIncoming() {
@@ -29,15 +37,9 @@ class StandingOrder extends Component {
             </td>
             <td>{this.props.order.owner}</td>
             <td>
-                <EtherDisplay wei={this.props.order.collectibleFunds}/>
-                <Button
-                    bsStyle="primary"
-                    bsSize="small"
-                    title="Collect"
-                    disabled={!this.props.order.collectibleFunds.greaterThan(0)}
-                    onClick={this.handleCollect.bind(this)}>
-                    <Glyphicon glyph="download"/>
-                </Button>
+                <IncomingFundsButtonContainer
+                    order={this.props.order}
+                    onCollect={this.handleCollect}/>
             </td>
             <td>{this.props.order.nextPaymentDate.format()}</td>
         </tr>
@@ -64,7 +66,7 @@ class StandingOrder extends Component {
                     bsSize="small"
                     title="Delete"
                     disabled={!this.props.order.cancelEnabled}
-                    onClick={this.handleCancel.bind(this)}>
+                    onClick={this.handleCancel}>
                     <Glyphicon glyph="trash"/>
                 </Button>
             </td>
