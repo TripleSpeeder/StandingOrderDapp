@@ -38,6 +38,7 @@ class StandingOrder extends Component {
                     bsStyle="primary"
                     bsSize="small"
                     title="Collect"
+                    disabled={!this.props.order.collectibleFunds.greaterThan(0)}
                     onClick={this.handleCollect.bind(this)}>
                     <Glyphicon glyph="download"/>
                 </Button>
