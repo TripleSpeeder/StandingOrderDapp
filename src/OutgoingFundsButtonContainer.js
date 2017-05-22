@@ -1,11 +1,10 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import moment from 'moment'
 import FundsButton from './FundsButton'
 import FundOrderModal from "./FundOrderModal"
 
 
-class FundsButtonContainer extends Component {
+class OutgoingFundsButtonContainer extends Component {
 
     constructor(props) {
         super(props)
@@ -48,10 +47,10 @@ class FundsButtonContainer extends Component {
 
 }
 
-FundsButtonContainer.propTypes = {
+OutgoingFundsButtonContainer.propTypes = {
     order: PropTypes.object.isRequired,
     onFund: PropTypes.func.isRequired,
     onWithdraw: PropTypes.func.isRequired,
 }
 
-export default FundsButtonContainer
+export default OutgoingFundsButtonContainer

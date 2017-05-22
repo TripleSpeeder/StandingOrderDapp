@@ -5,7 +5,7 @@ import RelabelButton from "./RelabelButton"
 import FundOrderButton from "./FundOrderButton"
 import {secondsToDisplayString} from "./Utils"
 import EtherDisplay from "./EtherDisplay"
-import FundsButtonContainer from "./FundsButtonContainer"
+import OutgoingFundsButtonContainer from "./OutgoingFundsButtonContainer"
 
 class StandingOrder extends Component {
 
@@ -50,7 +50,7 @@ class StandingOrder extends Component {
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
             <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
             <td>
-                <FundsButtonContainer
+                <OutgoingFundsButtonContainer
                     order={this.props.order}
                     onFund={this.props.onFundContract}
                     onWithdraw={this.props.onWithdrawOwnerFunds}
