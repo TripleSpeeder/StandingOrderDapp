@@ -13,7 +13,6 @@ contract StandingOrder is Ownable, SafeMath {
     uint public paymentAmount;   // How much can payee claim per period
     uint public claimedFunds;    // How much funds have been claimed already
     string public ownerLabel;    // Label managed by contract owner
-    string public payeeLabel;    // Label managed by payee
 
     function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, uint _startTime, string _label) payable {
         // Sanity check parameters
@@ -30,7 +29,6 @@ contract StandingOrder is Ownable, SafeMath {
         paymentInterval = _paymentInterval;
         paymentAmount = _paymentAmount;
         ownerLabel = _label;
-        payeeLabel = _label;
         startTime = _startTime;
     }
 
@@ -126,14 +124,6 @@ contract StandingOrder is Ownable, SafeMath {
         }
 
         selfdestruct(owner);
-    }
-
-    function SetOwnerLabel(string _label) onlyOwner {
-        ownerLabel = _label;
-    }
-
-    function SetPayeeLabel(string _label) onlyPayee {
-        payeeLabel = _label;
     }
 }
 

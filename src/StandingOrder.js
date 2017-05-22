@@ -32,8 +32,7 @@ class StandingOrder extends Component {
     renderAsIncoming() {
         return <tr>
             <td>
-                <strong>{this.props.order.payeeLabel}</strong> <RelabelButton label={this.props.order.payeeLabel}
-                                                                              onRelabel={this.props.onRelabel}/>
+                <strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.owner}</td>
             <td>

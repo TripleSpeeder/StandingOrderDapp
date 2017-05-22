@@ -113,9 +113,6 @@ class StandingOrderContainer extends Component {
         promises.push(this.state.orderInstance.payee.call().then(function (payee) {
             flatOrder.payee = payee
         }))
-        promises.push(this.state.orderInstance.payeeLabel.call().then(function (payeeLabel) {
-            flatOrder.payeeLabel = payeeLabel
-        }))
         promises.push(this.state.orderInstance.owner.call().then(function (owner) {
             flatOrder.owner = owner
         }))
@@ -134,10 +131,12 @@ class StandingOrderContainer extends Component {
         promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
             if (error) {
                 console.log("Error retrieving balance: " + error)
-                flatOrder.balance = window.web3.toBigNumber('0')
-            } else {
-                flatOrder.balance = balance
+                balance = window.web3.toBigNumber('0')
+            } else if ("undefined" === typeof balance) {
+                console.log('Retrieved undefined balance :-(');
+                balance = window.web3.toBigNumber('0')
             }
+            flatOrder.balance = balance
         }))
         promises.push(this.props.orderInstance.getEntitledFunds.call().then(function (entitledFunds) {
             flatOrder.entitledFunds = entitledFunds
@@ -147,7 +146,7 @@ class StandingOrderContainer extends Component {
         }))
 
 
-        Promise.all(promises).then(function () {
+        Promise.all(promises).then(function (results) {
             flatOrder.fundsInsufficient = flatOrder.entitledFunds > flatOrder.collectibleFunds
             flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
             flatOrder.cancelEnabled = flatOrder.balance.isZero()
@@ -157,6 +156,9 @@ class StandingOrderContainer extends Component {
             self.setState({
                 flatOrder: flatOrder
             })
+        }, function(err){
+            console.log("Error while retrieving order details:")
+            console.log(err)
         })
     }
 
