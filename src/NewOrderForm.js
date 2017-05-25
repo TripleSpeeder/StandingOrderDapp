@@ -13,7 +13,7 @@ class NewOrderForm extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            label: props.label,
+            label: '',
             period: 60 * 60 * 24 * 7, // 1 week
             rate: window.web3.toBigNumber('0'),
             startTime: moment()
