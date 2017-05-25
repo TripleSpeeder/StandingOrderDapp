@@ -47,19 +47,9 @@ class App extends Component {
 
     initialize() {
         var self = this
-        var promises = []
 
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
-
-        // Get the RPC provider and setup our contracts.
-        const provider = new Web3.providers.HttpProvider('http://localhost:8545')
-        const contract = require('truffle-contract')
-        self.factoryContract = contract(standingOrderFactory_artifacts)
-        self.factoryContract.setProvider(provider)
-        var orderContract = contract(standingOrder_artifacts)
-        orderContract.setProvider(provider)
-        self.setState({orderContract: orderContract})
 
         // Get currently selected account
         var acc = self.web3RPC.eth.accounts[0]
@@ -77,11 +67,23 @@ class App extends Component {
             }
         }, 100)
 
-        // Get factory
+        // Get the RPC provider and setup our contracts.
+        const provider = new Web3.providers.HttpProvider('http://localhost:8545')
+        const contract = require('truffle-contract')
+        self.factoryContract = contract(standingOrderFactory_artifacts)
+        self.factoryContract.setProvider(provider)
+        var orderContract = contract(standingOrder_artifacts)
+        orderContract.setProvider(provider)
+        self.setState({orderContract: orderContract})
+
+        // start async initialization
+        var promises = []
+        // Get contract factory
         promises.push(self.factoryContract.deployed().then(function (factory_instance) {
             self.setState({factoryInstance: factory_instance})
         }))
 
+        // App is ready when all promises are resolved.
         Promise.all(promises).then(function () {
             // console.log("app initialization complete!")
             self.setState({web3Available: true})
@@ -89,13 +91,6 @@ class App extends Component {
     }
 
     render() {
-        if (this.state.web3Available === false) {
-            console.log("App.render: Web3 not yet injected!")
-            return <div>
-                <h1>Waiting for web3...</h1>
-            </div>
-        }
-
         return <div>
             <Navbar>
                 <Navbar.Header>
@@ -104,16 +99,20 @@ class App extends Component {
                     </Navbar.Brand>
                 </Navbar.Header>
                 <Nav>
-                    <NavItem eventKey={1} href="#">Info</NavItem>
-                    <NavItem eventKey={2} href="#">FAQ</NavItem>
+                    <NavItem eventKey={1} href="#">FAQ</NavItem>
                     <NavItem eventKey={2} href="#">Contract</NavItem>
-                    <NavItem eventKey={2} href="#">Github</NavItem>
+                    <NavItem eventKey={3} href="#">Github</NavItem>
                 </Nav>
             </Navbar>
 
             <Grid>
                 <Jumbotron>
-                    <HeaderAddress account={this.state.account}/>
+                    {this.state.web3Available ?
+                    (
+                        <HeaderAddress account={this.state.account}/>
+                    ) : (
+                        <h2>Web3 not available</h2>
+                    )}
                 </Jumbotron>
 
                 <StandingOrderListContainer
