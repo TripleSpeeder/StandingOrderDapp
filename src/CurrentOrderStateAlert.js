@@ -28,8 +28,7 @@ class CurrentOrderStateAlert extends Component {
         return (
             <Alert bsStyle="warning">
                 <p>
-                    Not enough funds to cover next payment due {this.props.nextPaymentDate.format()}.
-                    Missing amount: <strong><EtherDisplay wei={missingAmount}/></strong>.
+                    Contract is balanced, but no funds left. Missing <strong><EtherDisplay wei={missingAmount}/></strong> to cover next payment due {this.props.nextPaymentDate.format()}.
                 </p>
             </Alert>
         )
