@@ -49,6 +49,7 @@
     "whatwg-fetch": "1.0.0"
   },
   "dependencies": {
+    "better-react-spinkit": "^2.0.0",
     "bootstrap": "^3.3.7",
     "dotenv": "^2.0.0",
     "moment": "^2.18.1",

@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Glyphicon} from 'react-bootstrap'
 import {secondsToDisplayString} from "./Utils"
+import {DoubleBounce} from 'better-react-spinkit'
 import EtherDisplay from "./EtherDisplay"
 import OutgoingFundsButtonContainer from "./OutgoingFundsButtonContainer"
 import IncomingFundsButtonContainer from "./IncomingFundsButtonContainer"
@@ -30,6 +31,7 @@ class StandingOrder extends Component {
     renderAsIncoming() {
         return <tr>
             <td>
+                {this.props.isLoading && <DoubleBounce /> }
                 <strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.owner}</td>
@@ -47,7 +49,10 @@ class StandingOrder extends Component {
 
     renderAsOutgoing() {
         return <tr>
-            <td><strong>{this.props.order.ownerLabel}</strong></td>
+            <td>
+                {this.props.isLoading && <DoubleBounce /> }
+                <strong>{this.props.order.ownerLabel}</strong>
+            </td>
             <td>{this.props.order.payee}</td>
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
             <td>{secondsToDisplayString(this.props.order.paymentInterval.toNumber())}</td>
@@ -89,7 +94,8 @@ class StandingOrder extends Component {
 }
 
 StandingOrder.propTypes = {
-    outgoing: PropTypes.bool.isRequired
+    outgoing: PropTypes.bool.isRequired,
+    isLoading: PropTypes.bool.isRequired,
 }
 
 export default StandingOrder

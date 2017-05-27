@@ -8,7 +8,8 @@ class StandingOrderContainer extends Component {
         super(props)
         this.state = {
             orderInstance: props.orderInstance,
-            flatOrder: null
+            flatOrder: null,
+            isLoading: true
         }
         this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)
@@ -100,6 +101,9 @@ class StandingOrderContainer extends Component {
     orderToState() {
         var self = this
 
+        // indicate that order is loading/updating.
+        self.setState({isLoading: true})
+
         // address is immediately available
         var flatOrder = {
             address: this.state.orderInstance.address
@@ -148,8 +152,6 @@ class StandingOrderContainer extends Component {
             flatOrder.claimedFunds = claimedFunds
         }))
 
-
-
         Promise.all(promises).then(function (results) {
             flatOrder.fundsInsufficient = flatOrder.entitledFunds > flatOrder.collectibleFunds
             flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
@@ -158,7 +160,8 @@ class StandingOrderContainer extends Component {
             self.calculateNextPaymentDate(flatOrder)
             self.calculateFailureDate(flatOrder)
             self.setState({
-                flatOrder: flatOrder
+                flatOrder: flatOrder,
+                isLoading: false
             })
         }, function(err){
             console.log("Error while retrieving order details:")
@@ -223,6 +226,7 @@ class StandingOrderContainer extends Component {
             onCollectFunds={this.handleCollect}
             onRelabel={this.handleRelabel}
             outgoing={this.props.outgoing}
+            isLoading={this.state.isLoading}
         />
     }
 }
