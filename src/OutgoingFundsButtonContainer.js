@@ -9,7 +9,8 @@ class OutgoingFundsButtonContainer extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showModal:false
+            showModal:false,
+            fundingProgress: 'idle'
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -23,6 +24,9 @@ class OutgoingFundsButtonContainer extends Component {
 
     handleSubmit(amount) {
         var self=this
+
+        self.setState({fundingProgress:'waitingTransaction'})
+
         var transaction_object = {
             from: this.props.order.owner,
             to: this.props.order.address,
@@ -32,14 +36,17 @@ class OutgoingFundsButtonContainer extends Component {
             if (err) {
                 console.log("Error while sending transaction: ")
                 console.log(err)
+                self.setState({fundingProgress:'idle'})
             } else {
                 console.log("Contract funded. Transaction address: " + address)
+                self.setState({fundingProgress:'idle'})
                 self.setState({showModal:false})
             }
         })
     }
 
     handleCancel(){
+        this.setState({fundingProgress:'idle'})
         this.setState({showModal:false})
     }
 
@@ -54,6 +61,7 @@ class OutgoingFundsButtonContainer extends Component {
                             order={this.props.order}
                             onSubmit={this.handleSubmit}
                             onCancel={this.handleCancel}
+                            fundingProgress={this.state.fundingProgress}
             />
             </div>
     }

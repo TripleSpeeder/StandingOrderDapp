@@ -12,6 +12,7 @@ import {
     ControlLabel,
     Well
 } from 'react-bootstrap'
+import {CubeGrid, ThreeBounce} from 'better-react-spinkit'
 import EtherAmount from './EtherAmount'
 import CurrentOrderStateAlert from "./CurrentOrderStateAlert"
 import { BigNumWeiToDisplayString, secondsToDisplayString} from "./Utils"
@@ -108,6 +109,17 @@ class FundOrderModal extends Component {
         else if (this.getTotalCoveredPayments().lessThan(0))
             validationState = "error"
 
+        let fundingButton = ''
+        let cancelButton = ''
+        if (this.props.fundingProgress === 'waitingTransaction') {
+            fundingButton = <Button bsStyle="primary" disabled><ThreeBounce /> Waiting for transaction</Button>
+            cancelButton = <Button bsStyle="danger" disabled>Cancel</Button>
+        } else {
+            fundingButton = <Button bsStyle="primary" onClick={this.handleSubmit}>Initiate payment</Button>
+            cancelButton = <Button bsStyle="danger" onClick={this.props.onCancel}>Cancel</Button>
+        }
+
+
         const modal = (
             <Modal bsSize="large" show={this.props.showModal} onHide={this.close}>
                 <Modal.Header closeButton>
@@ -198,15 +210,11 @@ class FundOrderModal extends Component {
                             </Row>
 
                             <Row>
-                                <Col mdOffset={2} md={5}>
-                                    <Button bsStyle="primary" onClick={this.handleSubmit}>
-                                        Initiate payment
-                                    </Button>
+                                <Col className="text-center" mdOffset={0} md={6}>
+                                    {fundingButton}
                                 </Col>
-                                <Col mdOffset={0} md={5}>
-                                    <Button bsStyle="danger" onClick={this.props.onCancel}>
-                                        Cancel
-                                    </Button>
+                                <Col className="text-center" mdOffset={0} md={5}>
+                                    {cancelButton}
                                 </Col>
                             </Row>
                             </Well>
