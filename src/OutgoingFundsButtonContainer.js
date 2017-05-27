@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import OutgoingFundsButton from './OutgoingFundsButton'
 import FundOrderModal from "./FundOrderModal"
+import FundOrderResultModal from "./FundOrderResultModal"
 
 
 class OutgoingFundsButtonContainer extends Component {
@@ -10,16 +11,23 @@ class OutgoingFundsButtonContainer extends Component {
         super(props)
         this.state = {
             showModal:false,
-            fundingProgress: 'idle'
+            fundingProgress: 'idle',
+            showResultsModal:false,
+            fundingTransaction:null,
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCancel = this.handleCancel.bind(this)
         this.handleOpenModal = this.handleOpenModal.bind(this)
+        this.handleCloseResultsModal = this.handleCloseResultsModal.bind(this)
     }
 
     handleOpenModal() {
-        this.setState({showModal:true})
+        this.setState({
+            showModal:true,
+            showResultsModal:false,
+            fundingTransaction:null,
+        })
     }
 
     handleSubmit(amount) {
@@ -39,8 +47,25 @@ class OutgoingFundsButtonContainer extends Component {
                 self.setState({fundingProgress:'idle'})
             } else {
                 console.log("Contract funded. Transaction address: " + address)
-                self.setState({fundingProgress:'idle'})
-                self.setState({showModal:false})
+                self.setState({fundingProgress:'checkingTransaction'})
+                window.web3.eth.getTransaction(address, function(err, transaction) {
+                    if (!err) {
+                        console.log("Got transaction: " + transaction)
+                        self.setState({
+                            showModal:false,
+                            showResultsModal:true,
+                            fundingProgress:'idle',
+                            fundingTransaction:transaction,
+                        })
+                    } else {
+                        console.log("Error fetching transaction details!")
+                        self.setState({
+                            showModal:false,
+                            showResultsModal:false,
+                            fundingProgress:'idle'
+                        })
+                    }
+                })
             }
         })
     }
@@ -48,6 +73,13 @@ class OutgoingFundsButtonContainer extends Component {
     handleCancel(){
         this.setState({fundingProgress:'idle'})
         this.setState({showModal:false})
+    }
+
+    handleCloseResultsModal() {
+        this.setState({
+            showResultsModal:false,
+            fundingTransaction:null,
+        })
     }
 
     render() {
@@ -62,6 +94,11 @@ class OutgoingFundsButtonContainer extends Component {
                             onSubmit={this.handleSubmit}
                             onCancel={this.handleCancel}
                             fundingProgress={this.state.fundingProgress}
+            />
+            <FundOrderResultModal
+                showModal={this.state.showResultsModal}
+                onClose={this.handleCloseResultsModal}
+                transaction={this.state.fundingTransaction}
             />
             </div>
     }

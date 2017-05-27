@@ -111,18 +111,24 @@ class FundOrderModal extends Component {
 
         let fundingButton = ''
         let cancelButton = ''
-        if (this.props.fundingProgress === 'waitingTransaction') {
-            fundingButton = <Button bsStyle="primary" disabled><ThreeBounce /> Waiting for transaction</Button>
-            cancelButton = <Button bsStyle="danger" disabled>Cancel</Button>
-        } else {
-            fundingButton = <Button bsStyle="primary" onClick={this.handleSubmit}>Initiate payment</Button>
-            cancelButton = <Button bsStyle="danger" onClick={this.props.onCancel}>Cancel</Button>
+        switch(this.props.fundingProgress) {
+            case 'waitingTransaction':
+                fundingButton = <Button bsStyle="primary" disabled><ThreeBounce /> Waiting for transaction</Button>
+                cancelButton = <Button bsStyle="danger" disabled>Cancel</Button>
+                break
+            case 'checkingTransaction':
+                fundingButton = <Button bsStyle="primary" disabled><ThreeBounce /> Retrieving transaction</Button>
+                cancelButton = <Button bsStyle="danger" disabled>Cancel</Button>
+                break
+            case 'idle':
+                fundingButton = <Button bsStyle="primary" onClick={this.handleSubmit}>Initiate payment</Button>
+                cancelButton = <Button bsStyle="danger" onClick={this.props.onCancel}>Cancel</Button>
+                break
         }
 
-
         const modal = (
-            <Modal bsSize="large" show={this.props.showModal} onHide={this.close}>
-                <Modal.Header closeButton>
+            <Modal bsSize="large" show={this.props.showModal} onHide={this.props.onCancel}>
+                <Modal.Header>
                     <Modal.Title>Fund order "{this.props.order.ownerLabel}"</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
