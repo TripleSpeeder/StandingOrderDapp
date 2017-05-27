@@ -13,7 +13,6 @@ class OutgoingFundsButton extends Component {
     }
 
     handleSelect(key, event) {
-        console.log("Selected " + key + " for order " + this.props.order.address)
         switch (key) {
             case 'fund':
                 this.props.onFund()
