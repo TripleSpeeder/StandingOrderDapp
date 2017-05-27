@@ -32,6 +32,8 @@ class StandingOrder extends Component {
         return <tr>
             <td>
                 {this.props.isLoading && <DoubleBounce /> }
+            </td>
+            <td>
                 <strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.owner}</td>
@@ -51,6 +53,8 @@ class StandingOrder extends Component {
         return <tr>
             <td>
                 {this.props.isLoading && <DoubleBounce /> }
+            </td>
+            <td>
                 <strong>{this.props.order.ownerLabel}</strong>
             </td>
             <td>{this.props.order.payee}</td>

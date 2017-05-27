@@ -27,6 +27,7 @@ class StandingOrderList extends Component {
             <Table fill striped hover>
                 <thead>
                 <tr>
+                    <td></td>
                     <td>Label</td>
                     <td>From</td>
                     <td>Amount</td>
@@ -66,6 +67,7 @@ class StandingOrderList extends Component {
             <Table fill striped hover>
                 <thead>
                 <tr>
+                    <td></td>
                     <td>Label</td>
                     <td>To</td>
                     <td>Amount</td>
