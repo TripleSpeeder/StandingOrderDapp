@@ -22,8 +22,21 @@ class OutgoingFundsButtonContainer extends Component {
     }
 
     handleSubmit(amount) {
-        this.props.onFund(amount)
-        this.setState({showModal:false})
+        var self=this
+        var transaction_object = {
+            from: this.props.order.owner,
+            to: this.props.order.address,
+            value: amount
+        }
+        window.web3.eth.sendTransaction(transaction_object, function (err, address) {
+            if (err) {
+                console.log("Error while sending transaction: ")
+                console.log(err)
+            } else {
+                console.log("Contract funded. Transaction address: " + address)
+                self.setState({showModal:false})
+            }
+        })
     }
 
     handleCancel(){
@@ -49,7 +62,6 @@ class OutgoingFundsButtonContainer extends Component {
 
 OutgoingFundsButtonContainer.propTypes = {
     order: PropTypes.object.isRequired,
-    onFund: PropTypes.func.isRequired,
     onWithdraw: PropTypes.func.isRequired,
 }
 

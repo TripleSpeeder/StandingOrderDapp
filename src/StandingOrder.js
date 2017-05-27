@@ -63,7 +63,6 @@ class StandingOrder extends Component {
             <td>
                 <OutgoingFundsButtonContainer
                     order={this.props.order}
-                    onFund={this.props.onFundContract}
                     onWithdraw={this.props.onWithdrawOwnerFunds}
                 />
             </td>

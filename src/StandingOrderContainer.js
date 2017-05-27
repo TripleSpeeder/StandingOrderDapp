@@ -11,7 +11,6 @@ class StandingOrderContainer extends Component {
             flatOrder: null,
             isLoading: true
         }
-        this.handleFundContract = this.handleFundContract.bind(this)
         this.orderToState = this.orderToState.bind(this)
         this.handleWithdraw = this.handleWithdraw.bind(this)
         this.handleCancelContract = this.handleCancelContract.bind(this)
@@ -45,27 +44,6 @@ class StandingOrderContainer extends Component {
                 console.log("Error while cancelling contract:")
                 console.log(e)
             })
-    }
-
-    handleFundContract(amount) {
-        var contract_address = this.state.orderInstance.address
-        console.log("Funding contract " + this.state.orderInstance)
-
-        window.web3.eth.getAccounts(function (error, accounts) {
-            var transaction_object = {
-                from: accounts[0],
-                to: contract_address,
-                value: amount
-            }
-            window.web3.eth.sendTransaction(transaction_object, function (err, address) {
-                if (err) {
-                    console.log("Error while sending transaction: ")
-                    console.log(err)
-                } else {
-                    console.log("Contract funded. Transaction address: " + address)
-                }
-            })
-        })
     }
 
     handleRelabel(_label) {
