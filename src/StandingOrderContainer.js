@@ -131,8 +131,8 @@ class StandingOrderContainer extends Component {
         }))
 
         Promise.all(promises).then(function (results) {
-            flatOrder.fundsInsufficient = flatOrder.entitledFunds > flatOrder.collectibleFunds
-            flatOrder.withdrawEnabled = flatOrder.ownerFunds > 0
+            flatOrder.fundsInsufficient = flatOrder.entitledFunds.gt(flatOrder.collectibleFunds)
+            flatOrder.withdrawEnabled = flatOrder.ownerFunds.gt(0)
             flatOrder.cancelEnabled = flatOrder.balance.isZero()
             flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
             self.calculateNextPaymentDate(flatOrder)
