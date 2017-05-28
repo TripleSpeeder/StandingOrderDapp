@@ -37,7 +37,7 @@ class FundOrderModal extends Component {
 
     componentWillReceiveProps(nextProps) {
         // Make sure to reset input fields to default values when opening modal
-        if (nextProps.showModal !== this.state.showModal){
+        if (nextProps.showModal !== this.props.showModal){
             if (nextProps.showModal)
                 this.reset()
         }
