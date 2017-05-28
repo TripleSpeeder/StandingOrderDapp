@@ -10,6 +10,7 @@ class IncomingFundsButton extends Component {
 
         this.handleSelect = this.handleSelect.bind(this)
         this.determineStyle = this.determineStyle.bind(this)
+        this.renderWaiting = this.renderWaiting.bind(this)
     }
 
     handleSelect(key, event) {
@@ -31,7 +32,7 @@ class IncomingFundsButton extends Component {
         return 'default'
     }
 
-    render() {
+    renderDefault() {
         let etherDisplay = <EtherDisplay wei={this.props.order.collectibleFunds}/>
         let bsStyle = this.determineStyle()
         return (
@@ -51,11 +52,36 @@ class IncomingFundsButton extends Component {
         )
     }
 
+    renderWaiting() {
+        return (
+            <DropdownButton
+                title="Collecting..."
+                id="dropDownButtonID"
+                bsSize="small"
+                bsStyle="info"
+                disabled
+            >
+            </DropdownButton>
+        )
+    }
+
+    render() {
+        switch(this.props.collectState) {
+            case 'waitingTransaction':
+            case 'checkingTransaction':
+                return this.renderWaiting()
+            case 'idle':
+            default:
+                return this.renderDefault()
+        }
+    }
+
 }
 
 IncomingFundsButton.propTypes = {
     order: PropTypes.object.isRequired,
     onCollect: PropTypes.func.isRequired,
+    collectState: PropTypes.string.isRequired
 }
 
 export default IncomingFundsButton

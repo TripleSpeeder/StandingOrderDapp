@@ -13,19 +13,12 @@ class StandingOrder extends Component {
         super(props)
 
         this.handleCancel = this.handleCancel.bind(this)
-        this.handleCollect= this.handleCollect.bind(this)
     }
 
     handleCancel(event) {
         // Completely cancel contract
         this.props.onCancelContract()
         event.preventDefault()
-    }
-
-    // Withdraw ownerfunds from contract
-    handleCollect() {
-        // TODO: Show Feedback like progressbar, transaction details, ...
-        this.props.onCollectFunds()
     }
 
     renderAsIncoming() {

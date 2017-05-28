@@ -20,10 +20,8 @@ class StandingOrderContainer extends Component {
 
     handleCollect() {
         console.log("Collecting funds from contract")
-        this.props.orderInstance.collectFunds({from: this.state.flatOrder.payee}).then(function(result){
-            console.log("CollectFunds issued: ")
-            console.log(result)
-        })
+        // return promise
+        return this.props.orderInstance.collectFunds({from: this.state.flatOrder.payee})
     }
 
     handleWithdraw() {
@@ -135,6 +133,7 @@ class StandingOrderContainer extends Component {
             flatOrder.withdrawEnabled = flatOrder.ownerFunds.gt(0)
             flatOrder.cancelEnabled = flatOrder.balance.isZero()
             flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
+            flatOrder.collectFn = self.handleCollect
             self.calculateNextPaymentDate(flatOrder)
             self.calculateFailureDate(flatOrder)
             self.setState({
@@ -201,7 +200,6 @@ class StandingOrderContainer extends Component {
             onFundContract={this.handleFundContract}
             onWithdrawOwnerFunds={this.handleWithdraw}
             onCancelContract={this.handleCancelContract}
-            onCollectFunds={this.handleCollect}
             onRelabel={this.handleRelabel}
             outgoing={this.props.outgoing}
             isLoading={this.state.isLoading}
