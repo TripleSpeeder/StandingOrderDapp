@@ -8,15 +8,15 @@ class NewOrderButton extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showModal: false
+            showCreateModal: false
         }
 
-        this.onNewOrder = this.onNewOrder.bind(this)
-        this.open = this.open.bind(this)
-        this.close = this.close.bind(this)
+        this.onCreateOrder = this.onCreateOrder.bind(this)
+        this.openCreateModal = this.openCreateModal.bind(this)
+        this.closeCreateModal = this.closeCreateModal.bind(this)
     }
 
-    onNewOrder(order) {
+    onCreateOrder(order) {
         this.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
             from: this.props.account,
             gas: 1000000
@@ -24,35 +24,39 @@ class NewOrderButton extends Component {
             console.log('Created StandingOrder - transaction: ' + result.tx)
             console.log(result.receipt)
         })
-        this.close()
+        this.closeCreateModal()
     }
 
-    close() {
-        this.setState({showModal: false})
+    closeCreateModal() {
+        this.setState({showCreateModal: false})
     }
 
-    open() {
-        this.setState({showModal: true})
+    openCreateModal() {
+        this.setState({showCreateModal: true})
     }
 
     render() {
-        return <div>
-            <Button
+        let button =             <Button
                 bsStyle="primary"
-                onClick={this.open}>
+                onClick={this.openCreateModal}>
                 {this.props.label}
             </Button>
-            <Modal show={this.state.showModal} onHide={this.close}>
+
+        let createModal =             <Modal show={this.state.showCreateModal} onHide={this.closeCreateModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Create standing order</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <NewOrderForm
-                        onNewOrder={this.onNewOrder}
-                        onCancel={this.close}
+                        onNewOrder={this.onCreateOrder}
+                        onCancel={this.closeCreateModal}
                     />
                 </Modal.Body>
             </Modal>
+
+        return <div>
+            {button}
+            {createModal}
         </div>
     }
 }
