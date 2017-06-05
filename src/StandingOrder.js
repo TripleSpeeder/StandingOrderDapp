@@ -1,11 +1,11 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Glyphicon} from 'react-bootstrap'
-import {secondsToDisplayString} from "./Utils"
+import {secondsToDisplayString} from './Utils'
 import {DoubleBounce} from 'better-react-spinkit'
-import EtherDisplay from "./EtherDisplay"
-import OutgoingFundsButtonContainer from "./OutgoingFundsButtonContainer"
-import IncomingFundsButtonContainer from "./IncomingFundsButtonContainer"
+import EtherDisplay from './EtherDisplay'
+import OutgoingFundsButtonContainer from './OutgoingFundsButtonContainer'
+import IncomingFundsButtonContainer from './IncomingFundsButtonContainer'
 
 class StandingOrder extends Component {
 
@@ -78,7 +78,10 @@ class StandingOrder extends Component {
     render() {
         if (!this.props.order) {
             return <tr>
-                <td colSpan={8}>Loading...</td>
+                <td>
+                    <DoubleBounce />
+                </td>
+                <td colSpan={7}>Loading...</td>
             </tr>
         }
 

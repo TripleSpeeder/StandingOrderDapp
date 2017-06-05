@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {Panel, Table} from 'react-bootstrap'
+import {Panel, Table, Glyphicon} from 'react-bootstrap'
 import StandingOrderContainer from './StandingOrderContainer'
 import NewOrderButton from "./NewOrderButton"
 
@@ -27,7 +27,7 @@ class StandingOrderList extends Component {
             <Table fill striped hover>
                 <thead>
                 <tr>
-                    <td></td>
+                    <td>&nbsp;<Glyphicon glyph="hourglass"/></td>
                     <td>Label</td>
                     <td>From</td>
                     <td>Amount</td>
@@ -67,7 +67,7 @@ class StandingOrderList extends Component {
             <Table fill striped hover>
                 <thead>
                 <tr>
-                    <td></td>
+                    <td>&nbsp;<Glyphicon glyph="hourglass"/></td>
                     <td>Label</td>
                     <td>To</td>
                     <td>Amount</td>
