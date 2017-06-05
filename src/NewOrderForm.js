@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Form, ControlLabel, FormGroup, FormControl, Col, HelpBlock} from 'react-bootstrap'
+import {CubeGrid, ThreeBounce} from 'better-react-spinkit'
 import moment from 'moment'
 import Duration from "./Duration"
 import EtherAmount from './EtherAmount'
@@ -68,6 +69,36 @@ class NewOrderForm extends Component {
     }
 
     render() {
+        let createButton
+        let cancelButton
+        switch (this.props.createOrderProgress) {
+            case 'waitingTransaction':
+                createButton = <Button bsStyle="primary" type="submit" disabled>
+                                <ThreeBounce/> Waiting...
+                            </Button>
+                cancelButton = <Button onClick={this.props.onCancel} disabled>
+                            Cancel
+                        </Button>
+                break
+            case 'done':
+                createButton = <Button bsStyle="primary" type="submit" disabled>
+                                Done!
+                            </Button>
+                cancelButton = <Button onClick={this.props.onCancel} disabled>
+                            Cancel
+                        </Button>
+                break
+            case 'idle':
+            default:
+                createButton = <Button bsStyle="primary" type="submit">
+                                Create order
+                            </Button>
+                cancelButton = <Button onClick={this.props.onCancel}>
+                            Cancel
+                        </Button>
+                break
+        }
+
         return (
             <Form horizontal onSubmit={this.handleSubmit}>
                 <FormGroup>
@@ -136,14 +167,10 @@ class NewOrderForm extends Component {
 
                 <FormGroup>
                     <Col smOffset={2} sm={3}>
-                        <Button bsStyle="primary" type="submit">
-                            Create order
-                        </Button>
+                        {createButton}
                     </Col>
                     <Col smOffset={5} sm={2}>
-                        <Button onClick={this.props.onCancel}>
-                            Cancel
-                        </Button>
+                        {cancelButton}
                     </Col>
                 </FormGroup>
             </Form>
@@ -153,6 +180,7 @@ class NewOrderForm extends Component {
 
 NewOrderForm.propTypes = {
     onNewOrder: PropTypes.func.isRequired,
+    createOrderProgress: PropTypes.string.isRequired,
 }
 
 export default NewOrderForm
