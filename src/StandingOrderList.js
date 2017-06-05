@@ -82,7 +82,10 @@ class StandingOrderList extends Component {
                 {rows}
                 </tbody>
             </Table>
-            <NewOrderButton label="Create new Order" factoryInstance={this.props.factoryInstance}/>
+            <NewOrderButton
+                label="Create new Order"
+                account={this.props.account}
+                factoryInstance={this.props.factoryInstance}/>
         </Panel>
     }
 

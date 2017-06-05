@@ -17,16 +17,12 @@ class NewOrderButton extends Component {
     }
 
     onNewOrder(order) {
-        var self = this
-        // get accounts
-        window.web3.eth.getAccounts(function (error, accounts) {
-            return self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
-                from: accounts[0],
-                gas: 1000000
-            }).then(function (result) {
-                console.log('Created StandingOrder - transaction: ' + result.tx)
-                console.log(result.receipt)
-            })
+        this.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
+            from: this.props.account,
+            gas: 1000000
+        }).then(function (result) {
+            console.log('Created StandingOrder - transaction: ' + result.tx)
+            console.log(result.receipt)
         })
         this.close()
     }
@@ -57,14 +53,14 @@ class NewOrderButton extends Component {
                     />
                 </Modal.Body>
             </Modal>
-
         </div>
     }
 }
 
 NewOrderButton.propTypes = {
     label: PropTypes.string.isRequired,
-    factoryInstance: PropTypes.any.isRequired, // TODO: Use specifc protype instead of any!
+    account: PropTypes.string.isRequired,
+    factoryInstance: PropTypes.any.isRequired, // TODO: Use specifc protype instead of 'any'!
 }
 
 export default NewOrderButton
