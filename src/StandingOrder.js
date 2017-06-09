@@ -59,8 +59,8 @@ class StandingOrder extends Component {
                     onWithdraw={this.props.onWithdrawOwnerFunds}
                 />
             </td>
-            <td>{this.props.order.failureDate.format()}</td>
             <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>
+            <td>{this.props.order.failureDate.format()}</td>
             <td>
                 <Button
                     bsStyle="danger"

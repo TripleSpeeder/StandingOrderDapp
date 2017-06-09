@@ -73,8 +73,8 @@ class StandingOrderList extends Component {
                     <td>Amount</td>
                     <td>Intervall</td>
                     <td>Remaining</td>
-                    <td>Funded until</td>
                     <td>Unclaimed</td>
+                    <td>Funded until</td>
                     <td>&nbsp;</td>
                 </tr>
                 </thead>
