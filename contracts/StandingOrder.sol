@@ -7,14 +7,59 @@ import 'zeppelin/SafeMath.sol';
 
 contract StandingOrder is Ownable, SafeMath {
 
-    address public payee;        // The payee gets the money
-    uint public startTime;       // Time when first payment should take place
-    uint public paymentInterval; // How often can payee claim paymentAmount
-    uint public paymentAmount;   // How much can payee claim per period
-    uint public claimedFunds;    // How much funds have been claimed already
-    string public ownerLabel;    // Label managed by contract owner
+    /*
 
-    function StandingOrder(address _owner, address _payee, uint _paymentInterval, uint _paymentAmount, uint _startTime, string _label) payable {
+    Lifecycle of a standing order:
+    - the payment amount per interval is set at construction time and can not be changed afterwards
+    - the payee is set by the owner and can not be changed after creation (TODO: Decide if payee should be able to change receiving address?)
+    - the owner can be changed by owner (using "ownable" base contract) (TODO: Change to "claimable" base contract for extra security!)
+    - at <startTime> the first payment is due
+    - every <intervall> seconds the next payment is due
+    - the owner can terminate a standingorder anytime. Termination results in:
+      - All superfluous funds being returned to owner
+      - No further funding being allowed
+      - order marked as "terminated" and not being displayed anymore in owner UI
+      - as long as there are uncollected funds entitled to the payee, it is still displayed in payee UI
+      - the payee can still collect funds owned to him
+    - Contract self-destructs if
+      - it is terminated
+      - no more funds are available to collect for payee
+
+    * Terminology *
+    "withdraw" -> performed by owner - transfer funds stored in contract back to owner
+    "collect"  -> performed by payee - transfer entitled funds from contract to payee
+
+    * How does a payment work? *
+    Since a contract can not trigger a payment by itself, it provides the method "collectFunds" for the payee.
+    The payee can always query the contract to determine how many funds he is entitled to collect.
+    The payee can call "collectFunds" to initiate transfer of entitled funds to his address.
+
+    */
+
+    address public payee;        // The payee is the receiver of funds
+    uint public startTime;       // Date and time (unix timestamp - seconds since 1970) when first payment should take place
+    uint public paymentInterval; // Interval (seconds) for payments
+    uint public paymentAmount;   // How much can payee claim per period (Unit: Wei)
+    uint public claimedFunds;    // How much funds have been claimed already (Unit: Wei)
+    string public ownerLabel;    // Label (set by contract owner)
+    bool public isTerminated;    // Marks order as terminated
+
+    // Restrict functions to payee
+    modifier onlyPayee() {
+        if (msg.sender != payee) {
+            throw;
+        }
+        _;
+    }
+
+    function StandingOrder(
+                            address _owner,
+                            address _payee,
+                            uint _paymentInterval,
+                            uint _paymentAmount,
+                            uint _startTime,
+                            string _label)
+                                            payable {
         // Sanity check parameters
         if (_paymentInterval < 1)
             throw;
@@ -30,44 +75,41 @@ contract StandingOrder is Ownable, SafeMath {
         paymentAmount = _paymentAmount;
         ownerLabel = _label;
         startTime = _startTime;
-    }
-
-    modifier onlyPayee() {
-        if (msg.sender != payee) {
-            throw;
-        }
-        _;
+        isTerminated = false;
     }
 
     /* Allow adding funds to existing order */
     function() payable {
-        // TODO: Log entry?
+        // TODO: Dont make contract as a whole payable. Instead create a dedicated "addFunds" method to prevent any accidental payment!
+        if (isTerminated) {
+            // adding funds not allowed for terminated orders
+            throw;
+        }
     }
 
     // How much funds should be available for withdraw right now.
     // Note that this might be more than actually available!
     function getEntitledFunds() constant returns (uint) {
-        // sanity check
+        // First check if the contract startTime has been reached at all
         if (now < startTime) {
+            // startTime not yet reached
             return 0;
         }
 
-        // Calculate theoretical amount that payee should own right now
-        uint totalAmount = 0;
-        uint age = safeSub(now, startTime);
-        if (age == 0) {
-            totalAmount = paymentAmount;
-        } else {
-            uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
-            totalAmount = safeMul(completeIntervals, paymentAmount);
-            totalAmount = safeAdd(totalAmount, paymentAmount); // first payment is due at startDate already!
-        }
+        // startTime has been reached, so add first payment
+        uint entitledAmount = paymentAmount;
 
-        // subtract already withdrawn funds
-        return safeSub(totalAmount, claimedFunds);
+        // calculate number of complete intervals since startTime
+        uint age = safeSub(now, startTime);
+        uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
+        // add interval * paymentAmount to entitledAmount
+        entitledAmount = safeAdd(entitledAmount, safeMul(completeIntervals, paymentAmount));
+
+        // subtract already collected funds
+        return safeSub(entitledAmount, claimedFunds);
     }
 
-    /* How much funds are owned by Payee but not yet withdrawn */
+    /* How much funds are available for payee to collect. */
     function getUnclaimedFunds() constant returns (uint) {
         /* entitledAmount might be more than available balance. In this case
          * available balance is the limit */
@@ -75,21 +117,14 @@ contract StandingOrder is Ownable, SafeMath {
     }
 
     /* How much funds are still owned by owner (not yet reserved for payee)
-     This can be negative in cases when contract was not funded enough!
-    */
+       This can be negative in case contract is not funded enough to cover entitled amount of payee! */
     function getOwnerFunds() constant returns (int) {
         return int256(this.balance) - int256(getEntitledFunds());
     }
 
     /* Collect payment */
-    function collectFunds() {
-        // only payee can collect funds
-        if (msg.sender != payee) {
-            throw;
-        }
-
+    function collectFunds() onlyPayee {
         uint amount = getUnclaimedFunds();
-
         if (amount <= 0) {
             // nothing to collect :-(
             throw;
@@ -98,33 +133,49 @@ contract StandingOrder is Ownable, SafeMath {
         // keep track of collected funds
         claimedFunds = safeAdd(claimedFunds, amount);
 
+        // initiate transfer of unclaimed funds to payee
         if (payee.send(amount) == false)
             throw;
+
+        // if this order is terminated and no more funds available to collect in future, it can now be destroyed
+        if (isTerminated && this.balance == 0) {
+            selfdestruct(owner);
+        }
     }
 
     /* Returns remaining funds to owner. 
      * Note that this does not return unclaimed funds - They 
      * can only be claimed by payee!
-     * The Standingorder is not yet cancelled, at any time owner can 
+     * Withdrawing funds does not terminate the order, at any time owner can
      * fund it again!
      */
     function WithdrawOwnerFunds() onlyOwner {
-        int ownerFunds = getOwnerFunds();
-        if (ownerFunds <= 0)
+        int ownerFunds = getOwnerFunds(); // this might be negative in case of underfunded contract!
+        if (ownerFunds <= 0) {
+            // nothing available to withdraw :-(
             throw;
-        // conversion int -> uint should be safe as I'm checking <= 0 above!
+        }
+        // conversion int -> uint is safe here as I'm checking <= 0 above!
         if (owner.send(uint256(ownerFunds)) == false)
             throw;
     }
 
-    /* Completely cancel this standingOrder */
-    function Cancel() onlyOwner {
-        // only possible when no funds are left in the contract
-        if (this.balance > 0) {
-            throw;
+    /* Terminate standingOrder:
+       - transfer any remaining funds back to owner
+       - mark order as terminated
+       - if no unclaimed funds remain -> selfdestruct contract
+    */
+    function WithdrawAndTerminate() onlyOwner {
+        if (getOwnerFunds() > 0) {
+            WithdrawOwnerFunds();
         }
 
-        selfdestruct(owner);
+        isTerminated = true;
+
+        if (this.balance == 0) {
+            // All remaining owner balance is withdrawn and payee has collected all available funds. Safe to selfdestruct!
+            selfdestruct(owner);
+        }
     }
 }
 
