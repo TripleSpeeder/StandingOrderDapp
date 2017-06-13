@@ -1,5 +1,9 @@
 var moment = require('moment')
-var expect = require('chai').expect
+var chai = require("chai");
+var chaiAsPromised = require("chai-as-promised");
+
+chai.use(chaiAsPromised);
+var assert = chai.assert;
 
 // Include web3 library so we can query accounts.
 const Web3 = require('web3')
@@ -75,45 +79,39 @@ contract('StandingOrderFactory', function (accounts) {
     })
 
     it('should not be terminated after construction', function () {
-        return order.isTerminated({from: owner}).then(function (isTerminated) {
-            assert.equal(isTerminated, false, 'Contract was terminated after construction')
-        })
+        assert.becomes(order.isTerminated({from: owner}), false, 'Contract was terminated after construction')
     })
 
     it('should have no entitledfunds', function () {
         return order.getEntitledFunds({from: owner}).then(function (entitledBalance) {
-            assert.equal(0, entitledBalance, 'entitledBalance is not zero!')
+            assert.equal(true, entitledBalance.isZero(), 'entitledBalance is not zero!')
         })
     })
 
     it('should have no collectible funds', function () {
         return order.getUnclaimedFunds({from: owner}).then(function (unclaimedBalance) {
-            assert.equal(0, unclaimedBalance, 'unclaimedBalance is not zero!')
+            assert.equal(true, unclaimedBalance.isZero(), 'unclaimedBalance is not zero!')
         })
     })
 
     it('should be balanced - no funds missing, no funds available for withdraw', function () {
         return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
-            assert.equal(0, ownerBalance, 'ownerBalance is not zero!')
+            assert.equal(true, ownerBalance.isZero(), 'ownerBalance is not zero!')
         })
     })
 
     it('should throw when payee calls collectFunds but there is nothing to collect', function () {
-        return order.collectFunds({from: payee})
-            .then(function (result) {
-                assert(false, 'collectFunds should have thrown!')
-            }).catch(function (e) {
-                assert(true, 'caught error trying to collect funds')
-            })
+        return assert.isRejected(
+            order.collectFunds({from: payee}),
+            /invalid opcode/
+        )
     })
 
     it('should throw when payee tries to terminate order', function () {
-        return order.WithdrawAndTerminate({from: payee})
-            .then(function (result) {
-                assert(false, 'WithdrawAndTerminate should have thrown!')
-            }).catch(function (e) {
-                assert(true, 'caught error trying terminate by payee')
-            })
+        return assert.isRejected(
+            order.WithdrawAndTerminate({from: payee}),
+            /invalid opcode/
+        )
     })
 
     it('should be terminated after calling "withdrawAndTerminate', function () {
