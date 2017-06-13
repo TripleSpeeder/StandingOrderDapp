@@ -1,4 +1,5 @@
 var moment = require('moment')
+var expect = require('chai').expect
 
 // Include web3 library so we can query accounts.
 const Web3 = require('web3')
@@ -43,15 +44,16 @@ web3.eth.getTransactionReceiptMined = function (txnHash, interval) {
 contract('StandingOrderFactory', function (accounts) {
 
     let order
+    let owner = accounts[0]
+    let payee = accounts[1]
+    let orderAddress
 
-    // it('should create a standingOrder', function () {
     before('Create a standingOrder', function () {
-        var owner = accounts[0]
-        var payee = accounts[1]
-        var interval = 60 // one minute
-        var startTime = moment() // now
-        var amount = 100000000
-        var label = 'testorder'
+        let interval = 60 // one minute
+        let startTime = moment().add(1, 'days') // First payment due in one day
+        let amount = 100000000
+        let label = 'testorder'
+
 
         return StandingOrderFactory.deployed().then(function (factory) {
             return factory.createStandingOrder(payee, amount, interval, startTime.unix(), label, {
@@ -59,9 +61,13 @@ contract('StandingOrderFactory', function (accounts) {
                 gas: 1000000
             }).then(function (result) {
                 // now wait till transaction is mined, only then the contract is deployed.
-                return web3.eth.getTransactionReceiptMined(result.tx)
-            }).then(function (receipt) {
-                return StandingOrder.at(receipt.contractAddress)
+                web3.eth.getTransactionReceiptMined(result.tx)
+            }).then(function () {
+                // now get the actual standingOrderContract
+                return factory.getOwnOrderByIndex.call(0, {from: owner})
+            }).then(function (address) {
+                orderAddress = address
+                return StandingOrder.at(address)
             }).then(function (orderInstance) {
                 order = orderInstance
             })
@@ -69,52 +75,59 @@ contract('StandingOrderFactory', function (accounts) {
     })
 
     it('should not be terminated after construction', function () {
-        return order.isTerminated.call(accounts[0]).then(function (isTerminated) {
+        return order.isTerminated({from: owner}).then(function (isTerminated) {
             assert.equal(isTerminated, false, 'Contract was terminated after construction')
         })
     })
 
-    /*
-     it("should put 10000 MetaCoin in the first account", function() {
-     return MetaCoin.deployed().then(function(instance) {
-     return instance.getBalance.call(accounts[0]);
-     }).then(function(balance) {
-     assert.equal(balance.valueOf(), 10000, "10000 wasn't in the first account");
-     });
-     });
-     it("should send coin correctly", function() {
-     var meta;
+    it('should have no entitledfunds', function () {
+        return order.getEntitledFunds({from: owner}).then(function (entitledBalance) {
+            assert.equal(0, entitledBalance, 'entitledBalance is not zero!')
+        })
+    })
 
-     // Get initial balances of first and second account.
-     var account_one = accounts[0];
-     var account_two = accounts[1];
+    it('should have no collectible funds', function () {
+        return order.getUnclaimedFunds({from: owner}).then(function (unclaimedBalance) {
+            assert.equal(0, unclaimedBalance, 'unclaimedBalance is not zero!')
+        })
+    })
 
-     var account_one_starting_balance;
-     var account_two_starting_balance;
-     var account_one_ending_balance;
-     var account_two_ending_balance;
+    it('should be balanced - no funds missing, no funds available for withdraw', function () {
+        return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
+            assert.equal(0, ownerBalance, 'ownerBalance is not zero!')
+        })
+    })
 
-     var amount = 10;
+    it('should throw when payee calls collectFunds but there is nothing to collect', function () {
+        return order.collectFunds({from: payee})
+            .then(function (result) {
+                assert(false, 'collectFunds should have thrown!')
+            }).catch(function (e) {
+                assert(true, 'caught error trying to collect funds')
+            })
+    })
 
-     return MetaCoin.deployed().then(function(instance) {
-     meta = instance;
-     return meta.getBalance.call(account_one);
-     }).then(function(balance) {
-     account_one_starting_balance = balance.toNumber();
-     return meta.getBalance.call(account_two);
-     }).then(function(balance) {
-     account_two_starting_balance = balance.toNumber();
-     return meta.sendCoin(account_two, amount, {from: account_one});
-     }).then(function() {
-     return meta.getBalance.call(account_one);
-     }).then(function(balance) {
-     account_one_ending_balance = balance.toNumber();
-     return meta.getBalance.call(account_two);
-     }).then(function(balance) {
-     account_two_ending_balance = balance.toNumber();
+    it('should throw when payee tries to terminate order', function () {
+        return order.WithdrawAndTerminate({from: payee})
+            .then(function (result) {
+                assert(false, 'WithdrawAndTerminate should have thrown!')
+            }).catch(function (e) {
+                assert(true, 'caught error trying terminate by payee')
+            })
+    })
 
-     assert.equal(account_one_ending_balance, account_one_starting_balance - amount, "Amount wasn't correctly taken from the sender");
-     assert.equal(account_two_ending_balance, account_two_starting_balance + amount, "Amount wasn't correctly sent to the receiver");
-     });
-     });*/
+    it('should be terminated after calling "withdrawAndTerminate', function () {
+        // First check that code is actually there
+        assert.notEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')
+
+        return order.WithdrawAndTerminate({from: owner})
+            .then(function (result) {
+                // now wait till transaction is mined, only then the contract is deployed.
+                web3.eth.getTransactionReceiptMined(result.tx)
+            })
+            .then(function () {
+                // contract code should be replaced with 0x now
+                assert.strictEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')
+            })
+    })
 })
