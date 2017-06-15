@@ -120,6 +120,18 @@ contract('StandingOrderFactory', function (accounts) {
         )
     })
 
+    xit('should correctly collect funds for payee', function () {
+        let currentBalance
+        let promiseA = web3.eth.getBalance(payee).then(function (balance) {
+            currentBalance = balance
+        })
+        assert.isFulfilled(promiseA)
+        // get current payee balance
+        // call CollectFunds()
+        // again get payee balance
+        // balance diff should match entitled amount.
+    })
+
     it('should be terminated after calling "withdrawAndTerminate', function () {
         // First verify order is not terminated
         assert.becomes(order.isTerminated({from: owner}), false, 'Contract already terminated before starting test!')
