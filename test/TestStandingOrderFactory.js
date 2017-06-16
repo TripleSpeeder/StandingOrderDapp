@@ -13,44 +13,10 @@ let web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
 var StandingOrder = artifacts.require('StandingOrder')
 var StandingOrderFactory = artifacts.require('StandingOrderFactory')
 
-web3.eth.getTransactionReceiptMined = function (txnHash, interval) {
-    var transactionReceiptAsync
-    interval = interval ? interval : 500
-    transactionReceiptAsync = function (txnHash, resolve, reject) {
-        web3.eth.getTransactionReceipt(txnHash, (error, receipt) => {
-            if (error) {
-                reject(error)
-            } else {
-                if (receipt == null) {
-                    setTimeout(function () {
-                        transactionReceiptAsync(txnHash, resolve, reject)
-                    }, interval)
-                } else {
-                    resolve(receipt)
-                }
-            }
-        })
-    }
-
-    if (Array.isArray(txnHash)) {
-        var promises = []
-        txnHash.forEach(function (oneTxHash) {
-            promises.push(web3.eth.getTransactionReceiptMined(oneTxHash, interval))
-        })
-        return Promise.all(promises)
-    } else {
-        return new Promise(function (resolve, reject) {
-            transactionReceiptAsync(txnHash, resolve, reject)
-        })
-    }
-}
-
-
 contract('StandingOrderFactory', function (accounts) {
 
     let owner = accounts[0]
     let payee = accounts[1]
-    let orderIndex = 0
     let factory
 
     createOrder = function (payee, amount, interval, startTime, label) {
@@ -58,10 +24,8 @@ contract('StandingOrderFactory', function (accounts) {
             from: owner,
             gas: 1000000
         }).then(function (result) {
-            // now wait till transaction is mined, only then the contract is deployed.
-            web3.eth.getTransactionReceiptMined(result.tx)
-        }).then(function () {
             // now get the actual standingOrderContract
+            let orderIndex = 0
             return factory.getOwnOrderByIndex.call(orderIndex, {from: owner})
         }).then(function (address) {
             return StandingOrder.at(address)
@@ -79,10 +43,7 @@ contract('StandingOrderFactory', function (accounts) {
         let startTime = moment().add(1, 'days') // First payment due in one day
         let amount = 100000000
         let label = 'testorder'
-
-        return createOrder(payee, amount, interval, startTime, label).then(function (orderInstance) {
-            assert(true)
-        })
+        return assert.isFulfilled(createOrder(payee, amount, interval, startTime, label))
     })
 
     it('should throw when trying to create an order with 0 interval', function () {
