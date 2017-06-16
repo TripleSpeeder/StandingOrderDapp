@@ -65,8 +65,6 @@ contract StandingOrder is Ownable, SafeMath {
             throw;
         if (_paymentAmount < 1)
             throw;
-        if (_startTime < now)
-            throw;
 
         // override default behaviour of Ownable base contract
         // Explicitly set owner to _owner, as msg.sender is the StandingOrderFactory contract
