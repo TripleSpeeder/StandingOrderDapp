@@ -109,16 +109,4 @@ contract('StandingOrderFactory', function (accounts) {
         )
     })
 
-    it('should throw when trying to create an order with startTime in the past', function () {
-        let interval = 60
-        let startTime = moment().subtract(1, 'days') // First payment due yesterday
-        let amount = 1000
-        let label = 'testorder'
-        return assert.isRejected(
-            createOrder(payee, amount, interval, startTime, label),
-            /out of gas/,
-            'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
-        )
-    })
-
 })
