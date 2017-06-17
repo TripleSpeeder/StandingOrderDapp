@@ -19,8 +19,8 @@ contract('StandingOrderFactory', function (accounts) {
     let owner = accounts[0]
     let payee = accounts[1]
     let otherUser = accounts[2]
-    let paymentAmount = web3.toWei(1, 'ether')
-    let fundAmount = web3.toWei(10, 'ether')
+    let paymentAmount = web3.toWei(1, 'finney')
+    let fundAmount = web3.toWei(10, 'finney')
 
     // TODO: Don't use factory here, instead just manually create an order instance!
     before('Create a standingOrder', function () {

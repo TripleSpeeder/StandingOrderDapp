@@ -40,8 +40,8 @@ contract UserMock {
         return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, _startTime, 'fromUserMock');
     }
 
-    function doCancelStandingOrder(StandingOrder _so) {
-        _so.Cancel();
+    function doWithdrawAndTerminate(StandingOrder _so) {
+        _so.WithdrawAndTerminate();
     }
 }
 

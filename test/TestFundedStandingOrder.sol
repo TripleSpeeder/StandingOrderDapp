@@ -45,8 +45,8 @@ contract UserMockB {
         return(_so.send(_amount));
     }
 
-    function doCancelStandingOrder(StandingOrder _so) {
-        _so.Cancel();
+    function doWithdrawAndTerminate(StandingOrder _so) {
+        _so.WithdrawAndTerminate();
     }
 
     function doCollect(StandingOrder _so) {
@@ -97,8 +97,6 @@ contract TestFundedStandingOrder {
 
     function testCollect() {
         // check precondition - In order to collect funds something has to be available
-        uint age = now - standingOrder.startTime();
-        Assert.isAbove(age, 0, "Age should be > 0");
         Assert.isNotZero(standingOrder.getUnclaimedFunds(), "Unclaimed funds should be available");
         // test that collect does work
         payee.doCollect(standingOrder);

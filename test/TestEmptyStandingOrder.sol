@@ -41,8 +41,8 @@ contract UserMockA {
         return new StandingOrder(this, _payee, _paymentInterval, _paymentAmount, _startTime, 'fromUserA');
     }
 
-    function doCancelStandingOrder(StandingOrder _so) {
-        _so.Cancel();
+    function doWithdrawAndTerminate(StandingOrder _so) {
+        _so.WithdrawAndTerminate();
     }
 
 }
@@ -61,9 +61,8 @@ contract TestEmptyStandingOrder {
     }
 
     function beforeEach() {
-        // create an empty (unfunded) standingorder
-        // emptyStandingOrder = new StandingOrder(owner, payee, paymentInterval, paymentAmount, now);
-        emptyStandingOrder = owner.doCreateStandingOrder(payee, paymentInterval, paymentAmount, now);
+        // create an empty (unfunded) standingorder with starttime in future (one minute)
+        emptyStandingOrder = owner.doCreateStandingOrder(payee, paymentInterval, paymentAmount, now + 60);
     }
 
     function testEmptyStandingOrder() {
@@ -80,7 +79,7 @@ contract TestEmptyStandingOrder {
 
     function testEmptyCancel() {
         // test that cancelling does work
-        owner.doCancelStandingOrder(emptyStandingOrder);
+        owner.doWithdrawAndTerminate(emptyStandingOrder);
     }
 
     function testEmptyWithdrawal() {

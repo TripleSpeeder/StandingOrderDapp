@@ -15,8 +15,8 @@ var StandingOrder = artifacts.require('StandingOrder')
 let order
 let owner = web3.eth.accounts[0]
 let payee = web3.eth.accounts[1]
-let paymentAmount = web3.toBigNumber(web3.toWei(1, 'ether'))
-let fundAmount = web3.toBigNumber(web3.toWei(10, 'ether'))
+let paymentAmount = web3.toBigNumber(web3.toWei(1, 'finney'))
+let fundAmount = web3.toBigNumber(web3.toWei(10, 'finney'))
 let startBalance, newBalance, gasUsed, unclaimedFunds
 let gasPrice = web3.eth.gasPrice
 
