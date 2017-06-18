@@ -5,11 +5,6 @@ var chaiAsPromised = require('chai-as-promised')
 chai.use(chaiAsPromised)
 var assert = chai.assert
 
-// Include web3 library so we can query accounts.
-const Web3 = require('web3')
-// Instantiate new web3 object pointing toward an Ethereum node.
-let web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
-
 var StandingOrder = artifacts.require('StandingOrder')
 
 let order
