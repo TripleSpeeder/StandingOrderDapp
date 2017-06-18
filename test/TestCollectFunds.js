@@ -27,7 +27,7 @@ describe('Prepare standing order', function(){
             from: owner,
         })
         .then(function (instance) {
-            console.log("Created new order at " + instance.address)
+            // console.log("Created new order at " + instance.address)
             order = instance
         })
     })

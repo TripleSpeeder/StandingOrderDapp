@@ -6,7 +6,6 @@ chai.use(chaiAsPromised)
 var assert = chai.assert
 
 var StandingOrder = artifacts.require('StandingOrder')
-var StandingOrderFactory = artifacts.require('StandingOrderFactory')
 
 contract('StandingOrderFactory', function (accounts) {
 
@@ -17,25 +16,18 @@ contract('StandingOrderFactory', function (accounts) {
     let paymentAmount = web3.toWei(1, 'finney')
     let fundAmount = web3.toWei(10, 'finney')
 
-    // TODO: Don't use factory here, instead just manually create an order instance!
     before('Create a standingOrder', function () {
         let interval = 60 // one minute
         let startTime = moment() // First payment due now
         let label = 'testorder'
 
-        return StandingOrderFactory.deployed().then(function (factory) {
-            return factory.createStandingOrder(payee, paymentAmount, interval, startTime.unix(), label, {
-                from: owner,
-                gas: 1000000
-            }).then(function (result) {
-                // now get the actual standingOrderContract
-                return factory.getOwnOrderByIndex.call(0, {from: owner})
-            }).then(function (address) {
-                orderAddress = address
-                return StandingOrder.at(address)
-            }).then(function (orderInstance) {
-                order = orderInstance
-            })
+        return StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
+        {
+            from: owner,
+        })
+        .then(function (instance) {
+            // console.log("Created new order at " + instance.address)
+            order = instance
         })
     })
 
