@@ -46,54 +46,58 @@ describe('Checking collectFunds', function () {
         assert.isAbove(startBalance.toNumber(), web3.toWei(10, 'ether'))
     })
 
+    describe('Checking access', function () {
+        it('should throw when owner calls collectFunds', function () {
+            return assert.isRejected(
+                order.collectFunds({from: owner}),
+                /invalid opcode/
+            )
+        })
 
-    it('should throw when owner calls collectFunds', function () {
-        return assert.isRejected(
-            order.collectFunds({from: owner}),
-            /invalid opcode/
-        )
-    })
-
-    it('should throw when non-payee calls collectFunds', function () {
-        return assert.isRejected(
-            order.collectFunds({from: otherUser}),
-            /invalid opcode/
-        )
-    })
-
-    it('should get correct unclaimed funds', function () {
-        return order.getUnclaimedFunds.call({from: payee}).then(function (_unclaimedFunds) {
-            unclaimedFunds = _unclaimedFunds
-            assert(unclaimedFunds.equals(paymentAmount), 'unclaimedFunds should match paymentAmount!')
+        it('should throw when non-payee calls collectFunds', function () {
+            return assert.isRejected(
+                order.collectFunds({from: otherUser}),
+                /invalid opcode/
+            )
         })
     })
 
-    it('should call collectFunds', function done() {
-        return order.collectFunds({from: payee})
-            .then(function (result) {
-                assert.isNotNull(result.receipt.blockHash)
-                assert.isNotNull(result.receipt.blockNumber)
-                gasUsed = result.receipt.gasUsed
-                gasPrice = web3.eth.getTransaction(result.tx).gasPrice
+    describe('Checking collect', function () {
+
+        it('should get correct unclaimed funds', function () {
+            return order.getUnclaimedFunds.call({from: payee}).then(function (_unclaimedFunds) {
+                unclaimedFunds = _unclaimedFunds
+                assert(unclaimedFunds.equals(paymentAmount), 'unclaimedFunds should match paymentAmount!')
             })
-    })
+        })
 
-    it('should correctly increase payees balance', function () {
-        newBalance = web3.eth.getBalance(payee)
-        let diff = newBalance.minus(startBalance) // how much did balance increase
-        diff = diff.plus(gasPrice.mul(gasUsed)) // take gas usage into account
-        if (!diff.equals(unclaimedFunds)) {
-            let missing = unclaimedFunds.minus(diff)
-            console.log("Missing " + missing.toString() + " wei")
-            console.log("Did you run testrpc with -g option? You HAVE to specify it to get correct value for web3.eth.gasPrice!")
-        }
-        assert(diff.equals(unclaimedFunds), "Account balance should be increased by unclaimedFunds")
-    })
+        it('should call collectFunds', function done() {
+            return order.collectFunds({from: payee})
+                .then(function (result) {
+                    assert.isNotNull(result.receipt.blockHash)
+                    assert.isNotNull(result.receipt.blockNumber)
+                    gasUsed = result.receipt.gasUsed
+                    gasPrice = web3.eth.getTransaction(result.tx).gasPrice
+                })
+        })
 
-    it('should correctly decrease contract balance', function () {
-        assert(web3.eth.getBalance(order.address).equals(fundAmount.minus(paymentAmount)))
-    })
+        it('should correctly increase payees balance', function () {
+            newBalance = web3.eth.getBalance(payee)
+            let diff = newBalance.minus(startBalance) // how much did balance increase
+            diff = diff.plus(gasPrice.mul(gasUsed)) // take gas usage into account
+            if (!diff.equals(unclaimedFunds)) {
+                let missing = unclaimedFunds.minus(diff)
+                console.log("Missing " + missing.toString() + " wei")
+                console.log("Did you run testrpc with -g option? You HAVE to specify it to get correct value for web3.eth.gasPrice!")
+            }
+            assert(diff.equals(unclaimedFunds), "Account balance should be increased by unclaimedFunds")
+        })
 
+        it('should correctly decrease contract balance', function () {
+            assert(web3.eth.getBalance(order.address).equals(fundAmount.minus(paymentAmount)))
+        })
+
+    })
 
 })
 
