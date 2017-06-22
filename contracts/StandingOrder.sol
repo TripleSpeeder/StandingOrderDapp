@@ -166,6 +166,7 @@ contract StandingOrder is Ownable, SafeMath {
        - if no unclaimed funds remain -> selfdestruct contract
     */
     function WithdrawAndTerminate() onlyOwner {
+        // can't rely on WithDrawOwnerFunds to do this checking, as it would throw if not enough funds available
         if (getOwnerFunds() > 0) {
             WithdrawOwnerFunds();
         }
