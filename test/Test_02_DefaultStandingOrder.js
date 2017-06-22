@@ -6,46 +6,12 @@ chai.use(chaiAsPromised);
 var assert = chai.assert;
 
 var StandingOrder = artifacts.require('StandingOrder')
-var StandingOrderFactory = artifacts.require('StandingOrderFactory')
 
-web3.eth.getTransactionReceiptMined = function (txnHash, interval) {
-    var transactionReceiptAsync
-    interval = interval ? interval : 500
-    transactionReceiptAsync = function (txnHash, resolve, reject) {
-        web3.eth.getTransactionReceipt(txnHash, (error, receipt) => {
-            if (error) {
-                reject(error)
-            } else {
-                if (receipt == null) {
-                    setTimeout(function () {
-                        transactionReceiptAsync(txnHash, resolve, reject)
-                    }, interval)
-                } else {
-                    resolve(receipt)
-                }
-            }
-        })
-    }
-
-    if (Array.isArray(txnHash)) {
-        var promises = []
-        txnHash.forEach(function (oneTxHash) {
-            promises.push(web3.eth.getTransactionReceiptMined(oneTxHash, interval))
-        })
-        return Promise.all(promises)
-    } else {
-        return new Promise(function (resolve, reject) {
-            transactionReceiptAsync(txnHash, resolve, reject)
-        })
-    }
-}
-
-contract('StandingOrderFactory', function (accounts) {
+describe('Default standing order', function () {
 
     let order
-    let owner = accounts[0]
-    let payee = accounts[1]
-    let orderAddress
+    let owner = web3.eth.accounts[0]
+    let payee = web3.eth.accounts[1]
 
     before('Create a standingOrder', function () {
         let interval = 60 // one minute
@@ -53,23 +19,12 @@ contract('StandingOrderFactory', function (accounts) {
         let amount = 100000000
         let label = 'testorder'
 
-
-        return StandingOrderFactory.deployed().then(function (factory) {
-            return factory.createStandingOrder(payee, amount, interval, startTime.unix(), label, {
-                from: owner,
-                gas: 1000000
-            }).then(function (result) {
-                // now wait till transaction is mined, only then the contract is deployed.
-                web3.eth.getTransactionReceiptMined(result.tx)
-            }).then(function () {
-                // now get the actual standingOrderContract
-                return factory.getOwnOrderByIndex.call(0, {from: owner})
-            }).then(function (address) {
-                orderAddress = address
-                return StandingOrder.at(address)
-            }).then(function (orderInstance) {
-                order = orderInstance
-            })
+        return StandingOrder.new(owner, payee, interval, amount, startTime.unix(), label,
+        {
+            from: owner,
+        })
+        .then(function (instance) {
+            order = instance
         })
     })
 
@@ -115,10 +70,6 @@ contract('StandingOrderFactory', function (accounts) {
 
         return order.WithdrawAndTerminate({from: owner})
             .then(function (result) {
-                // now wait till transaction is mined, only then the contract is deployed.
-                web3.eth.getTransactionReceiptMined(result.tx)
-            })
-            .then(function () {
                 // contract code should be replaced with 0x now
                 assert.strictEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')
             })
