@@ -7,13 +7,11 @@ var assert = chai.assert
 
 var StandingOrder = artifacts.require('StandingOrder')
 
-let order
 let owner = web3.eth.accounts[0]
 let payee = web3.eth.accounts[1]
 let paymentAmount = web3.toBigNumber(web3.toWei(1, 'finney'))
 let fundAmount = web3.toBigNumber(web3.toWei(10, 'finney'))
-let startBalance, newBalance, gasUsed, unclaimedFunds
-let gasPrice = web3.eth.gasPrice
+let order, startBalance, newBalance, gasUsed, unclaimedFunds, gasPrice
 
 describe('Prepare standing order', function(){
 
@@ -60,7 +58,7 @@ describe('Prepare standing order', function(){
                 assert.isNotNull(result.receipt.blockHash)
                 assert.isNotNull(result.receipt.blockNumber)
                 gasUsed = result.receipt.gasUsed
-                assert.isAbove(result.receipt.cumulativeGasUsed, 100)
+                gasPrice = web3.eth.getTransaction(result.tx).gasPrice
             })
     })
 
