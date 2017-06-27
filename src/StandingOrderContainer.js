@@ -197,7 +197,6 @@ class StandingOrderContainer extends Component {
     render() {
         return <StandingOrder
             order={this.state.flatOrder}
-            onFundContract={this.handleFundContract}
             onWithdrawOwnerFunds={this.handleWithdraw}
             onCancelContract={this.handleCancelContract}
             onRelabel={this.handleRelabel}
