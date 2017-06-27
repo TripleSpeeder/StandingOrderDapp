@@ -40,15 +40,15 @@ class OutgoingFundsButtonContainer extends Component {
             to: this.props.order.address,
             value: amount
         }
-        window.web3.eth.sendTransaction(transaction_object, function (err, address) {
+        window.web3.eth.sendTransaction(transaction_object, function (err, hash) {
             if (err) {
                 console.log("Error while sending transaction: ")
                 console.log(err)
                 self.setState({fundingProgress:'idle'})
             } else {
-                console.log("Contract funded. Transaction address: " + address)
+                console.log("Contract funded. Transaction hash: " + hash)
                 self.setState({fundingProgress:'checkingTransaction'})
-                window.web3.eth.getTransaction(address, function(err, transaction) {
+                window.web3.eth.getTransaction(hash, function(err, transaction) {
                     if (!err) {
                         console.log("Got transaction: " + transaction)
                         self.setState({
