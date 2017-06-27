@@ -66,8 +66,6 @@ class FundOrderModal extends Component {
      User changed the amount he wants to fund
      */
     handleAmountChange(wei) {
-        if (wei.lessThan(0))
-            wei = window.web3.toBigNumber(0)
         // Calculate resulting number of payments that are covered
         const numberOfPayments = wei.dividedBy(this.props.order.paymentAmount)
         this.setState({
@@ -82,8 +80,10 @@ class FundOrderModal extends Component {
     handleNumPaymentsChange(event) {
         const target = event.target
         let number = target.value
-        if (number < 0)
-            number = 0;
+        // prevent owner from trying to withdraw more than available.
+        if (this.props.order.paymentsCovered.plus(number).lessThan(0)) {
+            number = this.state.numberOfPayments
+        }
         const amount = this.props.order.paymentAmount.times(number)
         this.setState({
             amount: amount,
@@ -121,7 +121,17 @@ class FundOrderModal extends Component {
                 cancelButton = <Button bsStyle="danger" disabled>Cancel</Button>
                 break
             case 'idle':
-                fundingButton = <Button bsStyle="primary" onClick={this.handleSubmit}>Initiate payment</Button>
+                let fundingButtonLabel = 'Add funds'
+                let disabled = false
+                if (this.state.amount.lessThan(0)) {
+                    // Owner is about to withdraw funds
+                    fundingButtonLabel = 'Withdraw funds'
+                }
+                if (this.state.amount.isZero()) {
+                    // disable fundingButton when no amount is set
+                    disabled = true
+                }
+                fundingButton = <Button bsStyle="primary" disabled={disabled} onClick={this.handleSubmit}>{fundingButtonLabel}</Button>
                 cancelButton = <Button bsStyle="danger" onClick={this.props.onCancel}>Cancel</Button>
                 break
         }
@@ -174,7 +184,7 @@ class FundOrderModal extends Component {
 
                         <Col md={6}>
                             <Well>
-                            <h4>Add Funds</h4>
+                            <h4>Manage funds</h4>
                             <Form horizontal onSubmit={this.handleSubmit}>
                                 <FormGroup validationState={validationState}>
                                     <Col componentClass={ControlLabel} md={4}>
@@ -185,7 +195,7 @@ class FundOrderModal extends Component {
                                             wei={this.state.amount}
                                             unit="ether"
                                             onChange={this.handleAmountChange}/>
-                                        <HelpBlock>Change this value to directly set the ether amount to transfer to contract</HelpBlock>
+                                        <HelpBlock>Change this value to directly set the ether amount to add/withdraw</HelpBlock>
                                     </Col>
                                 </FormGroup>
 
@@ -198,7 +208,7 @@ class FundOrderModal extends Component {
                                                      type="number"
                                                      value={this.state.numberOfPayments}
                                                      onChange={this.handleNumPaymentsChange}/>
-                                        <HelpBlock>Change this value to automatically set ether amount based on the number of payments you want to cover.</HelpBlock>
+                                        <HelpBlock>Change this value to automatically set ether amount based on the number of payments you want to add/remove.</HelpBlock>
                                     </Col>
                                 </FormGroup>
                             </Form>
