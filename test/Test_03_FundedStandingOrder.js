@@ -100,19 +100,4 @@ describe('Funded standing order', function () {
         })
     })
 
-    describe('Checking Withdrawal', function () {
-        it('should throw when non-owner calls WithdrawOwnerFunds', function () {
-            return assert.isRejected(
-                order.WithdrawOwnerFunds({from: otherUser}),
-                /invalid opcode/
-            )
-        })
-
-        xit('should withdraw correct amount', function () {
-        })
-    })
-
-    // TODO: Add testcase checking if after another interval unclaimedfunds is less then entitledfunds, because owner
-    // called withdraw before!
-
 })

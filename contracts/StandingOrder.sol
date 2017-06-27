@@ -143,20 +143,25 @@ contract StandingOrder is Ownable, SafeMath {
         }
     }
 
-    /* Returns remaining funds to owner. 
-     * Note that this does not return unclaimed funds - They 
+    /* Returns requested amount to owner.
+     * Note that this does can not return unclaimed funds - They
      * can only be claimed by payee!
      * Withdrawing funds does not terminate the order, at any time owner can
      * fund it again!
      */
-    function WithdrawOwnerFunds() onlyOwner {
-        int ownerFunds = getOwnerFunds(); // this might be negative in case of underfunded contract!
-        if (ownerFunds <= 0) {
+    function WithdrawOwnerFunds(uint amount) onlyOwner {
+        int intOwnerFunds = getOwnerFunds(); // this might be negative in case of underfunded contract!
+        if (intOwnerFunds <= 0) {
             // nothing available to withdraw :-(
             throw;
         }
         // conversion int -> uint is safe here as I'm checking <= 0 above!
-        if (owner.send(uint256(ownerFunds)) == false)
+        uint256 ownerFunds = uint256(intOwnerFunds);
+        if (amount > ownerFunds) {
+            // Trying to withdraw more than available!
+            throw; // Alternatively could just withdraw all available funds...
+        }
+        if (owner.send(amount) == false)
             throw;
     }
 
@@ -166,9 +171,10 @@ contract StandingOrder is Ownable, SafeMath {
        - if no unclaimed funds remain -> selfdestruct contract
     */
     function WithdrawAndTerminate() onlyOwner {
+        int256 ownerFunds = getOwnerFunds();
         // can't rely on WithDrawOwnerFunds to do this checking, as it would throw if not enough funds available
-        if (getOwnerFunds() > 0) {
-            WithdrawOwnerFunds();
+        if (ownerFunds > 0) {
+            WithdrawOwnerFunds(uint256(ownerFunds));
         }
 
         isTerminated = true;
