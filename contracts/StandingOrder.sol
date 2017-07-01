@@ -79,7 +79,7 @@ contract StandingOrder is Ownable, SafeMath {
         // TODO: Dont make contract as a whole payable. Instead create a dedicated "addFunds" method to prevent any accidental payment!
         if (isTerminated) {
             // adding funds not allowed for terminated orders
-            throw; // TODO: revert() to not unnecessarily burn gas?
+            revert();
         }
     }
 
@@ -123,7 +123,7 @@ contract StandingOrder is Ownable, SafeMath {
         uint amount = getUnclaimedFunds();
         if (amount <= 0) {
             // nothing to collect :-(
-            throw; // TODO: revert() to not unnecessarily burn gas?
+            revert();
         }
 
         // keep track of collected funds
@@ -149,7 +149,7 @@ contract StandingOrder is Ownable, SafeMath {
 
         if (intOwnerFunds <= 0) {
             // nothing available to withdraw :-(
-            throw; // TODO: revert() to not unnecessarily burn gas?
+            revert();
         }
 
         // conversion int -> uint is safe here as I'm checking <= 0 above!
