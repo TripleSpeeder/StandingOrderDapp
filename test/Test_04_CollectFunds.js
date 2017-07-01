@@ -81,7 +81,6 @@ describe('Checking collectFunds', function () {
                     // there should be one log event named "Collect"
                     assert.equal('Collect', result.logs[0].event)
                     // the first (and only) argument is the amount collected
-                    //console.log(result.logs[0].args['amount'])
                     assert(unclaimedFunds.equals(result.logs[0].args['amount']))
                 })
         })
