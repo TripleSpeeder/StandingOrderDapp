@@ -59,7 +59,7 @@ describe('Default standing order', function () {
 
     it('should throw when payee tries to terminate order', function () {
         return assert.isRejected(
-            order.WithdrawAndTerminate({from: payee}),
+            order.Terminate({from: payee}),
             /invalid opcode/
         )
     })
@@ -68,7 +68,7 @@ describe('Default standing order', function () {
         // First check that code is actually there
         assert.notEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')
 
-        return order.WithdrawAndTerminate({from: owner})
+        return order.Terminate({from: owner})
             .then(function (result) {
                 // contract code should be replaced with 0x now
                 assert.strictEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')

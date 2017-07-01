@@ -1,4 +1,4 @@
-pragma solidity ^0.4.4;
+pragma solidity ^0.4.11;
 
 
 import 'zeppelin/ownership/Ownable.sol';
@@ -46,9 +46,7 @@ contract StandingOrder is Ownable, SafeMath {
 
     // Restrict functions to payee
     modifier onlyPayee() {
-        if (msg.sender != payee) {
-            throw;
-        }
+        require(msg.sender == payee);
         _;
     }
 
@@ -61,10 +59,8 @@ contract StandingOrder is Ownable, SafeMath {
                             string _label)
                                             payable {
         // Sanity check parameters
-        if (_paymentInterval < 1)
-            throw;
-        if (_paymentAmount < 1)
-            throw;
+        require(_paymentInterval > 0);
+        require(_paymentAmount > 0);
 
         // override default behaviour of Ownable base contract
         // Explicitly set owner to _owner, as msg.sender is the StandingOrderFactory contract
@@ -83,7 +79,7 @@ contract StandingOrder is Ownable, SafeMath {
         // TODO: Dont make contract as a whole payable. Instead create a dedicated "addFunds" method to prevent any accidental payment!
         if (isTerminated) {
             // adding funds not allowed for terminated orders
-            throw;
+            throw; // TODO: revert() to not unnecessarily burn gas?
         }
     }
 
@@ -127,15 +123,14 @@ contract StandingOrder is Ownable, SafeMath {
         uint amount = getUnclaimedFunds();
         if (amount <= 0) {
             // nothing to collect :-(
-            throw;
+            throw; // TODO: revert() to not unnecessarily burn gas?
         }
 
         // keep track of collected funds
         claimedFunds = safeAdd(claimedFunds, amount);
 
         // initiate transfer of unclaimed funds to payee
-        if (payee.send(amount) == false)
-            throw;
+        payee.transfer(amount);
 
         // if this order is terminated and no more funds available to collect in future, it can now be destroyed
         if (isTerminated && this.balance == 0) {
@@ -151,31 +146,30 @@ contract StandingOrder is Ownable, SafeMath {
      */
     function WithdrawOwnerFunds(uint amount) onlyOwner {
         int intOwnerFunds = getOwnerFunds(); // this might be negative in case of underfunded contract!
+
         if (intOwnerFunds <= 0) {
             // nothing available to withdraw :-(
-            throw;
+            throw; // TODO: revert() to not unnecessarily burn gas?
         }
+
         // conversion int -> uint is safe here as I'm checking <= 0 above!
         uint256 ownerFunds = uint256(intOwnerFunds);
+
         if (amount > ownerFunds) {
             // Trying to withdraw more than available!
             throw; // Alternatively could just withdraw all available funds...
         }
-        if (owner.send(amount) == false)
-            throw;
+
+        owner.transfer(amount);
     }
 
     /* Terminate standingOrder:
-       - transfer any remaining funds back to owner
-       - mark order as terminated
-       - if no unclaimed funds remain -> selfdestruct contract
+       - Can only be executed if no ownerfunds are left
+       - marks order as terminated
+       - if no unclaimed funds remaining -> selfdestructs contract
     */
-    function WithdrawAndTerminate() onlyOwner {
-        int256 ownerFunds = getOwnerFunds();
-        // can't rely on WithDrawOwnerFunds to do this checking, as it would throw if not enough funds available
-        if (ownerFunds > 0) {
-            WithdrawOwnerFunds(uint256(ownerFunds));
-        }
+    function Terminate() onlyOwner {
+        require(getOwnerFunds() == 0);
 
         isTerminated = true;
 

@@ -66,12 +66,28 @@ describe('Checking Termination with unclaimed balance', function () {
     // selfdestruct!
     describe('Terminating', function () {
 
+        let ownerfunds
+
         before('should not be terminated before', function () {
             assert.becomes(order.isTerminated({from: owner}), false, 'Contract already terminated before starting test!')
         })
 
-        it('should be terminated after calling "withdrawAndTerminate', function () {
-            return order.WithdrawAndTerminate({from: owner})
+        before('should get available ownerfunds', function() {
+            order.getOwnerFunds.call({from: owner}).then(function (funds) {
+                ownerfunds = funds
+            })
+        })
+
+        it('should throw trying to terminate when ownerfunds are left', function () {
+            return assert.isRejected(order.Terminate({from: payee}))
+        })
+
+        it('should do a full withdraw', function done() {
+            return assert.isFulfilled(order.WithdrawOwnerFunds(ownerfunds, {from: owner}))
+        })
+
+        it('should be terminated after calling "Terminate', function () {
+            return order.Terminate({from: owner})
                 .then(function (result) {
                     // code should still exist on the blockchain
                     assert.notEqual('0x0', web3.eth.getCode(order.address), 'Contract code should still exist')
