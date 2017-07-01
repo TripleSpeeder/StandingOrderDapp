@@ -113,7 +113,7 @@ contract StandingOrder is Ownable, SafeMath {
     function getUnclaimedFunds() constant returns (uint) {
         /* entitledAmount might be more than available balance. In this case
          * available balance is the limit */
-        return min256(this.getEntitledFunds(), this.balance);
+        return min256(getEntitledFunds(), this.balance);
     }
 
     /* How much funds are still owned by owner (not yet reserved for payee)
