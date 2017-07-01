@@ -11,7 +11,9 @@ class IncomingFundsButtonContainer extends Component {
         this.state = {
             showResultsModal:false,
             collectingTransaction:null,
-            collectState: 'idle'
+            collectState: 'idle',
+            collectedAmount: window.web3.toBigNumber(0),
+            transactionHash: ''
         }
 
         this.handleCloseResultsModal = this.handleCloseResultsModal.bind(this)
@@ -30,25 +32,16 @@ class IncomingFundsButtonContainer extends Component {
         this.setState({collectState: 'waitingTransaction'})
         this.props.order.collectFn().then(function(result){
             console.log("CollectFunds issued: ")
-            console.log(result)
-            self.setState({collectState:'checkingTransaction'})
-            window.web3.eth.getTransaction(result.tx, function(err, transaction) {
-                if (!err) {
-                    console.log("Got transaction: " + transaction)
-                    self.setState({
-                        showResultsModal:true,
-                        collectState:'idle',
-                        collectingTransaction:transaction,
-                    })
-                } else {
-                    console.log("Error fetching transaction details!")
-                    self.setState({
-                        showResultsModal:false,
-                        collectState:'idle',
-                    })
-                }
+            // find the event named "Collect"
+            let collectEvent = result.logs.find(function (entry) {
+                return entry.event === 'Collect'
             })
-
+            self.setState({
+                showResultsModal:true,
+                collectState:'idle',
+                collectedAmount:collectEvent.args['amount'],
+                transactionHash:result.tx
+            })
         })
     }
 
@@ -62,7 +55,8 @@ class IncomingFundsButtonContainer extends Component {
             <CollectOrderResultModal
                 showModal={this.state.showResultsModal}
                 onClose={this.handleCloseResultsModal}
-                transaction={this.state.collectingTransaction}
+                collectedAmount={this.state.collectedAmount}
+                transactionHash={this.state.transactionHash}
             />
             </div>
     }
