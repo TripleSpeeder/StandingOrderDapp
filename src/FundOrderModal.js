@@ -12,7 +12,7 @@ import {
     ControlLabel,
     Well
 } from 'react-bootstrap'
-import {CubeGrid, ThreeBounce} from 'better-react-spinkit'
+import {ThreeBounce} from 'better-react-spinkit'
 import EtherAmount from './EtherAmount'
 import CurrentOrderStateAlert from "./CurrentOrderStateAlert"
 import { BigNumWeiToDisplayString, secondsToDisplayString} from "./Utils"
@@ -63,9 +63,19 @@ class FundOrderModal extends Component {
     }
 
     /*
-     User changed the amount he wants to fund
+     User changed the amount he wants to fund/withdraw
      */
     handleAmountChange(wei) {
+        if (wei.lessThan(0))
+            wei = window.web3.toBigNumber(0)
+
+        if (this.props.modalMode === 'withdraw') {
+            // prevent owner from trying to withdraw more than available.
+            if (this.props.order.ownerFunds.minus(wei).lessThan(0)) {
+                wei = this.state.amount
+            }
+        }
+
         // Calculate resulting number of payments that are covered
         const numberOfPayments = wei.dividedBy(this.props.order.paymentAmount)
         this.setState({
@@ -75,14 +85,18 @@ class FundOrderModal extends Component {
     }
 
     /*
-     User changed the number of payments he wants to fund for.
+     User changed the number of payments he wants to fund/withdraw
      */
     handleNumPaymentsChange(event) {
         const target = event.target
         let number = target.value
-        // prevent owner from trying to withdraw more than available.
-        if (this.props.order.paymentsCovered.plus(number).lessThan(0)) {
-            number = this.state.numberOfPayments
+        if (number < 1)
+            number = 1;
+        if (this.props.modalMode === 'withdraw') {
+            // prevent owner from trying to withdraw more than available.
+            if (this.props.order.paymentsCovered.minus(number).lessThan(0)) {
+                number = this.state.numberOfPayments
+            }
         }
         const amount = this.props.order.paymentAmount.times(number)
         this.setState({
@@ -92,8 +106,13 @@ class FundOrderModal extends Component {
     }
 
     getTotalCoveredPayments() {
-        // add number of future payments based on current funding settings
-        return this.props.order.paymentsCovered.plus(this.state.numberOfPayments)
+        if (this.props.modalMode === 'withdraw') {
+            // subtract number of future payments based on current withdraw settings
+            return this.props.order.paymentsCovered.minus(this.state.numberOfPayments)
+        } else {
+            // add number of future payments based on current funding settings
+            return this.props.order.paymentsCovered.plus(this.state.numberOfPayments)
+        }
     }
 
     getNewFailureDate(){
@@ -103,6 +122,7 @@ class FundOrderModal extends Component {
 
 
     render() {
+        let isFunding = this.props.modalMode === 'fund'
         let validationState = "success"
         if (this.getTotalCoveredPayments().isZero())
             validationState = "warning"
@@ -111,6 +131,19 @@ class FundOrderModal extends Component {
 
         let fundingButton = ''
         let cancelButton = ''
+        let fundingButtonLabel = 'Withdraw funds'
+        if (isFunding) {
+            // Owner is about to withdraw funds
+            fundingButtonLabel = 'Add funds'
+        }
+
+        let resultingOrderFunds = this.props.order.ownerFunds
+        if (isFunding){
+            resultingOrderFunds = resultingOrderFunds.plus(this.state.amount)
+        } else {
+            resultingOrderFunds = resultingOrderFunds.minus(this.state.amount)
+        }
+
         switch(this.props.fundingProgress) {
             case 'waitingTransaction':
                 fundingButton = <Button bsStyle="primary" disabled><ThreeBounce /> Waiting for transaction</Button>
@@ -121,12 +154,8 @@ class FundOrderModal extends Component {
                 cancelButton = <Button bsStyle="danger" disabled>Cancel</Button>
                 break
             case 'idle':
-                let fundingButtonLabel = 'Add funds'
+            default:
                 let disabled = false
-                if (this.state.amount.lessThan(0)) {
-                    // Owner is about to withdraw funds
-                    fundingButtonLabel = 'Withdraw funds'
-                }
                 if (this.state.amount.isZero()) {
                     // disable fundingButton when no amount is set
                     disabled = true
@@ -139,7 +168,7 @@ class FundOrderModal extends Component {
         const modal = (
             <Modal bsSize="large" show={this.props.showModal} onHide={this.props.onCancel}>
                 <Modal.Header>
-                    <Modal.Title>Fund order "{this.props.order.ownerLabel}"</Modal.Title>
+                    <Modal.Title>{isFunding ? "Fund order" : "Withdraw from order" } "{this.props.order.ownerLabel}"</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
 
@@ -184,31 +213,31 @@ class FundOrderModal extends Component {
 
                         <Col md={6}>
                             <Well>
-                            <h4>Manage funds</h4>
+                            <h4>{isFunding ? "Add funds" : "Withdraw funds" }</h4>
                             <Form horizontal onSubmit={this.handleSubmit}>
                                 <FormGroup validationState={validationState}>
                                     <Col componentClass={ControlLabel} md={4}>
-                                        Amount
+                                        Amount to {isFunding ? "fund" : "withdraw" }
                                     </Col>
                                     <Col md={8}>
                                         <EtherAmount
                                             wei={this.state.amount}
                                             unit="ether"
                                             onChange={this.handleAmountChange}/>
-                                        <HelpBlock>Change this value to directly set the ether amount to add/withdraw</HelpBlock>
+                                        <HelpBlock>Change this value to directly set the ether amount to {isFunding ? "fund" : "withdraw" }.</HelpBlock>
                                     </Col>
                                 </FormGroup>
 
                                 <FormGroup validationState={validationState}>
                                     <Col componentClass={ControlLabel} md={4}>
-                                        Number of payments
+                                        Number of payments to {isFunding ? "fund" : "withdraw" }
                                     </Col>
                                     <Col md={8}>
                                         <FormControl name="numberPayments"
                                                      type="number"
                                                      value={this.state.numberOfPayments}
                                                      onChange={this.handleNumPaymentsChange}/>
-                                        <HelpBlock>Change this value to automatically set ether amount based on the number of payments you want to add/remove.</HelpBlock>
+                                        <HelpBlock>Change this value to automatically set ether amount based on the number of payments you want to {isFunding ? "fund" : "withdraw" }.</HelpBlock>
                                     </Col>
                                 </FormGroup>
                             </Form>
@@ -217,7 +246,7 @@ class FundOrderModal extends Component {
                                     <strong>Resulting funding state:</strong>
                                     <CurrentOrderStateAlert
                                         paymentAmount={this.props.order.paymentAmount}
-                                        ownerFunds={this.props.order.ownerFunds.plus(this.state.amount)}
+                                        ownerFunds={resultingOrderFunds}
                                         paymentsCovered={this.getTotalCoveredPayments()}
                                         nextPaymentDate={this.props.order.nextPaymentDate}
                                         failureDate={this.getNewFailureDate()}
@@ -251,6 +280,7 @@ FundOrderModal.propTypes = {
     showModal: PropTypes.bool.isRequired,
     onSubmit: PropTypes.func.isRequired,
     onCancel: PropTypes.func.isRequired,
+    modalMode: PropTypes.string.isRequired,
 }
 
 export default FundOrderModal

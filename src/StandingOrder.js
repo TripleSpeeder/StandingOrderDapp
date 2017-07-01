@@ -56,7 +56,6 @@ class StandingOrder extends Component {
             <td>
                 <OutgoingFundsButtonContainer
                     order={this.props.order}
-                    onWithdraw={this.props.onWithdrawOwnerFunds}
                 />
             </td>
             <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>

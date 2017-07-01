@@ -28,14 +28,20 @@ class FundOrderResultModal extends Component {
 
         let verifyUrl = 'https://etherchain.org/tx/' + this.props.transaction.hash
 
+        let body
+        if (this.props.isFunding) {
+            body =  <div><p>Sent <EtherDisplay wei={this.props.transaction.value}/>.</p> <p><a href={verifyUrl} target="_blank">Verify on etherchain.org</a></p></div>
+        } else {
+            body =  <div><p>Withdrawal successfull.</p><p><a href={verifyUrl} target="_blank">See transaction on etherchain.org</a></p></div>
+        }
+
         const modal = (
             <Modal bsSize="small" show={this.props.showModal} onHide={this.props.onClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Funding successfull</Modal.Title>
+                    <Modal.Title>{this.props.isFunding ? "Funding successfull" : "Withdraw successfull"}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>Sent <EtherDisplay wei={this.props.transaction.value}/>.</p>
-                    <p><a href={verifyUrl} target="_blank">Verify on etherchain.org</a></p>
+                    {body}
                 </Modal.Body>
                 <Modal.Footer>
                     <Button onClick={this.props.onClose}>Close</Button>
@@ -50,6 +56,7 @@ class FundOrderResultModal extends Component {
 FundOrderResultModal.propTypes = {
     showModal: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
+    isFunding: PropTypes.bool.isRequired,
 }
 
 export default FundOrderResultModal

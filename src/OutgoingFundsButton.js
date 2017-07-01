@@ -33,7 +33,7 @@ class OutgoingFundsButton extends Component {
         return 'warning'
     }
 
-    render() {
+    renderDefault() {
         let etherDisplay = <EtherDisplay wei={this.props.order.ownerFunds}/>
         let bsStyle = this.determineStyle()
         return (
@@ -55,6 +55,18 @@ class OutgoingFundsButton extends Component {
                 </MenuItem>
             </DropdownButton>
         )
+    }
+
+    render(){
+        switch(this.props.actionState) {
+            case 'waitingTransaction':
+            case 'checkingTransaction':
+                return this.renderWaiting()
+            case 'idle':
+            default:
+                return this.renderDefault()
+        }
+
     }
 
 }
