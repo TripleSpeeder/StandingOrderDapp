@@ -93,8 +93,7 @@ class App extends Component {
     }
 
     render() {
-        return <div>
-            <Navbar>
+        let header = <Navbar>
                 <Navbar.Header>
                     <Navbar.Brand>
                         <a href="#">STORSDapp</a>
@@ -107,14 +106,11 @@ class App extends Component {
                 </Nav>
             </Navbar>
 
-            <Grid>
+        let body
+        if (this.state.web3Available) {
+            body = <Grid>
                 <Jumbotron>
-                    {this.state.web3Available ?
-                    (
-                        <HeaderAddress account={this.state.account}/>
-                    ) : (
-                        <h2>Web3 not available</h2>
-                    )}
+                    <HeaderAddress account={this.state.account}/>
                 </Jumbotron>
 
                 <StandingOrderListContainer
@@ -131,6 +127,17 @@ class App extends Component {
                     outgoing={false}
                 />
             </Grid>
+        } else {
+            body = <Grid>
+                <Jumbotron>
+                    <h2>Web3 not available</h2>
+                </Jumbotron>
+            </Grid>
+        }
+
+        return <div>
+            {header}
+            {body}
         </div>
 
     }
