@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Form, ControlLabel, FormGroup, FormControl, Col, HelpBlock} from 'react-bootstrap'
-import {CubeGrid, ThreeBounce} from 'better-react-spinkit'
+import {ThreeBounce} from 'better-react-spinkit'
 import moment from 'moment'
 import Duration from "./Duration"
 import EtherAmount from './EtherAmount'
