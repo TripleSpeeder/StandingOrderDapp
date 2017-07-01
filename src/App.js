@@ -12,6 +12,7 @@ import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFact
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import HeaderAddress from './HeaderAddress'
 
+const PromisifyWeb3 = require("./promisifyWeb3.js");
 
 class App extends Component {
 
@@ -41,6 +42,7 @@ class App extends Component {
                 // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
                 window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
             }
+            PromisifyWeb3.promisify(window.web3);
             self.initialize()
         })
     }

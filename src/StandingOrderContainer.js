@@ -109,14 +109,7 @@ class StandingOrderContainer extends Component {
         promises.push(this.state.orderInstance.getOwnerFunds.call().then(function (ownerFunds) {
             flatOrder.ownerFunds = ownerFunds
         }))
-        promises.push(window.web3.eth.getBalance(this.state.orderInstance.address, function(error, balance) {
-            if (error) {
-                console.log("Error retrieving balance: " + error)
-                balance = window.web3.toBigNumber('0')
-            } else if ("undefined" === typeof balance) {
-                console.log('Retrieved undefined balance :-(');
-                balance = window.web3.toBigNumber('0')
-            }
+        promises.push(window.web3.eth.getBalancePromise(this.state.orderInstance.address).then(function (balance) {
             flatOrder.balance = balance
         }))
         promises.push(this.props.orderInstance.getEntitledFunds.call().then(function (entitledFunds) {
