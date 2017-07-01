@@ -56,6 +56,20 @@ contract('StandingOrderFactory', function (accounts) {
             return assert.isFulfilled(helper.createOrder(factory, owner, payee, amount, interval, startTime, label))
         })
 
+        it('should set correct owner', function() {
+            let interval = 60 // one minute
+            let startTime = moment().add(1, 'days') // First payment due in one day
+            let amount = 100000000
+            let label = 'testorder'
+            return helper.createOrder(factory, owner, payee, amount, interval, startTime, label)
+                .then(function (order) {
+                    return order.owner()
+                })
+                .then(function (_owner) {
+                    assert.equal(owner, _owner);
+                })
+        })
+
     })
 
 })
