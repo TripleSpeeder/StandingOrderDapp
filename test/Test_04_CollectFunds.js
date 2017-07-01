@@ -78,6 +78,11 @@ describe('Checking collectFunds', function () {
                     assert.isNotNull(result.receipt.blockNumber)
                     gasUsed = result.receipt.gasUsed
                     gasPrice = web3.eth.getTransaction(result.tx).gasPrice
+                    // there should be one log event named "Collect"
+                    assert.equal('Collect', result.logs[0].event)
+                    // the first (and only) argument is the amount collected
+                    //console.log(result.logs[0].args['amount'])
+                    assert(unclaimedFunds.equals(result.logs[0].args['amount']))
                 })
         })
 

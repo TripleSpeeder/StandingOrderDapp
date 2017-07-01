@@ -46,6 +46,9 @@ contract StandingOrder is Ownable, SafeMath {
         _;
     }
 
+    /** Event triggered when payee calls collectFunds() */
+    event Collect(uint amount);
+
     /**
      * Constructor
      * @param _owner The owner of the contract
@@ -145,9 +148,9 @@ contract StandingOrder is Ownable, SafeMath {
      * Can only be called by payee. This will transfer all available funds (see getUnclaimedFunds) to payee
      * In case the order has been terminated before and payee is removing the last available funds, the contract
      * will selfdestruct.
-     * TODO: Return amount that has been transferred!
+     * @return amount that has been transferred!
      */
-    function collectFunds() onlyPayee {
+    function collectFunds() onlyPayee returns(uint) {
         uint amount = getUnclaimedFunds();
         if (amount <= 0) {
             // nothing to collect :-(
@@ -160,10 +163,15 @@ contract StandingOrder is Ownable, SafeMath {
         // initiate transfer of unclaimed funds to payee
         payee.transfer(amount);
 
+        // create log entry
+        Collect(amount);
+
         // if this order is terminated and balance is zero, it can now selfdestruct
         if (isTerminated && this.balance == 0) {
             selfdestruct(owner);
         }
+
+        return amount;
     }
 
     /**
