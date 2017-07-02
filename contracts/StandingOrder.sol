@@ -46,8 +46,12 @@ contract StandingOrder is Ownable, SafeMath {
         _;
     }
 
-    /** Event triggered when payee calls collectFunds() */
+    /** Event triggered when payee collects funds */
     event Collect(uint amount);
+    /** Event triggered when contract gets funded */
+    event Fund(uint amount);
+    /** Event triggered when owner withdraws funds */
+    event Withdraw(uint amount);
 
     /**
      * Constructor
@@ -94,6 +98,8 @@ contract StandingOrder is Ownable, SafeMath {
             // adding funds not allowed for terminated orders
             revert();
         }
+        // Log Fund event
+        Fund(msg.value);
     }
 
     /**
@@ -160,11 +166,11 @@ contract StandingOrder is Ownable, SafeMath {
         // keep track of collected funds
         claimedFunds = safeAdd(claimedFunds, amount);
 
-        // initiate transfer of unclaimed funds to payee
-        payee.transfer(amount);
-
         // create log entry
         Collect(amount);
+
+        // initiate transfer of unclaimed funds to payee
+        payee.transfer(amount);
 
         // if this order is terminated and balance is zero, it can now selfdestruct
         if (isTerminated && this.balance == 0) {
@@ -194,6 +200,9 @@ contract StandingOrder is Ownable, SafeMath {
             // Trying to withdraw more than available!
             throw; // Alternatively could just withdraw all available funds
         }
+
+        // Log Withdraw event
+        Withdraw(amount);
 
         owner.transfer(amount);
     }

@@ -31,11 +31,20 @@ describe('Funded standing order', function () {
             })
     })
 
-    before('Fund order', function () {
+    it('Funding order', function () {
         return order.send(fundAmount, {from: owner})
             .then(function (result) {
                 assert.isNotNull(result.receipt.blockHash)
-                assert(web3.eth.getBalance(order.address).equals(fundAmount))
+                // there should be one log event named "Fund"
+                let fundEvent = result.logs.find(function (logentry) {
+                    return logentry.event == 'Fund'
+                })
+                assert.isDefined(fundEvent, 'No Fund event in transaction logs')
+                // Event should have arg 'amount'
+                let eventAmount = fundEvent.args['amount']
+                assert.isDefined(eventAmount, 'No amount info in Fund event')
+                assert(fundAmount.equals(eventAmount), 'Amount logged in Fund event not matching fundAmount')
+                assert(web3.eth.getBalance(order.address).equals(fundAmount), 'Order balance not matching fundAmount')
             })
     })
 

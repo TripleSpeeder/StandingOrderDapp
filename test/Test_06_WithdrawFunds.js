@@ -12,7 +12,7 @@ let payee = web3.eth.accounts[1]
 let otherUser = web3.eth.accounts[2]
 let paymentAmount = web3.toBigNumber(web3.toWei(1, 'finney'))
 let fundAmount = web3.toBigNumber(web3.toWei(10, 'finney'))
-let order, startBalance, newBalance, unclaimedFunds
+let order, startBalance, newBalance
 
 describe('Checking withdraw', function () {
 
@@ -83,6 +83,15 @@ describe('Checking withdraw', function () {
                     assert.isNotNull(result.receipt.blockNumber)
                     gasUsed = result.receipt.gasUsed
                     gasPrice = web3.eth.getTransaction(result.tx).gasPrice
+                    // there should be one log event named "Withdraw"
+                    let withdrawEvent = result.logs.find(function (logentry) {
+                        return logentry.event == 'Withdraw'
+                    })
+                    assert.isDefined(withdrawEvent, 'No Withdraw event in transaction logs')
+                    // Event should have arg 'amount'
+                    let eventAmount = withdrawEvent.args['amount']
+                    assert.isDefined(eventAmount, 'No amount info in Withdraw event')
+                    assert(withdrawAmount.equals(eventAmount), 'Amount logged in Withdraw event not matching withdrawAmount')
                 })
         })
 
@@ -109,12 +118,21 @@ describe('Checking withdraw', function () {
             )
         })
 
-        it('should do a full withdraw', function done() {
+        it('should do a full withdraw', function () {
             // calculate remaining ownerfunds that should be available
             let fullAmount = ownerFunds.minus(withdrawAmount)
-            return assert.isFulfilled(
-                order.WithdrawOwnerFunds(fullAmount, {from: owner})
-            )
+            return order.WithdrawOwnerFunds(fullAmount, {from: owner})
+                .then(function(result) {
+                    // there should be one log event named "Withdraw"
+                    let withdrawEvent = result.logs.find(function (logentry) {
+                        return logentry.event == 'Withdraw'
+                    })
+                    assert.isDefined(withdrawEvent, 'No Withdraw event in transaction logs')
+                    // Event should have arg 'amount'
+                    let eventAmount = withdrawEvent.args['amount']
+                    assert.isDefined(eventAmount, 'No amount info in Withdraw event')
+                    assert(fullAmount.equals(eventAmount), 'Amount logged in Withdraw event not matching requested amount')
+                })
         })
     })
 })
