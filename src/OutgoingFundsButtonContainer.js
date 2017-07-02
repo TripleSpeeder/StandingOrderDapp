@@ -13,7 +13,8 @@ class OutgoingFundsButtonContainer extends Component {
             showModal:false,
             fundingProgress: 'idle',
             showResultsModal:false,
-            fundingTransaction:null,
+            transactionHash:'',
+            amount:window.web3.toBigNumber(0),
             modalMode:'fund'
         }
 
@@ -54,69 +55,47 @@ class OutgoingFundsButtonContainer extends Component {
     }
 
     doWithdraw(amount) {
-        var self=this
+        var self = this
 
-        self.setState({fundingProgress:'waitingTransaction'})
-        this.props.order.withdrawFn(amount.abs()).then(function(result) {
-            console.log("Withdraw issued: ")
-            console.log(result)
-            window.web3.eth.getTransaction(result.tx, function (err, transaction) {
-                if (!err) {
-                    console.log("Got withdrawal transaction: " + transaction)
-                    self.setState({
-                        showModal:false,
-                        showResultsModal:true,
-                        fundingProgress:'idle',
-                        fundingTransaction:transaction,
-                    })
-                } else {
-                    console.log("Error fetching withdrawal transaction details!")
-                    self.setState({
-                        showModal:false,
-                        showResultsModal:false,
-                        fundingProgress:'idle'
-                    })
-                }
+        self.setState({fundingProgress: 'waitingTransaction'})
+        this.props.order.withdrawFn(amount.abs())
+            .then(function (result) {
+                console.log("Withdraw issued: ")
+                console.log(result)
+                // find the event named "Withdraw"
+                let ev = result.logs.find(function (entry) {
+                    return entry.event === 'Withdraw'
+                })
+                self.setState({
+                    showModal: false,
+                    showResultsModal: true,
+                    fundingProgress: 'idle',
+                    transactionHash: result.tx,
+                    amount: ev.args['amount'],
+                })
             })
-        })
+            .catch(function (err) {
+                // Easily catch all errors along the whole execution.
+                console.log("ERROR! " + err.message)
+            })
     }
 
     doFund(amount) {
         var self=this
-
         self.setState({fundingProgress:'waitingTransaction'})
-        var transaction_object = {
-            from: this.props.order.owner,
-            to: this.props.order.address,
-            value: amount
-        }
-        window.web3.eth.sendTransaction(transaction_object, function (err, hash) {
-            if (err) {
-                console.log("Error while sending transaction: ")
-                console.log(err)
-                self.setState({fundingProgress:'idle'})
-            } else {
-                console.log("Contract funded. Transaction hash: " + hash)
-                self.setState({fundingProgress:'checkingTransaction'})
-                window.web3.eth.getTransaction(hash, function(err, transaction) {
-                    if (!err) {
-                        console.log("Got transaction: " + transaction)
-                        self.setState({
-                            showModal:false,
-                            showResultsModal:true,
-                            fundingProgress:'idle',
-                            fundingTransaction:transaction,
-                        })
-                    } else {
-                        console.log("Error fetching transaction details!")
-                        self.setState({
-                            showModal:false,
-                            showResultsModal:false,
-                            fundingProgress:'idle'
-                        })
-                    }
-                })
-            }
+        this.props.order.fundFn(amount).then(function(result){
+            self.setState({fundingProgress:'checkingTransaction'})
+            // find the event named "Fund"
+            let ev = result.logs.find(function (entry) {
+                return entry.event === 'Fund'
+            })
+            self.setState({
+                showModal:false,
+                showResultsModal:true,
+                fundingProgress:'idle',
+                amount:ev.args['amount'],
+                transactionHash:result.tx,
+            })
         })
     }
 
@@ -149,8 +128,9 @@ class OutgoingFundsButtonContainer extends Component {
             <FundOrderResultModal
                 showModal={this.state.showResultsModal}
                 onClose={this.handleCloseResultsModal}
-                transaction={this.state.fundingTransaction}
+                transactionHash={this.state.transactionHash}
                 isFunding={this.state.modalMode === 'withdraw' ? false : true}
+                amount={this.state.amount}
             />
             </div>
     }
