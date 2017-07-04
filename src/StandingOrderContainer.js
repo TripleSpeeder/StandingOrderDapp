@@ -43,14 +43,14 @@ class StandingOrderContainer extends Component {
     handleCancelContract() {
         var self=this
         console.log("Cancelling contract (Owner: " + this.props.account)
-        this.state.orderInstance.Cancel({from: this.props.account})
+        this.state.orderInstance.Terminate({from: this.props.account})
             .then(function(result){
-                console.log("Successfully cancelled order.")
+                console.log("Successfully terminated order.")
                 // notify parent
                 self.props.onRemoveOrder(self.state.orderInstance)
             })
             .catch(function(e){
-                console.log("Error while cancelling contract:")
+                console.log("Error while terminating contract:")
                 console.log(e)
             })
     }
