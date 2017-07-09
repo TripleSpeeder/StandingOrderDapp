@@ -38,7 +38,7 @@ class StandingOrder extends Component {
                     onCollect={this.handleCollect}/>
             </td>
             <td><EtherDisplay wei={this.props.order.claimedFunds}/></td>
-            <td>{this.props.order.nextPaymentDate.format()}</td>
+            <td>{this.props.order.isTerminated ? '-' : this.props.order.nextPaymentDate.format()}</td>
         </tr>
     }
 
@@ -59,7 +59,7 @@ class StandingOrder extends Component {
                 />
             </td>
             <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>
-            <td>{this.props.order.failureDate.format()}</td>
+            <td>{this.props.order.isTerminated ? '-' : this.props.order.failureDate.format()}</td>
             <td>
                 <Button
                     bsStyle="danger"

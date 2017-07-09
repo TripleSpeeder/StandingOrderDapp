@@ -143,6 +143,10 @@ class StandingOrderContainer extends Component {
             flatOrder.collectFn = self.handleCollect
             flatOrder.withdrawFn = self.handleWithdraw
             flatOrder.fundFn = self.handleFund
+            if (flatOrder.isTerminated) {
+                // Ownerfunds might be negative. As a terminated order can't be funded anymore, just set ownerFunds to 0
+                flatOrder.ownerFunds = window.web3.toBigNumber(0)
+            }
             self.calculateNextPaymentDate(flatOrder)
             self.calculateFailureDate(flatOrder)
             self.setState({
