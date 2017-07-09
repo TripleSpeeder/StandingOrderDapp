@@ -19,9 +19,6 @@ import 'zeppelin/SafeMath.sol';
  *    - order marked as "terminated" and not being displayed anymore in owner UI
  *    - as long as there are uncollected funds entitled to the payee, it is still displayed in payee UI
  *    - the payee can still collect funds owned to him
- *  - Contract self-destructs if
- *    - it is terminated
- *    - balance is zero
  *
  *   * Terminology *
  *   "withdraw" -> performed by owner - transfer funds stored in contract back to owner
@@ -152,8 +149,6 @@ contract StandingOrder is Ownable, SafeMath {
     /**
      * Collect payment
      * Can only be called by payee. This will transfer all available funds (see getUnclaimedFunds) to payee
-     * In case the order has been terminated before and payee is removing the last available funds, the contract
-     * will selfdestruct.
      * @return amount that has been transferred!
      */
     function collectFunds() onlyPayee returns(uint) {
@@ -171,11 +166,6 @@ contract StandingOrder is Ownable, SafeMath {
 
         // initiate transfer of unclaimed funds to payee
         payee.transfer(amount);
-
-        // if this order is terminated and balance is zero, it can now selfdestruct
-        if (isTerminated && this.balance == 0) {
-            selfdestruct(owner);
-        }
 
         return amount;
     }
@@ -198,7 +188,7 @@ contract StandingOrder is Ownable, SafeMath {
 
         if (amount > ownerFunds) {
             // Trying to withdraw more than available!
-            throw; // Alternatively could just withdraw all available funds
+            revert(); // Alternatively could just withdraw all available funds
         }
 
         // Log Withdraw event
@@ -209,18 +199,13 @@ contract StandingOrder is Ownable, SafeMath {
 
     /**
      * Terminate order
-     * Marks the order as terminated. If the contract has no balance left it selfdestructs.
+     * Marks the order as terminated.
      * Can only be executed if no ownerfunds are left
      */
     function Terminate() onlyOwner {
         require(getOwnerFunds() == 0);
 
         isTerminated = true;
-
-        if (this.balance == 0) {
-            // No balance left in contract, so the payee has collected all entitled funds. Safe to selfdestruct!
-            selfdestruct(owner);
-        }
     }
 }
 

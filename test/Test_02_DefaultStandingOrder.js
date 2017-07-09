@@ -1,9 +1,9 @@
 var moment = require('moment')
-var chai = require("chai");
-var chaiAsPromised = require("chai-as-promised");
+var chai = require("chai")
+var chaiAsPromised = require("chai-as-promised")
 
-chai.use(chaiAsPromised);
-var assert = chai.assert;
+chai.use(chaiAsPromised)
+var assert = chai.assert
 
 var StandingOrder = artifacts.require('StandingOrder')
 
@@ -20,12 +20,12 @@ describe('Default standing order', function () {
         let label = 'testorder'
 
         return StandingOrder.new(owner, payee, interval, amount, startTime.unix(), label,
-        {
-            from: owner,
-        })
-        .then(function (instance) {
-            order = instance
-        })
+            {
+                from: owner,
+            })
+            .then(function (instance) {
+                order = instance
+            })
     })
 
     it('should not be terminated after construction', function () {
@@ -64,14 +64,11 @@ describe('Default standing order', function () {
         )
     })
 
-    it('should be terminated after calling "withdrawAndTerminate', function () {
-        // First check that code is actually there
-        assert.notEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')
-
+    it('should be terminated after calling "Terminate', function () {
         return order.Terminate({from: owner})
             .then(function (result) {
-                // contract code should be replaced with 0x now
-                assert.strictEqual('0x0', web3.eth.getCode(order.address), 'Contract address still not zeroed out')
+                // contract should be terminated now
+                assert.becomes(order.isTerminated({from: owner}), true, 'Contract should now be terminated')
             })
     })
 })

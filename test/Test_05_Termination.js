@@ -14,7 +14,6 @@ describe('Checking Termination with unclaimed balance', function () {
     let order
     let owner = web3.eth.accounts[0]
     let payee = web3.eth.accounts[1]
-    let otherUser = web3.eth.accounts[2]
     let paymentAmount = web3.toWei(1, 'finney')
     let fundAmount = web3.toWei(10, 'finney')
 
@@ -62,8 +61,6 @@ describe('Checking Termination with unclaimed balance', function () {
         })
     })
 
-    // This test will only work if there are unclaimed funds in the contract. Otherwise the contract will immediately
-    // selfdestruct!
     describe('Terminating', function () {
 
         let ownerfunds
@@ -89,8 +86,6 @@ describe('Checking Termination with unclaimed balance', function () {
         it('should be terminated after calling "Terminate', function () {
             return order.Terminate({from: owner})
                 .then(function (result) {
-                    // code should still exist on the blockchain
-                    assert.notEqual('0x0', web3.eth.getCode(order.address), 'Contract code should still exist')
                     // contract should be terminated now
                     assert.becomes(order.isTerminated({from: owner}), true, 'Contract should now be terminated')
                 })
@@ -132,10 +127,6 @@ describe('Checking Termination with unclaimed balance', function () {
 
         it('should successfully call collectFunds', function () {
             return assert.isFulfilled(order.collectFunds({from: payee}))
-        })
-
-        it('should no longer exist on the blockchain', function () {
-            assert.equal('0x0', web3.eth.getCode(order.address), 'Contract code should not exist anymore')
         })
     })
 })
