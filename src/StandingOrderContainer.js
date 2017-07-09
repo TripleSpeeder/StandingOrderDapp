@@ -135,7 +135,7 @@ class StandingOrderContainer extends Component {
         Promise.all(promises).then(function (results) {
             flatOrder.fundsInsufficient = flatOrder.entitledFunds.gt(flatOrder.collectibleFunds)
             flatOrder.withdrawEnabled = flatOrder.ownerFunds.gt(0)
-            flatOrder.cancelEnabled = flatOrder.balance.isZero()
+            flatOrder.cancelEnabled = flatOrder.ownerFunds.lte(0)
             flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
             flatOrder.collectFn = self.handleCollect
             flatOrder.withdrawFn = self.handleWithdraw
