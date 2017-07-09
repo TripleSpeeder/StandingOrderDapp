@@ -127,6 +127,7 @@ class StandingOrderListContainer extends Component {
     }
 
     onRemoveOrder(orderInstance) {
+        // FIXME - Use async setState to prevent race conditions!
         var newOrderArray = this.state.outgoingOrders.filter((instance) => {
             return (instance.address !== orderInstance.address)
         })
@@ -135,6 +136,7 @@ class StandingOrderListContainer extends Component {
 
     onAddOrder(orderInstance) {
         // TODO Check for duplicates!
+        // FIXME - Use async setState to prevent race conditions!
         this.setState({
             // use concat to create a new array extended with the new order
             outgoingOrders: this.state.outgoingOrders.concat([orderInstance])
@@ -152,7 +154,6 @@ class StandingOrderListContainer extends Component {
         return <StandingOrderList
             Orders={this.state.outgoingOrders}
             account={this.props.account}
-            onRemoveOrder={this.onRemoveOrder}
             outgoing={this.props.outgoing}
             factoryInstance={this.props.factoryInstance}
         />

@@ -12,12 +12,12 @@ class StandingOrder extends Component {
     constructor(props) {
         super(props)
 
-        this.handleCancel = this.handleCancel.bind(this)
+        this.handleTerminate = this.handleTerminate.bind(this)
     }
 
-    handleCancel(event) {
-        // Completely cancel contract
-        this.props.onCancelContract()
+    handleTerminate(event) {
+        // Terminate order
+        this.props.onTerminate()
         event.preventDefault()
     }
 
@@ -27,7 +27,7 @@ class StandingOrder extends Component {
                 {this.props.isLoading && <DoubleBounce /> }
             </td>
             <td>
-                <strong>{this.props.order.ownerLabel}</strong>
+                <strong>{this.props.order.ownerLabel} ({this.props.order.isTerminated ? "terminated" : "active"})</strong>
             </td>
             <td>{this.props.order.owner}</td>
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
@@ -48,7 +48,7 @@ class StandingOrder extends Component {
                 {this.props.isLoading && <DoubleBounce /> }
             </td>
             <td>
-                <strong>{this.props.order.ownerLabel}</strong>
+                <strong>{this.props.order.ownerLabel} ({this.props.order.isTerminated ? "terminated" : "active"})</strong>
             </td>
             <td>{this.props.order.payee}</td>
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
@@ -64,13 +64,12 @@ class StandingOrder extends Component {
                 <Button
                     bsStyle="danger"
                     bsSize="small"
-                    title="Delete"
-                    disabled={!this.props.order.cancelEnabled}
-                    onClick={this.handleCancel}>
+                    title="Terminate"
+                    disabled={!this.props.order.terminateEnabled}
+                    onClick={this.handleTerminate}>
                     <Glyphicon glyph="trash"/>
                 </Button>
             </td>
-
         </tr>
     }
 

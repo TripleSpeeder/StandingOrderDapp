@@ -12,7 +12,7 @@ class StandingOrderContainer extends Component {
             isLoading: true
         }
         this.orderToState = this.orderToState.bind(this)
-        this.handleCancelContract = this.handleCancelContract.bind(this)
+        this.handleTerminate = this.handleTerminate.bind(this)
         this.handleCollect = this.handleCollect.bind(this)
         this.handleRelabel = this.handleRelabel.bind(this)
         this.handleWithdraw = this.handleWithdraw.bind(this)
@@ -40,17 +40,17 @@ class StandingOrderContainer extends Component {
         })
     }
 
-    handleCancelContract() {
+    handleTerminate() {
         var self=this
-        console.log("Cancelling contract (Owner: " + this.props.account)
+        console.log("Terminating order " + this.state.flatOrder.ownerLabel)
         this.state.orderInstance.Terminate({from: this.props.account})
             .then(function(result){
                 console.log("Successfully terminated order.")
-                // notify parent
-                self.props.onRemoveOrder(self.state.orderInstance)
+                // update order
+                self.orderToState()
             })
             .catch(function(e){
-                console.log("Error while terminating contract:")
+                console.log("Error while terminating order:")
                 console.log(e)
             })
     }
@@ -131,11 +131,14 @@ class StandingOrderContainer extends Component {
         promises.push(this.state.orderInstance.claimedFunds.call().then(function (claimedFunds) {
             flatOrder.claimedFunds = claimedFunds
         }))
+        promises.push(this.state.orderInstance.isTerminated.call().then(function (terminated) {
+            flatOrder.isTerminated = terminated;
+        }))
 
         Promise.all(promises).then(function (results) {
             flatOrder.fundsInsufficient = flatOrder.entitledFunds.gt(flatOrder.collectibleFunds)
             flatOrder.withdrawEnabled = flatOrder.ownerFunds.gt(0)
-            flatOrder.cancelEnabled = flatOrder.ownerFunds.lte(0)
+            flatOrder.terminateEnabled = flatOrder.ownerFunds.lte(0) && (!flatOrder.isTerminated)
             flatOrder.paymentsCovered = flatOrder.ownerFunds.dividedBy(flatOrder.paymentAmount)
             flatOrder.collectFn = self.handleCollect
             flatOrder.withdrawFn = self.handleWithdraw
@@ -203,7 +206,7 @@ class StandingOrderContainer extends Component {
     render() {
         return <StandingOrder
             order={this.state.flatOrder}
-            onCancelContract={this.handleCancelContract}
+            onTerminate={this.handleTerminate}
             onRelabel={this.handleRelabel}
             outgoing={this.props.outgoing}
             isLoading={this.state.isLoading}

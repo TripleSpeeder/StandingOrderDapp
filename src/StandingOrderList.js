@@ -52,7 +52,6 @@ class StandingOrderList extends Component {
                 orderInstance={order}
                 key={order.address}
                 account={this.props.account}
-                onRemoveOrder={this.props.onRemoveOrder}
                 outgoing={this.props.outgoing}
             />)
         })
