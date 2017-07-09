@@ -1,6 +1,5 @@
 pragma solidity ^0.4.11;
 
-import 'zeppelin/ownership/Ownable.sol';
 import 'zeppelin/SafeMath.sol';
 
 
@@ -29,7 +28,8 @@ import 'zeppelin/SafeMath.sol';
  *   The payee can always query the contract to determine how many funds he is entitled to collect.
  *   The payee can call "collectFunds" to initiate transfer of entitled funds to his address.
  */
-contract StandingOrder is Ownable, SafeMath {
+contract StandingOrder is SafeMath {
+    address public owner;        /** The owner of this order */
     address public payee;        /** The payee is the receiver of funds */
     uint public startTime;       /** Date and time (unix timestamp - seconds since 1970) when first payment can be claimed by payee */
     uint public paymentInterval; /** Interval for payments (Unit: seconds) */
@@ -41,6 +41,13 @@ contract StandingOrder is Ownable, SafeMath {
 
     modifier onlyPayee() {
         require(msg.sender == payee);
+        _;
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) {
+            throw;
+        }
         _;
     }
 
@@ -74,8 +81,7 @@ contract StandingOrder is Ownable, SafeMath {
         require(_paymentInterval > 0);
         require(_paymentAmount > 0);
 
-        // override default behaviour of Ownable base contract:
-        // Explicitly set owner to _owner, as msg.sender is the StandingOrderFactory contract
+        // Set owner to _owner, as msg.sender is the StandingOrderFactory contract
         owner = _owner;
 
         payee = _payee;
