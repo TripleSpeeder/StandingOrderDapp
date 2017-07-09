@@ -37,6 +37,7 @@ contract StandingOrder is Ownable, SafeMath {
     uint public claimedFunds;    /** How much funds have been claimed already (Unit: Wei) */
     string public ownerLabel;    /** Label (set by contract owner) */
     bool public isTerminated;    /** Marks order as terminated */
+    uint public terminationTime; /** Date and time (unix timestamp - seconds since 1970) when order terminated */
 
     modifier onlyPayee() {
         require(msg.sender == payee);
@@ -114,9 +115,12 @@ contract StandingOrder is Ownable, SafeMath {
         // startTime has been reached, so add first payment
         uint entitledAmount = paymentAmount;
 
+        // Determine endTime for calculation. If order has been terminated -> terminationTime, otherwise current time
+        uint endTime = isTerminated ? terminationTime : now;
+
         // calculate number of complete intervals since startTime
-        uint age = safeSub(now, startTime);
-        uint completeIntervals = safeDiv(age, paymentInterval); // implicitly rounding down
+        uint runtime = safeSub(endTime, startTime);
+        uint completeIntervals = safeDiv(runtime, paymentInterval); // implicitly rounding down
         // add interval * paymentAmount to entitledAmount
         entitledAmount = safeAdd(entitledAmount, safeMul(completeIntervals, paymentAmount));
 
@@ -204,7 +208,7 @@ contract StandingOrder is Ownable, SafeMath {
      */
     function Terminate() onlyOwner {
         require(getOwnerFunds() == 0);
-
+        terminationTime = now;
         isTerminated = true;
     }
 }

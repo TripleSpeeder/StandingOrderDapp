@@ -16,9 +16,9 @@ describe('Checking Termination with unclaimed balance', function () {
     let payee = web3.eth.accounts[1]
     let paymentAmount = web3.toWei(1, 'finney')
     let fundAmount = web3.toWei(10, 'finney')
+    let interval = 5 // 5 secs
 
     before('Create a standingOrder', function () {
-        let interval = 60 // one minute
         let startTime = moment() // First payment due now
         let label = 'testorder'
 
@@ -90,6 +90,15 @@ describe('Checking Termination with unclaimed balance', function () {
                     assert.becomes(order.isTerminated({from: owner}), true, 'Contract should now be terminated')
                 })
         })
+
+        it('should have correct terminationTime', function() {
+            // terminationtime should be set
+            return order.terminationTime({from: owner}).then(function (terminationTime) {
+                //console.log("Termination time: " + terminationTime)
+                //console.log("System time: " + moment().unix())
+                assert.equal(terminationTime.toNumber(), moment().unix(), 'termination time should be now')
+            })
+        })
     })
 
     describe('Checking balances after termination', function () {
@@ -110,6 +119,44 @@ describe('Checking Termination with unclaimed balance', function () {
             return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
                 assert(ownerBalance.isZero(),
                     'ownerBalance should be zero after termination!')
+            })
+        })
+    })
+
+    describe('Checking entitledfunds after termination', function () {
+
+        this.timeout(interval * 1000 * 3)
+
+        let entitledBefore
+        let otherUser = web3.eth.accounts[2]
+        let otherUser2 = web3.eth.accounts[3]
+
+        before('get entitled funds', function() {
+            return order.getEntitledFunds({from: payee}).then(function (entitledFunds) {
+                console.log("Entitled before: " + entitledFunds.toString())
+                entitledBefore = entitledFunds
+            })
+        })
+
+        before('wait two intervals', function () {
+            return new Promise(function (resolve) {
+                setTimeout(resolve, interval * 2 * 1000)
+            })
+        })
+
+        before('Create a dummy transaction for testrpc so we have a new block mined', function () {
+            web3.eth.sendTransaction({from: otherUser, to: otherUser2}, function (err, address) {
+                if (err)
+                    assert(false, 'sending dummy transaction failed')
+                else
+                    assert(true)
+            })
+        })
+
+        it('entitledfunds should be constant after termination', function() {
+            return order.getEntitledFunds({from: payee}).then(function (entitledFunds) {
+                console.log("Entitled after: " + entitledFunds.toString())
+                assert(entitledBefore.eq(entitledFunds), 'entitledfunds changed although contract is terminated')
             })
         })
     })
