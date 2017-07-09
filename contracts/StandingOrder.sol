@@ -207,7 +207,7 @@ contract StandingOrder is Ownable, SafeMath {
      * Can only be executed if no ownerfunds are left
      */
     function Terminate() onlyOwner {
-        require(getOwnerFunds() == 0);
+        assert(getOwnerFunds() <= 0);
         terminationTime = now;
         isTerminated = true;
     }

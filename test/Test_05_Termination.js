@@ -177,3 +177,42 @@ describe('Checking Termination with unclaimed balance', function () {
         })
     })
 })
+
+describe('Checking Termination of underfunded order', function () {
+
+    this.timeout(15000);
+
+    let order
+    let owner = web3.eth.accounts[0]
+    let payee = web3.eth.accounts[1]
+    let paymentAmount = web3.toWei(1, 'finney')
+    let fundAmount = web3.toWei(10, 'finney')
+    let interval = 5 // 5 secs
+
+    before('Create a standingOrder', function () {
+        let startTime = moment() // First payment due now
+        let label = 'testorder'
+
+        return StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
+            {
+                from: owner,
+            })
+            .then(function (instance) {
+                order = instance
+            })
+    })
+
+    it('should have negative ownerFunds', function () {
+        return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
+            assert(ownerBalance.isNegative(), 'ownerBalance should be negative')
+        })
+    })
+
+    it('should be terminated after calling "Terminate', function () {
+        return order.Terminate({from: owner})
+            .then(function (result) {
+                // contract should be terminated now
+                assert.becomes(order.isTerminated({from: owner}), true, 'Contract should now be terminated')
+            })
+    })
+})
