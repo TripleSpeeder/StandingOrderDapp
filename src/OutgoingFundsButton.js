@@ -57,7 +57,14 @@ class OutgoingFundsButton extends Component {
         )
     }
 
+    renderTerminated() {
+        return <div>-</div>
+    }
+
     render(){
+        if (this.props.order.isTerminated) {
+            return this.renderTerminated()
+        }
         switch(this.props.actionState) {
             case 'waitingTransaction':
             case 'checkingTransaction':
