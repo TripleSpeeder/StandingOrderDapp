@@ -28,6 +28,7 @@ class App extends Component {
         }
 
         this.initialize = this.initialize.bind(this)
+        this.onAccountSelected = this.onAccountSelected.bind(this)
 
         var self = this
         window.addEventListener('load', function () {
@@ -37,10 +38,6 @@ class App extends Component {
                 // Use Mist/MetaMask's provider
                 // eslint-disable-next-line no-undef
                 window.web3 = new Web3(web3.currentProvider)
-            } else {
-                console.warn('No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask')
-                // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-                window.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'))
             }
             PromisifyWeb3.promisify(window.web3);
             self.initialize()
@@ -53,21 +50,43 @@ class App extends Component {
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
 
-        // Get currently selected account
-        var acc = self.web3RPC.eth.accounts[0]
-        // This might be a bug in metamask? Anyway, make sure that account is NULL if it is undefined...
-        if (acc === undefined)
-            acc = null
-        self.setState({account: acc})
-
-        // keep an eye on the account - the user might switch his current account in Metamask
-        // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
-        setInterval(function () {
-            if (self.web3RPC.eth.accounts[0] !== self.state.account) {
-                console.log("User switched account from " + self.state.account + " to " + self.web3RPC.eth.accounts[0])
-                self.setState({account: self.web3RPC.eth.accounts[0]})
+        if(typeof mist !== 'undefined') {
+            console.log("Mist detected. Looking for provided accounts...")
+            if (window.web3.eth.accounts.length >= 1) {
+                // by default select first account
+                self.onAccountSelected(self.web3RPC.eth.accounts[0])
+            } else {
+                // ask mist user to share account with me
+                // eslint-disable-next-line no-undef
+                mist.requestAccount(function(e, address){
+                    console.log('Added new account', address)
+                    console.log('e:', e)
+                    self.onAccountSelected(address)
+                });
             }
-        }, 100)
+        } else if (window.web3.currentProvider.isMetaMask === true) {
+            console.log("Metamask detected. Trying to use first account")
+            if (window.web3.eth.accounts.length >= 1) {
+                // by default select first account
+                self.onAccountSelected(self.web3RPC.eth.accounts[0])
+            }
+            // keep an eye on the account - the user might switch his current account in Metamask
+            // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
+            setInterval(function () {
+                if (self.web3RPC.eth.accounts[0] !== self.state.account) {
+                    console.log("User switched account from " + self.state.account + " to " + self.web3RPC.eth.accounts[0])
+                    self.onAccountSelected(self.web3RPC.eth.accounts[0])
+                }
+            }, 100)
+        } else {
+            console.log("Unknown environment.")
+            if (window.web3.eth.accounts.length >= 1) {
+                // by default select first account
+                self.onAccountSelected(self.web3RPC.eth.accounts[0])
+            } else {
+                console.error("No account available :-(")
+            }
+        }
 
         // Get the RPC provider and setup our contracts.
         const provider = new Web3.providers.HttpProvider('http://localhost:8545')
@@ -92,6 +111,12 @@ class App extends Component {
         })
     }
 
+    onAccountSelected(newAccount) {
+        this.setState({
+                account: newAccount
+            })
+    }
+
     render() {
         let header = <Navbar>
                 <Navbar.Header>
@@ -110,7 +135,9 @@ class App extends Component {
         if (this.state.web3Available) {
             body = <Grid>
                 <Jumbotron>
-                    <HeaderAddress account={this.state.account}/>
+                    <HeaderAddress account={this.state.account}
+                                   handleChange={this.onAccountSelected}
+                    />
                 </Jumbotron>
 
                 <StandingOrderListContainer
