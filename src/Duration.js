@@ -49,12 +49,14 @@ class Duration extends Component {
     }
 
     handleInputChange(event) {
-        const value = event.target.value
+        let value = event.target.value
+        // Don't allow negative durations
+        if (value < 1)
+            value = 1
         this.props.onChange(this.secondsFromUnit(value))
     }
 
     onUnitSelected(key, event) {
-        console.log("Selectd unit: " + key)
         this.setState({unit: key})
     }
 

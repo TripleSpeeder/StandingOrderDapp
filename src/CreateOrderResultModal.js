@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Modal, Button} from 'react-bootstrap'
-import EtherDisplay from "./EtherDisplay"
 
 
 class CreateOrderResultModal extends Component {

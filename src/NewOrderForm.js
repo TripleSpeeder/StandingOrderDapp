@@ -6,7 +6,7 @@ import moment from 'moment'
 import Duration from "./Duration"
 import EtherAmount from './EtherAmount'
 import DateTime from 'react-datetime'
-import 'react-datetime/css/react-datetime.css';
+import 'react-datetime/css/react-datetime.css'
 
 
 class NewOrderForm extends Component {
@@ -18,7 +18,10 @@ class NewOrderForm extends Component {
             receiver: '',
             period: 60 * 60 * 24 * 7, // 1 week
             rate: window.web3.toBigNumber('0'),
-            startTime: moment()
+            startTime: moment(),
+            labelValid: false,
+            receiverValid: false,
+            rateValid: false
         }
 
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -35,6 +38,16 @@ class NewOrderForm extends Component {
         this.setState({
             [name]: value
         })
+
+        // check for valid receiver address
+        if (name === 'receiver') {
+            this.setState({receiverValid: (/^(0x)?[0-9a-f]{40}$/i.test(value))})
+        }
+
+        // check for valid label
+        if (name === 'label') {
+            this.setState({labelValid: (value.length >= 2)})
+        }
     }
 
     handleDurationChange(seconds) {
@@ -44,8 +57,13 @@ class NewOrderForm extends Component {
     }
 
     handleAmountChange(wei) {
+        // don't allow negative rate
+        if (wei.lessThan(0))
+            wei = window.web3.toBigNumber('0')
+
         this.setState({
-            rate: wei
+            rate: wei,
+            rateValid: wei.greaterThan(0)
         })
     }
 
@@ -74,34 +92,41 @@ class NewOrderForm extends Component {
         switch (this.props.createOrderProgress) {
             case 'waitingTransaction':
                 createButton = <Button bsStyle="primary" type="submit" disabled>
-                                <ThreeBounce/> Waiting...
-                            </Button>
+                    <ThreeBounce/> Waiting...
+                </Button>
                 cancelButton = <Button onClick={this.props.onCancel} disabled>
-                            Cancel
-                        </Button>
+                    Cancel
+                </Button>
                 break
             case 'done':
                 createButton = <Button bsStyle="primary" type="submit" disabled>
-                                Done!
-                            </Button>
+                    Done!
+                </Button>
                 cancelButton = <Button onClick={this.props.onCancel} disabled>
-                            Cancel
-                        </Button>
+                    Cancel
+                </Button>
                 break
             case 'idle':
             default:
-                createButton = <Button bsStyle="primary" type="submit">
-                                Create order
-                            </Button>
+                let enabled = (this.state.rateValid && this.state.labelValid && this.state.receiverValid)
+                if (enabled) {
+                    createButton = <Button bsStyle="primary" type="submit">
+                        Create order
+                    </Button>
+                } else {
+                    createButton = <Button bsStyle="primary" type="submit" disabled>
+                        Create order
+                    </Button>
+                }
                 cancelButton = <Button onClick={this.props.onCancel}>
-                            Cancel
-                        </Button>
+                    Cancel
+                </Button>
                 break
         }
 
         return (
             <Form horizontal onSubmit={this.handleSubmit}>
-                <FormGroup>
+                <FormGroup validationState={this.state.labelValid ? 'success' : 'error'}>
                     <Col componentClass={ControlLabel} sm={2}>
                         Label
                     </Col>
@@ -110,11 +135,14 @@ class NewOrderForm extends Component {
                                      type="text"
                                      value={this.state.label}
                                      placeholder="Enter Contract Label"
-                                     onChange={this.handleInputChange}/>
+                                     onChange={this.handleInputChange}
+                                     required
+                        />
+                        <FormControl.Feedback />
                     </Col>
                 </FormGroup>
 
-                <FormGroup>
+                <FormGroup validationState={this.state.receiverValid ? 'success' : 'error'}>
                     <Col componentClass={ControlLabel} sm={2}>
                         Receiver
                     </Col>
@@ -123,11 +151,14 @@ class NewOrderForm extends Component {
                                      type="text"
                                      value={this.state.receiver}
                                      placeholder="Enter Receiver address"
-                                     onChange={this.handleInputChange}/>
+                                     onChange={this.handleInputChange}
+                                     required
+                        />
+                        <FormControl.Feedback />
                     </Col>
                 </FormGroup>
 
-                <FormGroup>
+                <FormGroup validationState={this.state.rateValid ? 'success' : 'error'}>
                     <Col componentClass={ControlLabel} sm={2}>
                         Payment Amount
                     </Col>
@@ -142,18 +173,6 @@ class NewOrderForm extends Component {
 
                 <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>
-                        First payment
-                    </Col>
-                    <Col sm={10}>
-                        <DateTime
-                            value={this.state.startTime}
-                            onChange={this.handleStartTimeChange}
-                        />
-                    </Col>
-                </FormGroup>
-
-                <FormGroup>
-                    <Col componentClass={ControlLabel} sm={2}>
                         Payment Period
                     </Col>
                     <Col sm={10}>
@@ -162,6 +181,19 @@ class NewOrderForm extends Component {
                             unit="weeks"
                             onChange={this.handleDurationChange}/>
                         <HelpBlock>Duration between payments</HelpBlock>
+                    </Col>
+                </FormGroup>
+
+                <FormGroup>
+                    <Col componentClass={ControlLabel} sm={2}>
+                        First payment
+                    </Col>
+                    <Col sm={10}>
+                        <DateTime
+                            value={this.state.startTime}
+                            onChange={this.handleStartTimeChange}
+                        />
+                        <HelpBlock>When is the first payment due. Dates in the past are allowed!</HelpBlock>
                     </Col>
                 </FormGroup>
 
