@@ -80,6 +80,9 @@ contract StandingOrder is SafeMath {
         // Sanity check parameters
         require(_paymentInterval > 0);
         require(_paymentAmount > 0);
+        // Following check is not exact for unicode strings, but here i just want to make sure that some label is provided
+        // See https://ethereum.stackexchange.com/questions/13862/is-it-possible-to-check-string-variables-length-inside-the-contract/13886
+        require(bytes(_label).length > 2);
 
         // Set owner to _owner, as msg.sender is the StandingOrderFactory contract
         owner = _owner;

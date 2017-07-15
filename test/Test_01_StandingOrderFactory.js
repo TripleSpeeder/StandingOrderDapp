@@ -48,6 +48,30 @@ contract('StandingOrderFactory', function (accounts) {
             )
         })
 
+        it('should throw when trying to create an order with empty label', function () {
+            let interval = 60 // one minute
+            let startTime = moment().add(1, 'days') // First payment due in one day
+            let amount = 100000000
+            let label = ''
+            return assert.isRejected(
+                helper.createOrder(factory, owner, payee, amount, interval, startTime, label),
+                /out of gas/,
+                'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
+            )
+        })
+
+        it('should throw when trying to create an order with label shorter than 3 chars', function () {
+            let interval = 60 // one minute
+            let startTime = moment().add(1, 'days') // First payment due in one day
+            let amount = 100000000
+            let label = 'ab'
+            return assert.isRejected(
+                helper.createOrder(factory, owner, payee, amount, interval, startTime, label),
+                /out of gas/,
+                'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
+            )
+        })
+
         it('should create a standingOrder when valid parameters are used', function () {
             let interval = 60 // one minute
             let startTime = moment().add(1, 'days') // First payment due in one day
