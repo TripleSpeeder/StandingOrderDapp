@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import OutgoingFundsButton from './OutgoingFundsButton'
 import FundOrderModal from "./FundOrderModal"
 import FundOrderResultModal from "./FundOrderResultModal"
+import WithdrawalErrorModal from "./WithdrawalErrorModal"
 
 
 class OutgoingFundsButtonContainer extends Component {
@@ -11,8 +12,9 @@ class OutgoingFundsButtonContainer extends Component {
         super(props)
         this.state = {
             showModal:false,
-            fundingProgress: 'idle',
+            fundingProgress:'idle',
             showResultsModal:false,
+            showErrorModal:false,
             transactionHash:'',
             amount:window.web3.toBigNumber(0),
             modalMode:'fund'
@@ -21,6 +23,7 @@ class OutgoingFundsButtonContainer extends Component {
         this.handleSubmit = this.handleSubmit.bind(this)
         this.handleCancel = this.handleCancel.bind(this)
         this.handleCloseResultsModal = this.handleCloseResultsModal.bind(this)
+        this.handleCloseErrorModal = this.handleCloseErrorModal.bind(this)
         this.onFund = this.onFund.bind(this)
         this.onWithdraw = this.onWithdraw.bind(this)
         this.doFund = this.doFund.bind(this)
@@ -66,17 +69,26 @@ class OutgoingFundsButtonContainer extends Component {
                 let ev = result.logs.find(function (entry) {
                     return entry.event === 'Withdraw'
                 })
+                if (ev===undefined) {
+                    throw 'Withdrawal Transaction completed, but no log entries -> something failed!'
+                }
                 self.setState({
                     showModal: false,
                     showResultsModal: true,
+                    showErrorModal: false,
                     fundingProgress: 'idle',
                     transactionHash: result.tx,
                     amount: ev.args['amount'],
                 })
             })
             .catch(function (err) {
-                // Easily catch all errors along the whole execution.
-                console.log("ERROR! " + err.message)
+                console.log("Withdrawal error: " + err)
+                self.setState({
+                    showModal: false,
+                    showResultsModalModal: false,
+                    showErrorModal: true,
+                    fundingProgress: 'idle',
+                })
             })
     }
 
@@ -92,6 +104,7 @@ class OutgoingFundsButtonContainer extends Component {
             self.setState({
                 showModal:false,
                 showResultsModal:true,
+                showErrorModal: false,
                 fundingProgress:'idle',
                 amount:ev.args['amount'],
                 transactionHash:result.tx,
@@ -107,6 +120,13 @@ class OutgoingFundsButtonContainer extends Component {
     handleCloseResultsModal() {
         this.setState({
             showResultsModal:false,
+            fundingTransaction:null,
+        })
+    }
+
+    handleCloseErrorModal() {
+        this.setState({
+            showErrorModal:false,
             fundingTransaction:null,
         })
     }
@@ -131,6 +151,10 @@ class OutgoingFundsButtonContainer extends Component {
                 transactionHash={this.state.transactionHash}
                 isFunding={this.state.modalMode === 'withdraw' ? false : true}
                 amount={this.state.amount}
+            />
+            <WithdrawalErrorModal
+                showModal={this.state.showErrorModal}
+                onClose={this.handleCloseErrorModal}
             />
             </div>
     }
