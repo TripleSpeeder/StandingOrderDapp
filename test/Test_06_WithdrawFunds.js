@@ -43,7 +43,7 @@ describe('Checking withdraw', function () {
         // get current owner balance
         startBalance = web3.eth.getBalance(owner)
         newBalance = startBalance
-        assert.isAbove(startBalance.toNumber(), web3.toWei(10, 'ether'))
+        assert.isAbove(startBalance.toNumber(), parseInt(web3.toWei(10, 'ether')))
     })
 
     describe('Checking access', function () {
