@@ -6,11 +6,11 @@ import {
     Jumbotron,
     Nav,
 } from 'react-bootstrap'
-import {default as Web3} from 'web3'
 import StandingOrderListContainer from './StandingOrderListContainer'
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import HeaderAddress from './HeaderAddress'
+import Web3 from 'web3'
 
 const PromisifyWeb3 = require("./promisifyWeb3.js");
 
@@ -88,13 +88,12 @@ class App extends Component {
             }
         }
 
-        // Get the RPC provider and setup our contracts.
-        const provider = new Web3.providers.HttpProvider('http://localhost:8545')
+        // setup our contracts
         const contract = require('truffle-contract')
         self.factoryContract = contract(standingOrderFactory_artifacts)
-        self.factoryContract.setProvider(provider)
-        var orderContract = contract(standingOrder_artifacts)
-        orderContract.setProvider(provider)
+        self.factoryContract.setProvider(window.web3.currentProvider)
+        const orderContract = contract(standingOrder_artifacts)
+        orderContract.setProvider(window.web3.currentProvider)
         self.setState({orderContract: orderContract})
 
         // start async initialization
