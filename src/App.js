@@ -5,6 +5,9 @@ import {
     NavItem,
     Jumbotron,
     Nav,
+    Row,
+    Col,
+    Panel,
 } from 'react-bootstrap'
 import StandingOrderListContainer from './StandingOrderListContainer'
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
@@ -24,7 +27,10 @@ class App extends Component {
             orderContract: null,
             factoryInstance: null,
             account: null,
-            web3Available: false
+            web3Available: false,
+            web3APIVersion: null,
+            web3NodeVersion: null,
+            network: null,
         }
 
         this.initialize = this.initialize.bind(this)
@@ -50,6 +56,30 @@ class App extends Component {
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
 
+        // get version and network info
+        self.setState({web3APIVersion: window.web3.version.api})
+        window.web3.version.getNode(function(error, result){
+            self.setState({ web3NodeVersion: result,})
+        })
+        window.web3.version.getNetwork((err, netId) => {
+            let network = 'unknown'
+            switch (netId) {
+                case "1":
+                    network = 'mainnet'
+                    break
+                case "2":
+                    network = 'Morden (deprecated!)'
+                    break
+                case "3":
+                    network = 'Ropsten'
+                    break
+                default:
+                    network = 'Unknown'
+            }
+            self.setState({ network: network})
+        })
+
+        // provider-specific account-handling
         if(typeof mist !== 'undefined') {
             console.log("Mist detected. Looking for provided accounts...")
             if (window.web3.eth.accounts.length >= 1) {
@@ -152,6 +182,13 @@ class App extends Component {
                     orderContract={this.state.orderContract}
                     outgoing={false}
                 />
+                <Row>
+                    <Col md={12}>
+                        <Panel>
+                            Network: {this.state.network} - Web3 API version: {this.state.web3APIVersion} - Node version: {this.state.web3NodeVersion}
+                        </Panel>
+                    </Col>
+                </Row>
             </Grid>
         } else {
             body = <Grid>
