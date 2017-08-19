@@ -73,6 +73,18 @@ class App extends Component {
                 case "3":
                     network = 'Ropsten'
                     break
+                case "4":
+                    network = 'Rinkeby'
+                    break
+                case "42":
+                    network = 'Kovan'
+                    break
+                case "61":
+                    network = 'ETC'
+                    break
+                case "62":
+                    network = 'ETC Testnet'
+                    break
                 default:
                     network = 'Unknown'
             }
