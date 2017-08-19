@@ -162,13 +162,11 @@ class App extends Component {
         let header = <Navbar>
                 <Navbar.Header>
                     <Navbar.Brand>
-                        <a href="#">STORSDapp</a>
+                        <a href="/">STORSDapp</a>
                     </Navbar.Brand>
                 </Navbar.Header>
                 <Nav>
-                    <NavItem eventKey={1} href="#">FAQ</NavItem>
-                    <NavItem eventKey={2} href="#">Contract</NavItem>
-                    <NavItem eventKey={3} href="#">Github</NavItem>
+                    <NavItem eventKey={2} target="_blank" href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract</NavItem>
                 </Nav>
             </Navbar>
 
