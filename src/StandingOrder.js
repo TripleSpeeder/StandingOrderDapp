@@ -27,7 +27,7 @@ class StandingOrder extends Component {
                 {this.props.isLoading && <DoubleBounce /> }
             </td>
             <td>
-                <strong>{this.props.order.ownerLabel} ({this.props.order.isTerminated ? "terminated" : "active"})</strong>
+                <strong>{this.props.order.ownerLabel} {this.props.order.isTerminated && "(terminated)"}</strong>
             </td>
             <td>{this.props.order.owner}</td>
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
@@ -48,7 +48,7 @@ class StandingOrder extends Component {
                 {this.props.isLoading && <DoubleBounce /> }
             </td>
             <td>
-                <strong>{this.props.order.ownerLabel} ({this.props.order.isTerminated ? "terminated" : "active"})</strong>
+                <strong>{this.props.order.ownerLabel} {this.props.order.isTerminated && "(terminated)"})</strong>
             </td>
             <td>{this.props.order.payee}</td>
             <td><EtherDisplay wei={this.props.order.paymentAmount}/></td>
