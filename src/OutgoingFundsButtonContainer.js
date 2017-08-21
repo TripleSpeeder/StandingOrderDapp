@@ -70,7 +70,7 @@ class OutgoingFundsButtonContainer extends Component {
                     return entry.event === 'Withdraw'
                 })
                 if (ev===undefined) {
-                    throw 'Withdrawal Transaction completed, but no log entries -> something failed!'
+                    throw new Error('Withdrawal Transaction completed, but no log entries -> something failed!')
                 }
                 self.setState({
                     showModal: false,

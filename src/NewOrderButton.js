@@ -32,7 +32,7 @@ class NewOrderButton extends Component {
             console.log(result.receipt)
             // check for log entries. If there are no logs created, contract creation failed!
             if(result.logs.length < 1) {
-                throw 'Transaction completed, but no log entries -> Contract creation failed.'
+                throw new Error('Transaction completed, but no log entries -> Contract creation failed.')
             }
             self.setState({createOrderProgress:'done'})
             self.closeCreateModal()
