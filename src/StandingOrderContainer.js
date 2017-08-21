@@ -204,7 +204,11 @@ class StandingOrderContainer extends Component {
 
     componentWillUnmount() {
         // Stop listening to new block events
-        this.filter.stopWatching()
+        this.filter.stopWatching(function(error, result){
+            if (error) {
+                console.log("Error while stopWatching: " + error)
+            }
+        })
     }
 
     render() {
