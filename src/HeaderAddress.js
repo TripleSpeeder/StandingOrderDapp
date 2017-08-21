@@ -38,7 +38,6 @@ class HeaderAddress extends Component {
     }
 
     handleChange(account){
-        console.log("HandleChange: " + account)
         this.props.handleChange(account)
     }
 }

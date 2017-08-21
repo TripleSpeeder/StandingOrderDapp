@@ -5,8 +5,6 @@ import {
     NavItem,
     Jumbotron,
     Nav,
-    Row,
-    Col,
     Panel,
 } from 'react-bootstrap'
 import StandingOrderListContainer from './StandingOrderListContainer'
@@ -14,8 +12,9 @@ import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFact
 import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import HeaderAddress from './HeaderAddress'
 import Web3 from 'web3'
+import contract from 'truffle-contract'
 
-const PromisifyWeb3 = require("./promisifyWeb3.js");
+const PromisifyWeb3 = require("./promisifyWeb3.js")
 
 class App extends Component {
 
@@ -41,12 +40,14 @@ class App extends Component {
         window.addEventListener('load', function () {
             // Checking if Web3 has been injected by the browser (Mist/MetaMask)
             if (typeof web3 !== 'undefined') {
-                console.warn('Using web3 detected from external source.')
+                console.log('Using web3 detected from external source.')
                 // Use Mist/MetaMask's provider
                 // eslint-disable-next-line no-undef
                 window.web3 = new Web3(web3.currentProvider)
             }
-            PromisifyWeb3.promisify(window.web3);
+            // FIXME - Probably can be removed once web3.js 1.0 is released
+            PromisifyWeb3.promisify(window.web3)
+
             self.initialize()
         })
     }
@@ -54,18 +55,15 @@ class App extends Component {
     initialize() {
         var self = this
 
-        // start async initialization
+        // Store promises that need to be resolved for successfull initialization
         var promises = []
-
-        // TODO - Refactor this - no need to explicitly use this?
-        self.web3RPC = window.web3
 
         // get version and network info
         self.setState({web3APIVersion: window.web3.version.api})
-        window.web3.version.getNode(function(error, result){
-            self.setState({ web3NodeVersion: result,})
-        })
-        window.web3.version.getNetwork((err, netId) => {
+        promises.push(window.web3.version.getNode(function (error, result) {
+            self.setState({web3NodeVersion: result,})
+        }))
+        promises.push(window.web3.version.getNetworkPromise().then((netId) => {
             let network = 'unknown'
             switch (netId) {
                 case "1":
@@ -90,56 +88,54 @@ class App extends Component {
                     network = 'ETC Testnet'
                     break
                 default:
-                    network = 'Unknown (' + netId + ')'
+                    network = 'Unknown'
             }
+            network += ' (' + netId + ')'
             console.log("Running on network " + network)
-            self.setState({ network: network})
-        })
+            self.setState({network: network})
+        }))
 
-        // provider-specific account-handling
-        if(typeof mist !== 'undefined') {
-            console.log("Mist detected. Looking for provided accounts...")
-            promises.push(window.web3.eth.getAccountsPromise().then(function(_accounts){
+        // get accounts
+        promises.push(window.web3.eth.getAccountsPromise().then(function (_accounts) {
                 if (_accounts.length >= 1) {
+                    self.setState({accounts: _accounts})
                     // by default select first account
                     self.onAccountSelected(_accounts[0])
-                    self.setState({accounts: _accounts})
                 } else {
-                    // ask mist user to share account with me
-                    // eslint-disable-next-line no-undef
-                    mist.requestAccount(function(e, _accounts){
-                        // by default select first account
-                        self.onAccountSelected(_accounts[0])
-                        self.setState({accounts: _accounts})
-                    });
+                    console.warn("No accounts available!")
+
+                    // Check if running mist - then we can ask the user to provide accounts.
+                    if (typeof mist !== 'undefined') {
+                        // ask mist user to share account with me
+                        // eslint-disable-next-line no-undef
+                        mist.requestAccount(function (e, _accounts) {
+                            // by default select first account
+                            self.onAccountSelected(_accounts[0])
+                            self.setState({accounts: _accounts})
+                        })
+                    }
                 }
-            }))
-        } else if (window.web3.currentProvider.isMetaMask === true) {
-            console.log("Metamask detected. Trying to use first account")
-            if (window.web3.eth.accounts.length >= 1) {
-                // by default select first account
-                self.onAccountSelected(self.web3RPC.eth.accounts[0])
-            }
-            // keep an eye on the account - the user might switch his current account in Metamask
-            // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
+            })
+        )
+
+        // If running under metamask keep an eye on the account - the user might switch his current account anytime
+        // see the FAQ: https://github.com/MetaMask/faq/blob/master/DEVELOPERS.md#ear-listening-for-selected-account-changes
+        if (window.web3.currentProvider.isMetaMask === true) {
+            console.log("Metamask detected. Watching for account changes")
             setInterval(function () {
-                if (self.web3RPC.eth.accounts[0] !== self.state.account) {
-                    console.log("User switched account from " + self.state.account + " to " + self.web3RPC.eth.accounts[0])
-                    self.onAccountSelected(self.web3RPC.eth.accounts[0])
-                }
+                window.web3.eth.getAccountsPromise().then(function (_accounts) {
+                    let oldAccount = self.state.account
+                    let newAccount = _accounts[0]
+                    if (newAccount !== oldAccount) {
+                        console.log("User switched account from " + oldAccount + " to " + newAccount)
+                        self.setState({accounts: _accounts})
+                        self.onAccountSelected(newAccount)
+                    }
+                })
             }, 100)
-        } else {
-            console.log("Unknown environment.")
-            if (window.web3.eth.accounts.length >= 1) {
-                // by default select first account
-                self.onAccountSelected(self.web3RPC.eth.accounts[0])
-            } else {
-                console.error("No account available :-(")
-            }
         }
 
         // setup our contracts
-        const contract = require('truffle-contract')
         self.factoryContract = contract(standingOrderFactory_artifacts)
         self.factoryContract.setProvider(window.web3.currentProvider)
         const orderContract = contract(standingOrder_artifacts)
@@ -150,9 +146,8 @@ class App extends Component {
         //
         // Horrible workaround to fix deployed contracts not being found when running in mist. See
         // https://ethereum.stackexchange.com/questions/24117/how-can-i-get-my-dapp-interface-to-work-on-mist-im-using-truffle-framework-and
-        //
-        window.web3.version.getNetwork((err, netId) => {
-            console.log("TESTESTEST Got NetID: " + netId)
+        window.web3.version.getNetworkPromise().then((netId) => {
+            console.log("MIST + TRUFFLE Workaround: Got NetID: " + netId)
             promises.push(self.factoryContract.deployed().then(function (factory_instance) {
                 self.setState({factoryInstance: factory_instance})
             }))
@@ -167,64 +162,64 @@ class App extends Component {
     onAccountSelected(newAccount) {
         console.log("Selecting account " + newAccount)
         this.setState({
-                account: newAccount
-            })
+            account: newAccount
+        })
     }
 
     render() {
         let header = <Navbar>
-                <Navbar.Header>
-                    <Navbar.Brand>
-                        <a href="/">STORSDapp</a>
-                    </Navbar.Brand>
-                </Navbar.Header>
-                <Nav>
-                    <NavItem eventKey={2} target="_blank" href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract</NavItem>
-                </Nav>
-            </Navbar>
+            <Navbar.Header>
+                <Navbar.Brand>
+                    <a href="/">STORSDapp</a>
+                </Navbar.Brand>
+            </Navbar.Header>
+            <Nav>
+                <NavItem eventKey={2} target="_blank"
+                         href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract</NavItem>
+            </Nav>
+        </Navbar>
 
-        let body
+        let jumbo, outList, inList, footer
         if (this.state.web3Available) {
-            body = <Grid>
+            jumbo =
                 <Jumbotron>
                     <HeaderAddress account={this.state.account}
                                    accounts={this.state.accounts}
                                    handleChange={this.onAccountSelected}
                     />
                 </Jumbotron>
-
-                <StandingOrderListContainer
-                    account={this.state.account}
-                    factoryInstance={this.state.factoryInstance}
-                    orderContract={this.state.orderContract}
-                    outgoing={true}
-                />
-
-                <StandingOrderListContainer
-                    account={this.state.account}
-                    factoryInstance={this.state.factoryInstance}
-                    orderContract={this.state.orderContract}
-                    outgoing={false}
-                />
-                <Row>
-                    <Col md={12}>
-                        <Panel>
-                            Network: {this.state.network} - Web3 API version: {this.state.web3APIVersion} - Node version: {this.state.web3NodeVersion}
-                        </Panel>
-                    </Col>
-                </Row>
-            </Grid>
+            outList = <StandingOrderListContainer
+                account={this.state.account}
+                factoryInstance={this.state.factoryInstance}
+                orderContract={this.state.orderContract}
+                outgoing={true}
+            />
+            inList = <StandingOrderListContainer
+                account={this.state.account}
+                factoryInstance={this.state.factoryInstance}
+                orderContract={this.state.orderContract}
+                outgoing={false}
+            />
         } else {
-            body = <Grid>
-                <Jumbotron>
-                    <h2>Web3 not available</h2>
-                </Jumbotron>
-            </Grid>
+            jumbo = <Jumbotron>
+                <h2>Web3 not available</h2>
+            </Jumbotron>
         }
+
+        footer = <Panel>
+            Network: {this.state.network} | Web3 API version: {this.state.web3APIVersion} | Node
+            version: {this.state.web3NodeVersion}
+        </Panel>
+
 
         return <div>
             {header}
-            {body}
+            <Grid>
+                {jumbo}
+                {outList}
+                {inList}
+                {footer}
+            </Grid>
         </div>
 
     }
