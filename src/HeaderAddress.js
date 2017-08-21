@@ -14,7 +14,7 @@ class HeaderAddress extends Component {
     }
 
     render() {
-        if (window.web3.eth.accounts.length > 1)
+        if (this.props.accounts.length > 1)
             return this.renderMultiAddress()
         else
             return this.renderSingleAddress()
@@ -25,7 +25,7 @@ class HeaderAddress extends Component {
             <small>
                 <DropdownList
                     defaultValue={this.props.account}
-                    data={window.web3.eth.accounts}
+                    data={this.props.accounts}
                     filter='contains'
                     onChange={this.handleChange}
                 />
@@ -45,6 +45,7 @@ class HeaderAddress extends Component {
 
 HeaderAddress.propTypes = {
     account: PropTypes.string.isRequired,
+    accounts: PropTypes.array.isRequired,
     handleChange: PropTypes.func.isRequired,
 }
 

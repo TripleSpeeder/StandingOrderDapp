@@ -27,6 +27,7 @@ class App extends Component {
             orderContract: null,
             factoryInstance: null,
             account: null,
+            accounts: [],
             web3Available: false,
             web3APIVersion: null,
             web3NodeVersion: null,
@@ -52,6 +53,9 @@ class App extends Component {
 
     initialize() {
         var self = this
+
+        // start async initialization
+        var promises = []
 
         // TODO - Refactor this - no need to explicitly use this?
         self.web3RPC = window.web3
@@ -86,26 +90,30 @@ class App extends Component {
                     network = 'ETC Testnet'
                     break
                 default:
-                    network = 'Unknown'
+                    network = 'Unknown (' + netId + ')'
             }
+            console.log("Running on network " + network)
             self.setState({ network: network})
         })
 
         // provider-specific account-handling
         if(typeof mist !== 'undefined') {
             console.log("Mist detected. Looking for provided accounts...")
-            if (window.web3.eth.accounts.length >= 1) {
-                // by default select first account
-                self.onAccountSelected(self.web3RPC.eth.accounts[0])
-            } else {
-                // ask mist user to share account with me
-                // eslint-disable-next-line no-undef
-                mist.requestAccount(function(e, address){
-                    console.log('Added new account', address)
-                    console.log('e:', e)
-                    self.onAccountSelected(address)
-                });
-            }
+            promises.push(window.web3.eth.getAccountsPromise().then(function(_accounts){
+                if (_accounts.length >= 1) {
+                    // by default select first account
+                    self.onAccountSelected(_accounts[0])
+                    self.setState({accounts: _accounts})
+                } else {
+                    // ask mist user to share account with me
+                    // eslint-disable-next-line no-undef
+                    mist.requestAccount(function(e, _accounts){
+                        // by default select first account
+                        self.onAccountSelected(_accounts[0])
+                        self.setState({accounts: _accounts})
+                    });
+                }
+            }))
         } else if (window.web3.currentProvider.isMetaMask === true) {
             console.log("Metamask detected. Trying to use first account")
             if (window.web3.eth.accounts.length >= 1) {
@@ -138,21 +146,26 @@ class App extends Component {
         orderContract.setProvider(window.web3.currentProvider)
         self.setState({orderContract: orderContract})
 
-        // start async initialization
-        var promises = []
         // Get contract factory
-        promises.push(self.factoryContract.deployed().then(function (factory_instance) {
-            self.setState({factoryInstance: factory_instance})
-        }))
-
-        // App is ready when all promises are resolved.
-        Promise.all(promises).then(function () {
-            // console.log("app initialization complete!")
-            self.setState({web3Available: true})
+        //
+        // Horrible workaround to fix deployed contracts not being found when running in mist. See
+        // https://ethereum.stackexchange.com/questions/24117/how-can-i-get-my-dapp-interface-to-work-on-mist-im-using-truffle-framework-and
+        //
+        window.web3.version.getNetwork((err, netId) => {
+            console.log("TESTESTEST Got NetID: " + netId)
+            promises.push(self.factoryContract.deployed().then(function (factory_instance) {
+                self.setState({factoryInstance: factory_instance})
+            }))
+            // App is ready when all promises are resolved.
+            Promise.all(promises).then(function () {
+                // console.log("app initialization complete!")
+                self.setState({web3Available: true})
+            })
         })
     }
 
     onAccountSelected(newAccount) {
+        console.log("Selecting account " + newAccount)
         this.setState({
                 account: newAccount
             })
@@ -175,6 +188,7 @@ class App extends Component {
             body = <Grid>
                 <Jumbotron>
                     <HeaderAddress account={this.state.account}
+                                   accounts={this.state.accounts}
                                    handleChange={this.onAccountSelected}
                     />
                 </Jumbotron>
