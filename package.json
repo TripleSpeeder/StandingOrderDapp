@@ -59,7 +59,8 @@
     "react-bootstrap": "^0.31.1",
     "react-datetime": "^2.8.11",
     "react-dom": "^15.6.1",
-    "react-widgets": "^3.4.8"
+    "react-widgets": "^3.4.8",
+    "web3": "^0.20.1"
   },
   "scripts": {
     "start": "node scripts/start.js",
