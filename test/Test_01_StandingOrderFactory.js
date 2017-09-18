@@ -31,7 +31,8 @@ contract('StandingOrderFactory', function (accounts) {
             let label = 'testorder'
             return assert.isRejected(
                 helper.createOrder(factory, owner, payee, amount, interval, startTime, label),
-                /out of gas/,
+                /*/out of gas/,*/
+                /invalid opcode/,
                 'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
             )
         })
@@ -43,7 +44,8 @@ contract('StandingOrderFactory', function (accounts) {
             let label = 'testorder'
             return assert.isRejected(
                 helper.createOrder(factory, owner, payee, amount, interval, startTime, label),
-                /out of gas/,
+                /*/out of gas/,*/
+                /invalid opcode/,
                 'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
             )
         })
@@ -55,7 +57,8 @@ contract('StandingOrderFactory', function (accounts) {
             let label = ''
             return assert.isRejected(
                 helper.createOrder(factory, owner, payee, amount, interval, startTime, label),
-                /out of gas/,
+                /*/out of gas/,*/
+                /invalid opcode/,
                 'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
             )
         })
@@ -67,7 +70,8 @@ contract('StandingOrderFactory', function (accounts) {
             let label = 'ab'
             return assert.isRejected(
                 helper.createOrder(factory, owner, payee, amount, interval, startTime, label),
-                /out of gas/,
+                /*/out of gas/,*/
+                /invalid opcode/,
                 'When factory creation throw, you always get "out-of-gas" error instead of invalid jump'
             )
         })
