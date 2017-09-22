@@ -7,8 +7,7 @@ import 'zeppelin/SafeMath.sol';
  * @title Standing order
  * @dev Lifecycle of a standing order:
  *  - the payment amount per interval is set at construction time and can not be changed afterwards
- *  - the payee is set by the owner and can not be changed after creation (TODO: Decide if payee should be able to change receiving address?)
- *  - the owner can be changed by owner (using "ownable" base contract) (TODO: Change to "claimable" base contract for extra security!)
+ *  - the payee is set by the owner and can not be changed after creation
  *  - at <startTime> (unix timestamp) the first payment is due
  *  - every <intervall> seconds the next payment is due
  *  - the owner can add funds to the order contract at any time
