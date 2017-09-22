@@ -13,6 +13,7 @@ import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import HeaderAddress from './HeaderAddress'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
+import BlockInfo from "./BlockInfo"
 
 const PromisifyWeb3 = require("./promisifyWeb3.js")
 
@@ -210,7 +211,7 @@ class App extends Component {
         }
 
         footer = <Panel>
-            Network: {this.state.network} | Web3 API version: {this.state.web3APIVersion} | Node
+            Network: {this.state.network} | <BlockInfo/> | Web3 API version: {this.state.web3APIVersion} | Node
             version: {this.state.web3NodeVersion}
         </Panel>
 
