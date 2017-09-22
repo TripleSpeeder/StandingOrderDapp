@@ -66,6 +66,9 @@ class App extends Component {
         promises.push(window.web3.version.getNetworkPromise().then((netId) => {
             let network = 'unknown'
             switch (netId) {
+                case "6666":
+                    network = 'local dev'
+                    break
                 case "1":
                     network = 'mainnet'
                     break
