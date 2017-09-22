@@ -41,10 +41,10 @@ class App extends Component {
         window.addEventListener('load', function () {
             // Checking if Web3 has been injected by the browser (Mist/MetaMask)
             if (typeof web3 !== 'undefined') {
-                console.log('Using web3 detected from external source.')
-                // Use Mist/MetaMask's provider
-                // eslint-disable-next-line no-undef
-                window.web3 = new Web3(web3.currentProvider)
+                // Use the browser's ethereum provider
+                var provider = window.web3.currentProvider
+                // FIXME - don't use global web3 object
+                window.web3 = new Web3(provider)
             }
             // FIXME - Probably can be removed once web3.js 1.0 is released
             PromisifyWeb3.promisify(window.web3)
