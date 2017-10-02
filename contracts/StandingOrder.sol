@@ -156,8 +156,12 @@ contract StandingOrder {
      */
     function getOwnerFunds() constant returns (int) {
         // Conversion from unsigned int to int will produce unexpected results only for very large
-        // numbers (2^255 and greater)
-        // TODO: Make this bulletproof also for large amounts and use safemath!
+        // numbers (2^255 and greater). This is about 5.7e+58 ether.
+        // -> There will be no situation when the contract balance (this.balance) will hit this limit
+        // -> getEntitledFunds() might end up hitting this limit when the contract creator INTENTIONALLY sets
+        //    any combination of absurdly high payment rate, low interval or a startTime way in the past.
+        //    Being entitled to more than 5.7e+58 ether obviously will never be an expected usecase
+        // Therefor the conversion can be considered safe here.
         return int256(this.balance) - int256(getEntitledFunds());
     }
 
@@ -207,7 +211,6 @@ contract StandingOrder {
         }
 
         // Log Withdraw event
-        // TODO: Log event after successfull transfer only?!?
         Withdraw(amount);
 
         owner.transfer(amount);
