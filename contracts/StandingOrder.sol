@@ -130,8 +130,7 @@ contract StandingOrder {
 
         // calculate number of complete intervals since startTime
         uint runtime = endTime.sub(startTime);
-        uint completeIntervals = runtime.div(paymentInterval); // TODO: still implicitly rounding down?
-        // add interval * paymentAmount to entitledAmount
+        uint completeIntervals = runtime.div(paymentInterval); // Division always truncates, so implicitly rounding down here.
         entitledAmount = entitledAmount.add(completeIntervals.mul(paymentAmount));
 
         // subtract already collected funds
