@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
-import 'zeppelin/SafeMath.sol';
-
+import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import 'zeppelin-solidity/contracts/math/Math.sol';
 
 /**
  * @title Standing order
@@ -27,7 +27,11 @@ import 'zeppelin/SafeMath.sol';
  *   The payee can always query the contract to determine how many funds he is entitled to collect.
  *   The payee can call "collectFunds" to initiate transfer of entitled funds to his address.
  */
-contract StandingOrder is SafeMath {
+contract StandingOrder {
+
+    using SafeMath for uint;
+    using Math for uint;
+
     address public owner;        /** The owner of this order */
     address public payee;        /** The payee is the receiver of funds */
     uint public startTime;       /** Date and time (unix timestamp - seconds since 1970) when first payment can be claimed by payee */
@@ -44,9 +48,7 @@ contract StandingOrder is SafeMath {
     }
 
     modifier onlyOwner() {
-        if (msg.sender != owner) {
-            throw;
-        }
+        require(msg.sender == owner);
         _;
     }
 
@@ -127,13 +129,13 @@ contract StandingOrder is SafeMath {
         uint endTime = isTerminated ? terminationTime : now;
 
         // calculate number of complete intervals since startTime
-        uint runtime = safeSub(endTime, startTime);
-        uint completeIntervals = safeDiv(runtime, paymentInterval); // implicitly rounding down
+        uint runtime = endTime.sub(startTime);
+        uint completeIntervals = runtime.div(paymentInterval); // TODO: still implicitly rounding down?
         // add interval * paymentAmount to entitledAmount
-        entitledAmount = safeAdd(entitledAmount, safeMul(completeIntervals, paymentAmount));
+        entitledAmount = entitledAmount.add(completeIntervals.mul(paymentAmount));
 
         // subtract already collected funds
-        return safeSub(entitledAmount, claimedFunds);
+        return entitledAmount.sub(claimedFunds);
     }
 
     /**
@@ -144,7 +146,7 @@ contract StandingOrder is SafeMath {
      */
     function getUnclaimedFunds() constant returns (uint) {
         // don't return more than available balance
-        return min256(getEntitledFunds(), this.balance);
+        return getEntitledFunds().min256(this.balance);
     }
 
     /**
@@ -155,6 +157,7 @@ contract StandingOrder is SafeMath {
     function getOwnerFunds() constant returns (int) {
         // Conversion from unsigned int to int will produce unexpected results only for very large
         // numbers (2^255 and greater)
+        // TODO: Make this bulletproof also for large amounts and use safemath!
         return int256(this.balance) - int256(getEntitledFunds());
     }
 
@@ -171,7 +174,7 @@ contract StandingOrder is SafeMath {
         }
 
         // keep track of collected funds
-        claimedFunds = safeAdd(claimedFunds, amount);
+        claimedFunds = claimedFunds.add(amount);
 
         // create log entry
         Collect(amount);
@@ -200,10 +203,11 @@ contract StandingOrder is SafeMath {
 
         if (amount > ownerFunds) {
             // Trying to withdraw more than available!
-            revert(); // Alternatively could just withdraw all available funds
+            revert();
         }
 
         // Log Withdraw event
+        // TODO: Log event after successfull transfer only?!?
         Withdraw(amount);
 
         owner.transfer(amount);
