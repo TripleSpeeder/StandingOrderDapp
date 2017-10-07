@@ -30,9 +30,13 @@ class BlockInfo extends Component {
         // Start listening to new block events
         this.filter = window.web3.eth.filter('latest')
         this.filter.watch(function(error, result){
-            window.web3.eth.getBlockPromise(result).then(function(block) {
-                self.updateBlockInfo(block)
-            })
+            if (error) {
+                console.log("*** Blockinfo error: " + error)
+            } else {
+                window.web3.eth.getBlockPromise(result).then(function(block) {
+                    self.updateBlockInfo(block)
+                })
+            }
         })
     }
 
