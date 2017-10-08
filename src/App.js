@@ -210,11 +210,21 @@ class App extends Component {
             </Jumbotron>
         }
 
-        footer = <Panel><small>
-            Network: {this.state.network} | <BlockInfo/> | Web3 API version: {this.state.web3APIVersion} | Node
-            version: {this.state.web3NodeVersion}
-        </small></Panel>
-
+        if (this.state.web3Available) {
+            footer = <Panel>
+                <small>
+                    Network: {this.state.network} | <BlockInfo/> | Web3 API version: {this.state.web3APIVersion} | Node
+                    version: {this.state.web3NodeVersion}
+                </small>
+            </Panel>
+        } else {
+            footer = <Panel>
+                <small>
+                    Network: {this.state.network} | Web3 API version: {this.state.web3APIVersion} | Node
+                    version: {this.state.web3NodeVersion}
+                </small>
+            </Panel>
+        }
 
         return <div>
             {header}
