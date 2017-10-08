@@ -35,7 +35,6 @@ class StandingOrder extends Component {
             <td>
                 <IncomingFundsButtonContainer
                     order={this.props.order}
-                    onCollect={this.handleCollect}
                     networkID={this.props.networkID}
                 />
             </td>

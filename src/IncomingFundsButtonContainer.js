@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import IncomingFundsButton from './IncomingFundsButton'
 import CollectOrderResultModal from './CollectOrderResultModal'
+import CollectErrorModal from './CollectErrorModal'
 
 
 class IncomingFundsButtonContainer extends Component {
@@ -9,38 +10,57 @@ class IncomingFundsButtonContainer extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            showResultsModal:false,
-            collectingTransaction:null,
+            showResultsModal: false,
+            showErrorModal: false,
+            errorMessage: '',
+            collectingTransaction: null,
             collectState: 'idle',
             collectedAmount: window.web3.toBigNumber(0),
             transactionHash: ''
         }
 
         this.handleCloseResultsModal = this.handleCloseResultsModal.bind(this)
+        this.handleCloseErrorModal = this.handleCloseErrorModal.bind(this)
         this.handleCollect = this.handleCollect.bind(this)
     }
 
     handleCloseResultsModal() {
         this.setState({
-            showResultsModal:false,
-            fundingTransaction:null,
+            showResultsModal: false,
+            fundingTransaction: null,
+        })
+    }
+
+    handleCloseErrorModal() {
+        this.setState({
+            showErrorModal:false,
         })
     }
 
     handleCollect() {
         var self = this
         this.setState({collectState: 'waitingTransaction'})
-        this.props.order.collectFn().then(function(result){
+        this.props.order.collectFn().then(function (result) {
             console.log("CollectFunds issued: ")
             // find the event named "Collect"
             let collectEvent = result.logs.find(function (entry) {
                 return entry.event === 'Collect'
             })
             self.setState({
-                showResultsModal:true,
-                collectState:'idle',
-                collectedAmount:collectEvent.args['amount'],
-                transactionHash:result.tx
+                showResultsModal: true,
+                collectState: 'idle',
+                collectedAmount: collectEvent.args['amount'],
+                transactionHash: result.tx
+            })
+        }).catch(function (err) {
+            console.log("Collectfunds error: " + err)
+            self.setState({
+                showModal: false,
+                showResultsModal: false,
+                showErrorModal: true,
+                errorMessage: err.toString(),
+                collectState: 'idle',
+                fundingProgress: 'idle',
             })
         })
     }
@@ -59,7 +79,12 @@ class IncomingFundsButtonContainer extends Component {
                 transactionHash={this.state.transactionHash}
                 networkID={this.props.networkID}
             />
-            </div>
+            <CollectErrorModal
+                showModal={this.state.showErrorModal}
+                errorMessage={this.state.errorMessage}
+                onClose={this.handleCloseErrorModal}
+            />
+        </div>
     }
 
 }
