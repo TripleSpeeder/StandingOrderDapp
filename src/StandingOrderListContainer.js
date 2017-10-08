@@ -156,6 +156,7 @@ class StandingOrderListContainer extends Component {
             account={this.props.account}
             outgoing={this.props.outgoing}
             factoryInstance={this.props.factoryInstance}
+            networkID={this.props.networkID}
         />
     }
 }
@@ -163,6 +164,7 @@ class StandingOrderListContainer extends Component {
 StandingOrderListContainer.propTypes = {
     outgoing: PropTypes.bool.isRequired,
     factoryInstance: PropTypes.any.isRequired, // TODO: Use specifc protype instead of any!
+    networkID: PropTypes.number.isRequired,
 }
 
 

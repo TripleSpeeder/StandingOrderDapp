@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import moment from 'moment'
 import StandingOrder from './StandingOrder'
 
@@ -218,8 +219,13 @@ class StandingOrderContainer extends Component {
             onRelabel={this.handleRelabel}
             outgoing={this.props.outgoing}
             isLoading={this.state.isLoading}
+            networkID={this.props.networkID}
         />
     }
+}
+
+StandingOrderContainer.propTypes = {
+    networkID: PropTypes.number.isRequired,
 }
 
 export default StandingOrderContainer

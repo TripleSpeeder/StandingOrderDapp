@@ -57,6 +57,7 @@ class IncomingFundsButtonContainer extends Component {
                 onClose={this.handleCloseResultsModal}
                 collectedAmount={this.state.collectedAmount}
                 transactionHash={this.state.transactionHash}
+                networkID={this.props.networkID}
             />
             </div>
     }
@@ -65,6 +66,7 @@ class IncomingFundsButtonContainer extends Component {
 
 IncomingFundsButtonContainer.propTypes = {
     order: PropTypes.object.isRequired,
+    networkID: PropTypes.number.isRequired,
 }
 
 export default IncomingFundsButtonContainer

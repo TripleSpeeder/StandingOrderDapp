@@ -8,13 +8,23 @@ class FundOrderResultModal extends Component {
 
     render() {
 
-        let verifyUrl = 'https://etherchain.org/tx/' + this.props.transactionHash
+        var blockexplorer
+        switch (this.props.networkID) {
+            case 3: // Ropsten
+                blockexplorer = "https://ropsten.etherscan.io/tx/"
+                break
+            case 1: // main
+            case 6666: // testrpc during dev
+            default:
+                blockexplorer = "https://etherscan.io/tx/"
+        }
+        let verifyUrl = blockexplorer + this.props.transactionHash
 
         let body
         if (this.props.isFunding) {
-            body =  <div><p>Sent <EtherDisplay wei={this.props.amount}/>.</p> <p><a href={verifyUrl} target="_blank">Verify on etherchain.org</a></p></div>
+            body =  <div><p>Sent <EtherDisplay wei={this.props.amount}/>.</p> <p><a href={verifyUrl} target="_blank">Verify on etherscan.io</a></p></div>
         } else {
-            body =  <div><p>Received <EtherDisplay wei={this.props.amount}/>.</p> <p><a href={verifyUrl} target="_blank">Verify on etherchain.org</a></p></div>
+            body =  <div><p>Received <EtherDisplay wei={this.props.amount}/>.</p> <p><a href={verifyUrl} target="_blank">Verify on etherscan.io</a></p></div>
         }
 
         const modal = (

@@ -35,7 +35,9 @@ class StandingOrder extends Component {
             <td>
                 <IncomingFundsButtonContainer
                     order={this.props.order}
-                    onCollect={this.handleCollect}/>
+                    onCollect={this.handleCollect}
+                    networkID={this.props.networkID}
+                />
             </td>
             <td><EtherDisplay wei={this.props.order.claimedFunds}/></td>
             <td>{this.props.order.isTerminated ? '-' : this.props.order.nextPaymentDate.format()}</td>
@@ -56,6 +58,7 @@ class StandingOrder extends Component {
             <td>
                 <OutgoingFundsButtonContainer
                     order={this.props.order}
+                    networkID={this.props.networkID}
                 />
             </td>
             <td><EtherDisplay wei={this.props.order.collectibleFunds}/></td>
@@ -93,6 +96,7 @@ class StandingOrder extends Component {
 StandingOrder.propTypes = {
     outgoing: PropTypes.bool.isRequired,
     isLoading: PropTypes.bool.isRequired,
+    networkID: PropTypes.number.isRequired,
 }
 
 export default StandingOrder

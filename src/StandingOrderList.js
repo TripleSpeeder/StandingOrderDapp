@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import {Panel, Table} from 'react-bootstrap'
 import StandingOrderContainer from './StandingOrderContainer'
 import NewOrderButton from "./NewOrderButton"
@@ -14,6 +15,7 @@ class StandingOrderList extends Component {
                 key={order.address}
                 account={this.props.account}
                 outgoing={this.props.outgoing}
+                networkID={this.props.networkID}
             />)
         })
 
@@ -53,6 +55,7 @@ class StandingOrderList extends Component {
                 key={order.address}
                 account={this.props.account}
                 outgoing={this.props.outgoing}
+                networkID={this.props.networkID}
             />)
         })
 
@@ -95,5 +98,10 @@ class StandingOrderList extends Component {
             return this.renderAsIncoming()
     }
 }
+
+StandingOrderList.propTypes = {
+    networkID: PropTypes.number.isRequired,
+}
+
 
 export default StandingOrderList

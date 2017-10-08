@@ -151,6 +151,7 @@ class OutgoingFundsButtonContainer extends Component {
                 transactionHash={this.state.transactionHash}
                 isFunding={this.state.modalMode === 'withdraw' ? false : true}
                 amount={this.state.amount}
+                networkID={this.props.networkID}
             />
             <WithdrawalErrorModal
                 showModal={this.state.showErrorModal}
@@ -163,6 +164,7 @@ class OutgoingFundsButtonContainer extends Component {
 
 OutgoingFundsButtonContainer.propTypes = {
     order: PropTypes.object.isRequired,
+    networkID: PropTypes.number.isRequired,
 }
 
 export default OutgoingFundsButtonContainer
