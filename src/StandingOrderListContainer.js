@@ -80,7 +80,7 @@ class StandingOrderListContainer extends Component {
         this.OrderCreatedEvent = self.props.factoryInstance.LogOrderCreated(
             this.eventFilter,
             {
-                fromBlock: 'pending',
+                fromBlock: 'latest',
                 toBlock: 'latest'
             })
         this.OrderCreatedEvent.watch(function (error, result) {
