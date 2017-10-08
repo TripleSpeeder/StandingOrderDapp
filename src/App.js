@@ -66,29 +66,38 @@ class App extends Component {
         }))
         promises.push(window.web3.version.getNetworkPromise().then((netId) => {
             let network = 'unknown'
+            let networkID = 0
             switch (netId) {
                 case "6666":
                     network = 'local dev'
+                    networkID = 6666
                     break
                 case "1":
                     network = 'mainnet'
+                    networkID = 1
                     break
                 case "2":
                     network = 'Morden (deprecated!)'
+                    networkID = 2
                     break
                 case "3":
                     network = 'Ropsten'
+                    networkID = 3
                     break
                 case "4":
                     network = 'Rinkeby'
+                    networkID = 4
                     break
                 case "42":
                     network = 'Kovan'
+                    networkID = 42
                     break
                 case "61":
                     network = 'ETC'
+                    networkID = 61
                     break
                 case "62":
+                    networkID = 62
                     network = 'ETC Testnet'
                     break
                 default:
@@ -96,7 +105,10 @@ class App extends Component {
             }
             network += ' (' + netId + ')'
             console.log("Running on network " + network)
-            self.setState({network: network})
+            self.setState({
+                    network: network,
+                    networkID: networkID
+                })
         }))
 
         // get accounts
@@ -197,12 +209,14 @@ class App extends Component {
                 factoryInstance={this.state.factoryInstance}
                 orderContract={this.state.orderContract}
                 outgoing={true}
+                networkID={this.state.networkID}
             />
             inList = <StandingOrderListContainer
                 account={this.state.account}
                 factoryInstance={this.state.factoryInstance}
                 orderContract={this.state.orderContract}
                 outgoing={false}
+                networkID={this.state.networkID}
             />
         } else {
             jumbo = <Jumbotron>
