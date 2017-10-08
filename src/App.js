@@ -186,12 +186,12 @@ class App extends Component {
         let header = <Navbar>
             <Navbar.Header>
                 <Navbar.Brand>
-                    <a href="/">STORSDapp</a>
+                    <a href="/">stors.dappstar.io - Manage Standing Orders</a>
                 </Navbar.Brand>
             </Navbar.Header>
             <Nav>
                 <NavItem eventKey={2} target="_blank"
-                         href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract</NavItem>
+                         href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract Source</NavItem>
             </Nav>
         </Navbar>
 
