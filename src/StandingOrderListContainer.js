@@ -90,8 +90,6 @@ class StandingOrderListContainer extends Component {
                 self.props.orderContract.at(result.args.orderAddress).then(function (order_instance) {
                     console.log("Got contract at " + result.args.orderAddress + ":")
                     console.log(order_instance)
-                    // TODO: There is a risk the order has changed ownership in the meantime. So I need to
-                    // double-check here that I'm really the owner
                     self.onAddOrder(order_instance)
                 })
             } else {

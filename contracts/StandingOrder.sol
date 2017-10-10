@@ -101,7 +101,6 @@ contract StandingOrder {
      * Allows adding funds to existing order. Will throw in case the order is terminated!
      */
     function() payable {
-        // TODO: Dont make contract as a whole payable. Instead create a dedicated "addFunds" method to prevent any accidental payment!
         if (isTerminated) {
             // adding funds not allowed for terminated orders
             revert();
