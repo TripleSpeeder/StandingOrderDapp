@@ -57,7 +57,7 @@ documentation.
 
 ## Deployed contract addresses
 At the moment the stors dapp is only available on Ropsten test network. 
-* Ropsten address of factory contract: [0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4](https://ropsten.etherscan.io/address/0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4)
+* Factory contract on Ropsten: [0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4](https://ropsten.etherscan.io/address/0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4)
 
 # License
 This code is licensed under the [MIT License](LICENSE.txt).

@@ -194,6 +194,8 @@ class App extends Component {
             <Nav>
                 <NavItem eventKey={2} target="_blank"
                          href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract Source</NavItem>
+                <NavItem eventKey={3} target="_blank"
+                         href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/README.md">Readme</NavItem>
             </Nav>
         </Navbar>
 
