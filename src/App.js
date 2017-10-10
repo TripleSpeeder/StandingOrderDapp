@@ -6,6 +6,7 @@ import {
     Jumbotron,
     Nav,
     Panel,
+    Well,
 } from 'react-bootstrap'
 import StandingOrderListContainer from './StandingOrderListContainer'
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
@@ -29,9 +30,10 @@ class App extends Component {
             account: null,
             accounts: [],
             web3Available: false,
-            web3APIVersion: null,
-            web3NodeVersion: null,
-            network: null,
+            web3APIVersion: 'unknown',
+            web3NodeVersion: 'unknown',
+            network: 'unknown',
+
         }
 
         this.initialize = this.initialize.bind(this)
@@ -195,6 +197,7 @@ class App extends Component {
             </Nav>
         </Navbar>
 
+        // body
         let jumbo, outList, inList, footer
         if (this.state.web3Available) {
             jumbo =
@@ -219,23 +222,31 @@ class App extends Component {
                 networkID={this.state.networkID}
             />
         } else {
-            jumbo = <Jumbotron>
-                <h2>Web3 not available</h2>
-            </Jumbotron>
+            const title = (
+                <h3>Could not initialize dapp!</h3>
+            );
+            jumbo = <Panel header={title} bsStyle="danger">
+                <p>Please check:</p>
+                <ul>
+                    <li>Use a web3-enabled browser (e.g. Mist or Chrome/Firefox with Metamask plugin)</li>
+                    <li>Currently stors.dappstar.io is only availble on the Ropsten test network.</li>
+                </ul>
+            </Panel>
         }
 
+        // footer
         if (this.state.web3Available) {
             footer = <Panel>
                 <small>
                     Network: {this.state.network} | <BlockInfo/> | Web3 API version: {this.state.web3APIVersion} | Node
-                    version: {this.state.web3NodeVersion}
+                    version: {this.state.web3NodeVersion} | Created by <a href="mailto:">michael@m-bauer.org</a>
                 </small>
             </Panel>
         } else {
             footer = <Panel>
                 <small>
                     Network: {this.state.network} | Web3 API version: {this.state.web3APIVersion} | Node
-                    version: {this.state.web3NodeVersion}
+                    version: {this.state.web3NodeVersion} | Created by <a href="mailto:">michael@m-bauer.org</a>
                 </small>
             </Panel>
         }
