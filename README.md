@@ -1,4 +1,7 @@
 # Recurring payments/standing orders with Ethererum
+## Website
+The UI is live at [http://stors.dappstar.io](http://stors.dappstar.io). Note that the contracts
+are currently only deployed on the Ropsten test network.  
 ## Problem
 As a smart contract can not do anything by itself there is no straightforward way to 
 have automatic recurring payments. You always need an external call (transaction) to trigger
@@ -27,7 +30,7 @@ following parameters:
 When the order is created it will appear on stors.dappstar.io as outgoing order. Also 
 the renting company will see the order on stors.dappstar.io as incoming order. Initially the 
 standing order will not have any funds in it, so the renting company will not be able to collect
-anything. In this case the UI would reflect that the order is underfunded, as the first payment
+anything. The UI will reflect that the order is underfunded, as the first payment
 was due already 3 days ago! Let's fix this by opening the "Add funds" dialog.
 
 #### Adding funds to a standing order
@@ -53,5 +56,8 @@ Checkout [StandingOrder.sol](contracts/StandingOrder.sol) which contains all sol
 documentation.
 
 ## Deployed contract addresses
-At the moment the stors dapp is only available on Ropsten. 
-* Ropsten address of Factory contract: 0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4
+At the moment the stors dapp is only available on Ropsten test network. 
+* Ropsten address of Factory contract: [0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4](https://ropsten.etherscan.io/address/0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4)
+
+#License
+This code is licensed under the [MIT License](LICENSE.txt).
