@@ -3,20 +3,22 @@ import PropTypes from 'prop-types'
 import {Modal, Button} from 'react-bootstrap'
 
 
-class WithdrawalErrorModal extends Component {
+class FeedbackModal extends Component {
 
     render() {
 
+        const {title, body, showModal, onClose} = this.props;
+
         const modal = (
-            <Modal bsSize="small" show={this.props.showModal} onHide={this.props.onClose}>
+            <Modal bsSize="small" show={showModal} onHide={onClose}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Error occured</Modal.Title>
+                    <Modal.Title>{title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>An error occured while withdrawing.</p>
+                    {body}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.props.onClose}>Close</Button>
+                    <Button onClick={onClose}>Close</Button>
                 </Modal.Footer>
             </Modal>
         )
@@ -25,9 +27,11 @@ class WithdrawalErrorModal extends Component {
     }
 }
 
-WithdrawalErrorModal.propTypes = {
+FeedbackModal.propTypes = {
+    title: PropTypes.any.isRequired,
+    body: PropTypes.any.isRequired,
     showModal: PropTypes.bool.isRequired,
     onClose: PropTypes.func.isRequired,
 }
 
-export default WithdrawalErrorModal
+export default FeedbackModal

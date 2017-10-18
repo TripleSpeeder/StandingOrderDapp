@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Button, Modal} from 'react-bootstrap'
 import NewOrderForm from './NewOrderForm'
-import CreateOrderResultModal from "./CreateOrderResultModal"
+import FeedbackModal from "./FeedbackModal"
 
 class NewOrderButton extends Component {
 
@@ -11,7 +11,8 @@ class NewOrderButton extends Component {
         this.state = {
             showCreateModal: false,
             showResultModal: false,
-            createOrderProgress: 'idle'
+            createOrderProgress: 'idle',
+            createErrorMsg: '',
         }
 
         this.onCreateOrder = this.onCreateOrder.bind(this)
@@ -23,7 +24,10 @@ class NewOrderButton extends Component {
 
     onCreateOrder(order) {
         var self=this
-        this.setState({createOrderProgress:'waitingTransaction'})
+        this.setState({
+            createOrderProgress:'waitingTransaction',
+            createErrorMsg: '',
+        })
         this.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
             from: this.props.account,
             gas: 1000000
@@ -39,7 +43,10 @@ class NewOrderButton extends Component {
         }).catch(function(e) {
             // There was an error! Handle it.
             console.log("Error while creating order. Message: " + e)
-            self.setState({createOrderProgress:'idle'})
+            self.setState({
+                createOrderProgress:'idle',
+                createErrorMsg: e.toString()
+            })
             self.closeCreateModal()
             self.openResultModal()
         })
@@ -86,12 +93,23 @@ class NewOrderButton extends Component {
             </Modal.Body>
         </Modal>
 
-        let resultModal = <CreateOrderResultModal showModal={this.state.showResultModal} onClose={this.closeResultModal}/>
+        let title = "Error occurred"
+        let body = <div>
+            <p>An error occured while creating order.</p>
+            <p>{this.state.createErrorMsg}</p>
+            <p>No transactions have been performed.</p>
+        </div>
+        let errorModal = <FeedbackModal
+            title={title}
+            body={body}
+            showModal={this.state.showResultModal}
+            onClose={this.closeResultModal}
+        />
 
         return <div>
             {button}
             {createModal}
-            {resultModal}
+            {errorModal}
         </div>
     }
 }

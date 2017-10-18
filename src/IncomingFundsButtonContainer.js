@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import IncomingFundsButton from './IncomingFundsButton'
 import CollectOrderResultModal from './CollectOrderResultModal'
-import CollectErrorModal from './CollectErrorModal'
+import FeedbackModal from "./FeedbackModal"
 
 
 class IncomingFundsButtonContainer extends Component {
@@ -66,6 +66,11 @@ class IncomingFundsButtonContainer extends Component {
     }
 
     render() {
+        let feedbackBody = <div>
+            <p>An error occured while collecting funds:</p>
+            <p>{this.state.errorMessage}</p>
+        </div>
+
         return <div>
             <IncomingFundsButton
                 order={this.props.order}
@@ -79,11 +84,10 @@ class IncomingFundsButtonContainer extends Component {
                 transactionHash={this.state.transactionHash}
                 networkID={this.props.networkID}
             />
-            <CollectErrorModal
-                showModal={this.state.showErrorModal}
-                errorMessage={this.state.errorMessage}
-                onClose={this.handleCloseErrorModal}
-            />
+            <FeedbackModal title="Error occurred"
+                           body={feedbackBody}
+                           showModal={this.state.showErrorModal}
+                           onClose={this.handleCloseErrorModal}/>
         </div>
     }
 
