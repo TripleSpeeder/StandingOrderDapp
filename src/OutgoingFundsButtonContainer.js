@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import OutgoingFundsButton from './OutgoingFundsButton'
 import FundOrderModal from "./FundOrderModal"
 import FundOrderResultModal from "./FundOrderResultModal"
-import WithdrawalErrorModal from "./WithdrawalErrorModal"
+import FeedbackModal from "./FeedbackModal"
 
 
 class OutgoingFundsButtonContainer extends Component {
@@ -17,7 +17,8 @@ class OutgoingFundsButtonContainer extends Component {
             showErrorModal:false,
             transactionHash:'',
             amount:window.web3.toBigNumber(0),
-            modalMode:'fund'
+            modalMode:'fund',
+            errorMessage: '',
         }
 
         this.handleSubmit = this.handleSubmit.bind(this)
@@ -88,6 +89,7 @@ class OutgoingFundsButtonContainer extends Component {
                     showResultsModalModal: false,
                     showErrorModal: true,
                     fundingProgress: 'idle',
+                    errorMessage: err.toString(),
                 })
             })
     }
@@ -108,6 +110,16 @@ class OutgoingFundsButtonContainer extends Component {
                 fundingProgress:'idle',
                 amount:ev.args['amount'],
                 transactionHash:result.tx,
+            })
+        }).catch(function (err) {
+            console.log("Fund order error: " + err)
+            self.setState({
+                showModal: false,
+                showResultsModal: false,
+                showErrorModal: true,
+                errorMessage: err.toString(),
+                collectState: 'idle',
+                fundingProgress: 'idle',
             })
         })
     }
@@ -132,6 +144,11 @@ class OutgoingFundsButtonContainer extends Component {
     }
 
     render() {
+        let feedbackBody = <div>
+            <p>An error occured:</p>
+            <p>{this.state.errorMessage}</p>
+        </div>
+
         return <div>
             <OutgoingFundsButton
                 order={this.props.order}
@@ -153,10 +170,11 @@ class OutgoingFundsButtonContainer extends Component {
                 amount={this.state.amount}
                 networkID={this.props.networkID}
             />
-            <WithdrawalErrorModal
+            <FeedbackModal
+                title="Error occurred"
+                body={feedbackBody}
                 showModal={this.state.showErrorModal}
-                onClose={this.handleCloseErrorModal}
-            />
+                onClose={this.handleCloseErrorModal}/>
             </div>
     }
 

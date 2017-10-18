@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Modal, Button} from 'react-bootstrap'
 import EtherDisplay from "./EtherDisplay"
+import FeedbackModal from "./FeedbackModal"
 
 
 class CollectOrderResultModal extends Component {
@@ -19,23 +20,12 @@ class CollectOrderResultModal extends Component {
                 blockexplorer = "https://etherscan.io/tx/"
         }
         let verifyUrl = blockexplorer + this.props.transactionHash
+        const body = <div>
+            <p>Collected <EtherDisplay wei={this.props.collectedAmount}/>.</p>
+            <p><a href={verifyUrl} target="_blank">Verify on etherscan.io</a></p>
+        </div>
 
-        const modal = (
-            <Modal bsSize="small" show={this.props.showModal} onHide={this.props.onClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Funds collected</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <p>Collected <EtherDisplay wei={this.props.collectedAmount}/>.</p>
-                    <p><a href={verifyUrl} target="_blank">Verify on etherscan.io</a></p>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={this.props.onClose}>Close</Button>
-                </Modal.Footer>
-            </Modal>
-        )
-
-        return modal
+        return <FeedbackModal title="Funds collected" body={body} showModal={this.props.showModal} onClose={this.props.onClose}/>
     }
 }
 
