@@ -4,7 +4,7 @@ module.exports = {
         development: {
             host: "localhost",
             port: 8545,
-            network_id: "6666" // RNG ;)
+            network_id: "*"
         },
         live: {
             host: "localhost",
