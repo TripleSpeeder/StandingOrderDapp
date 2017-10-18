@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {Modal, Button} from 'react-bootstrap'
 import EtherDisplay from "./EtherDisplay"
+import FeedbackModal from "./FeedbackModal"
 
 
 class FundOrderResultModal extends Component {
@@ -27,21 +28,10 @@ class FundOrderResultModal extends Component {
             body =  <div><p>Received <EtherDisplay wei={this.props.amount}/>.</p> <p><a href={verifyUrl} target="_blank">Verify on etherscan.io</a></p></div>
         }
 
-        const modal = (
-            <Modal bsSize="small" show={this.props.showModal} onHide={this.props.onClose}>
-                <Modal.Header closeButton>
-                    <Modal.Title>{this.props.isFunding ? "Funding successfull" : "Withdraw successfull"}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button onClick={this.props.onClose}>Close</Button>
-                </Modal.Footer>
-            </Modal>
-        )
+        const title = this.props.isFunding ? "Funding successfull" : "Withdraw successfull"
+        const {showModal, onClose} = this.props
 
-        return modal
+        return <FeedbackModal title={title} body={body} showModal={showModal} onClose={onClose}/>
     }
 }
 
