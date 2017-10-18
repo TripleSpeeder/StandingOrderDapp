@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
-import {Modal, Button} from 'react-bootstrap'
 import EtherDisplay from "./EtherDisplay"
 import FeedbackModal from "./FeedbackModal"
 
@@ -15,7 +14,6 @@ class FundOrderResultModal extends Component {
                 blockexplorer = "https://ropsten.etherscan.io/tx/"
                 break
             case 1: // main
-            case 6666: // testrpc during dev
             default:
                 blockexplorer = "https://etherscan.io/tx/"
         }
