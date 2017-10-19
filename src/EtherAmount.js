@@ -9,6 +9,7 @@ class EtherAmount extends Component {
         this.state = {
             unit: props.unit,
         }
+        this.lastRepresentation = ''
 
         this.onUnitSelected = this.onUnitSelected.bind(this)
         this.handleInputChange = this.handleInputChange.bind(this)
@@ -25,18 +26,30 @@ class EtherAmount extends Component {
     handleInputChange(event) {
         const target = event.target
         const value = target.value
+        this.lastRepresentation = value
         this.props.onChange(this.toWei(value))
     }
 
     onUnitSelected(key, event) {
-        this.setState({unit: key})
+        this.lastRepresentation = '' // reset lastRepresentation to clear leading/trailing zeros
+        this.setState({
+            unit: key,
+        })
     }
 
     render() {
+        const {wei} = this.props
+        // keep the string value entered by the user as long as it results in the same number of WEI. This enables entering
+        // values with leading/trailing zeros like 0.005. Otherwise user would not be able to enter a zero after the decimal
+        // point, as "0.0" would always be converted to plain "0" in the OnChange handler.
+        // See https://github.com/TripleSpeeder/StandingOrderDapp/issues/65
+        const oldwei = this.toWei(this.lastRepresentation)
+        const value = (oldwei.equals(wei)) ? this.lastRepresentation : this.fromWei(wei)
+
         return <InputGroup>
             <FormControl
                 type="number"
-                value={this.fromWei(this.props.wei)}
+                value={value}
                 onChange={this.handleInputChange}
             />
             <DropdownButton
