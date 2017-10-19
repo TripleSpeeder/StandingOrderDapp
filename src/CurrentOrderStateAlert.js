@@ -38,7 +38,7 @@ class CurrentOrderStateAlert extends Component {
         return (
             <Alert bsStyle="success">
                 <p>
-                    Next <strong>{this.props.paymentsCovered.toNumber()}</strong> payments covered until <strong>{this.props.failureDate.format()}</strong>
+                    Next <strong>{this.props.paymentsCovered.floor().toNumber()}</strong> payments covered until <strong>{this.props.failureDate.format()}</strong>
                 </p>
             </Alert>
         )
