@@ -6,7 +6,6 @@ import {
     Jumbotron,
     Nav,
     Panel,
-    Well,
 } from 'react-bootstrap'
 import StandingOrderListContainer from './StandingOrderListContainer'
 import standingOrderFactory_artifacts from '../build/contracts/StandingOrderFactory.json'
