@@ -13,9 +13,11 @@ class NewOrderButton extends Component {
             showResultModal: false,
             createOrderProgress: 'idle',
             createErrorMsg: '',
+            gasEstimate: '',
         }
 
         this.onCreateOrder = this.onCreateOrder.bind(this)
+        this.onEstimateGas = this.onEstimateGas.bind(this)
         this.openCreateModal = this.openCreateModal.bind(this)
         this.closeCreateModal = this.closeCreateModal.bind(this)
         this.openResultModal = this.openResultModal.bind(this)
@@ -49,6 +51,20 @@ class NewOrderButton extends Component {
             })
             self.closeCreateModal()
             self.openResultModal()
+        })
+    }
+
+    onEstimateGas(order){
+        var self=this
+        this.props.factoryInstance.createStandingOrder.estimateGas(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
+            from: this.props.account,
+        }).then(function(gas){
+            console.log('Estimated gas to create order: ' + gas)
+            self.setState({gasEstimate: gas})
+        }).catch(function(e) {
+            // There was an error! Handle it.
+            console.log("Error while estimating gas to create order: " + e)
+            self.setState({gasEstimate: ''})
         })
     }
 
@@ -86,7 +102,9 @@ class NewOrderButton extends Component {
             </Modal.Header>
             <Modal.Body>
                 <NewOrderForm
+                    gasEstimate={this.state.gasEstimate}
                     onNewOrder={this.onCreateOrder}
+                    onEstimateGas={this.onEstimateGas}
                     onCancel={this.closeCreateModal}
                     createOrderProgress={this.state.createOrderProgress}
                 />

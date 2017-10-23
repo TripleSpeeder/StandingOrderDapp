@@ -29,6 +29,33 @@ class NewOrderForm extends Component {
         this.handleAmountChange = this.handleAmountChange.bind(this)
         this.handleStartTimeChange = this.handleStartTimeChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.estimateGas = this.estimateGas.bind(this)
+    }
+
+    estimateGas(){
+        this.setState({gasEstimate: 'Estimating...'})
+        var order = {
+            label: this.state.label,
+            receiver: this.state.receiver,
+            rate: this.state.rate,
+            period: this.state.period,
+            startTime: this.state.startTime,
+        }
+        this.props.onEstimateGas(order)
+    }
+
+    componentDidUpdate(prevProps, prevState){
+        // Check if we should retrigger gas estimate
+        if (!this.formIsValid()) {
+            // Don't bother...
+            return
+        }
+        if ((prevState.label !== this.state.label) ||
+            (!prevState.rate.equals(this.state.rate)) ||
+            (!prevState.period===this.state.period) ||
+            (!prevState.startTime.isSame(this.state.startTime))) {
+            this.estimateGas()
+        }
     }
 
     handleInputChange(event) {
@@ -52,7 +79,7 @@ class NewOrderForm extends Component {
 
     handleDurationChange(seconds) {
         this.setState({
-            period: seconds
+            period: parseInt(seconds, 10)
         })
     }
 
@@ -79,11 +106,15 @@ class NewOrderForm extends Component {
             label: this.state.label,
             receiver: this.state.receiver,
             rate: this.state.rate,
-            period: parseInt(this.state.period, 10),
+            period: this.state.period,
             startTime: this.state.startTime,
         }
         console.log(order)
         this.props.onNewOrder(order)
+    }
+
+    formIsValid() {
+        return (this.state.rateValid && this.state.labelValid && this.state.receiverValid)
     }
 
     render() {
@@ -108,8 +139,7 @@ class NewOrderForm extends Component {
                 break
             case 'idle':
             default:
-                let enabled = (this.state.rateValid && this.state.labelValid && this.state.receiverValid)
-                if (enabled) {
+                if (this.formIsValid()) {
                     createButton = <Button bsStyle="primary" type="submit">
                         Create order
                     </Button>
@@ -196,6 +226,18 @@ class NewOrderForm extends Component {
                         <HelpBlock>When is the first payment due. Dates in the past are allowed!</HelpBlock>
                     </Col>
                 </FormGroup>
+
+                <FormGroup>
+                    <Col componentClass={ControlLabel} sm={2}>
+                        Estimated gas
+                    </Col>
+                    <Col sm={10}>
+                        <FormControl.Static>
+                            {this.formIsValid() ? this.props.gasEstimate : "Please fix form errors to get gas estimate"}
+                        </FormControl.Static>
+                    </Col>
+                </FormGroup>
+
 
                 <FormGroup>
                     <Col smOffset={2} sm={3}>
