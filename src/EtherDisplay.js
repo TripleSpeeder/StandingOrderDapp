@@ -7,19 +7,22 @@ class EtherDisplay extends Component {
     constructor(props) {
         super(props)
 
-        this.minFinney = window.web3.toBigNumber('100000000000')
-        this.minEther = window.web3.toBigNumber('100000000000000')
+        this.minGwei    = window.web3.toBigNumber('1000000000')
+        this.minFinney  = window.web3.toBigNumber('100000000000')
+        this.minEther   = window.web3.toBigNumber('100000000000000')
 
         this.determineUnit = this.determineUnit.bind(this)
     }
 
-    /* I want to display wei, finney or ether. */
+    /* I want to display wei, gwei, finney or ether. */
     determineUnit(weiAmount) {
         const absWei = weiAmount.abs()
         if (absWei.isZero())
             return "ether"
-        if (absWei.lessThan(this.minFinney))
+        else if (absWei.lessThan(this.minGwei))
             return "wei"
+        else if (absWei.lessThan(this.minFinney))
+            return "gwei"
         else if (absWei.lessThan(this.minEther))
             return "finney"
         else
