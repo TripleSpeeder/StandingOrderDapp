@@ -17,7 +17,7 @@ class NewOrderButton extends Component {
         }
 
         this.onCreateOrder = this.onCreateOrder.bind(this)
-        this.onEstimateGas = this.onEstimateGas.bind(this)
+        this.onEstimateGasCosts = this.onEstimateGasCosts.bind(this)
         this.openCreateModal = this.openCreateModal.bind(this)
         this.closeCreateModal = this.closeCreateModal.bind(this)
         this.openResultModal = this.openResultModal.bind(this)
@@ -30,15 +30,9 @@ class NewOrderButton extends Component {
             createOrderProgress: 'waitingTransaction',
             createErrorMsg: '',
         })
-        self.props.factoryInstance.createStandingOrder.estimateGas(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
-                from: self.props.account
-            }
-        ).then(function (gas) {
-            console.log("Estimated gas to create contract: " + gas)
-            return self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
+
+        self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
                 from: self.props.account,
-                gas: gas
-            })
         }).then(function (result) {
             console.log('Created StandingOrder - transaction: ' + result.tx)
             console.log(result.receipt)
@@ -60,17 +54,25 @@ class NewOrderButton extends Component {
         })
     }
 
-    onEstimateGas(order) {
+    onEstimateGasCosts(order) {
         var self = this
+        var gasEstimate = 0
         this.props.factoryInstance.createStandingOrder.estimateGas(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
             from: this.props.account,
         }).then(function (gas) {
             console.log('Estimated gas to create order: ' + gas)
-            self.setState({gasEstimate: gas})
+            gasEstimate = gas
+            return window.web3.eth.getGasPricePromise()
+        }).then(function(gasPrice){
+            console.log('Current gas price: ' + gasPrice.toString())
+            self.setState({
+                gasEstimate: gasEstimate,
+                gasPrice: gasPrice
+            })
         }).catch(function (e) {
             // There was an error! Handle it.
             console.log("Error while estimating gas to create order: " + e)
-            self.setState({gasEstimate: ''})
+            self.setState({gasEstimate: 0})
         })
     }
 
@@ -109,8 +111,9 @@ class NewOrderButton extends Component {
             <Modal.Body>
                 <NewOrderForm
                     gasEstimate={this.state.gasEstimate}
+                    gasPrice={this.state.gasPrice}
                     onNewOrder={this.onCreateOrder}
-                    onEstimateGas={this.onEstimateGas}
+                    onEstimateGas={this.onEstimateGasCosts}
                     onCancel={this.closeCreateModal}
                     createOrderProgress={this.state.createOrderProgress}
                 />

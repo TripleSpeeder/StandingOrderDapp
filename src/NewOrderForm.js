@@ -7,6 +7,7 @@ import Duration from "./Duration"
 import EtherAmount from './EtherAmount'
 import DateTime from 'react-datetime'
 import 'react-datetime/css/react-datetime.css'
+import EtherDisplay from "./EtherDisplay"
 
 
 class NewOrderForm extends Component {
@@ -29,10 +30,10 @@ class NewOrderForm extends Component {
         this.handleAmountChange = this.handleAmountChange.bind(this)
         this.handleStartTimeChange = this.handleStartTimeChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
-        this.estimateGas = this.estimateGas.bind(this)
+        this.estimateGasCosts = this.estimateGasCosts.bind(this)
     }
 
-    estimateGas(){
+    estimateGasCosts(){
         this.setState({gasEstimate: 'Estimating...'})
         var order = {
             label: this.state.label,
@@ -54,7 +55,7 @@ class NewOrderForm extends Component {
             (!prevState.rate.equals(this.state.rate)) ||
             (!prevState.period===this.state.period) ||
             (!prevState.startTime.isSame(this.state.startTime))) {
-            this.estimateGas()
+            this.estimateGasCosts()
         }
     }
 
@@ -118,6 +119,15 @@ class NewOrderForm extends Component {
     }
 
     render() {
+        let gasCostEstimate = "Please fix form errors to get gas estimate"
+        if (this.formIsValid() && this.props.gasPrice && this.props.gasEstimate){
+            let gasCosts = this.props.gasPrice.mul(this.props.gasEstimate)
+            gasCostEstimate = <span>
+                <EtherDisplay wei={gasCosts}/>
+                <br/>
+                <small>(gas usage: {this.props.gasEstimate}, current gas price: <EtherDisplay wei={this.props.gasPrice}/>)</small>
+            </span>
+        }
         let createButton
         let cancelButton
         switch (this.props.createOrderProgress) {
@@ -229,11 +239,11 @@ class NewOrderForm extends Component {
 
                 <FormGroup>
                     <Col componentClass={ControlLabel} sm={2}>
-                        Estimated gas
+                        Estimated gas costs
                     </Col>
                     <Col sm={10}>
                         <FormControl.Static>
-                            {this.formIsValid() ? this.props.gasEstimate : "Please fix form errors to get gas estimate"}
+                            {gasCostEstimate}
                         </FormControl.Static>
                     </Col>
                 </FormGroup>
