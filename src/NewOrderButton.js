@@ -25,28 +25,34 @@ class NewOrderButton extends Component {
     }
 
     onCreateOrder(order) {
-        var self=this
+        var self = this
         this.setState({
-            createOrderProgress:'waitingTransaction',
+            createOrderProgress: 'waitingTransaction',
             createErrorMsg: '',
         })
-        this.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
-            from: this.props.account,
-            gas: 1000000
-        }).then(function(result){
+        self.props.factoryInstance.createStandingOrder.estimateGas(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
+                from: self.props.account
+            }
+        ).then(function (gas) {
+            console.log("Estimated gas to create contract: " + gas)
+            return self.props.factoryInstance.createStandingOrder(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
+                from: self.props.account,
+                gas: gas
+            })
+        }).then(function (result) {
             console.log('Created StandingOrder - transaction: ' + result.tx)
             console.log(result.receipt)
             // check for log entries. If there are no logs created, contract creation failed!
-            if(result.logs.length < 1) {
+            if (result.logs.length < 1) {
                 throw new Error('Transaction completed, but no log entries -> Contract creation failed.')
             }
-            self.setState({createOrderProgress:'done'})
+            self.setState({createOrderProgress: 'done'})
             self.closeCreateModal()
-        }).catch(function(e) {
+        }).catch(function (e) {
             // There was an error! Handle it.
             console.log("Error while creating order. Message: " + e)
             self.setState({
-                createOrderProgress:'idle',
+                createOrderProgress: 'idle',
                 createErrorMsg: e.toString()
             })
             self.closeCreateModal()
@@ -54,14 +60,14 @@ class NewOrderButton extends Component {
         })
     }
 
-    onEstimateGas(order){
-        var self=this
+    onEstimateGas(order) {
+        var self = this
         this.props.factoryInstance.createStandingOrder.estimateGas(order.receiver, order.rate, order.period, order.startTime.unix(), order.label, {
             from: this.props.account,
-        }).then(function(gas){
+        }).then(function (gas) {
             console.log('Estimated gas to create order: ' + gas)
             self.setState({gasEstimate: gas})
-        }).catch(function(e) {
+        }).catch(function (e) {
             // There was an error! Handle it.
             console.log("Error while estimating gas to create order: " + e)
             self.setState({gasEstimate: ''})
@@ -76,7 +82,7 @@ class NewOrderButton extends Component {
         this.setState(
             {
                 showCreateModal: true,
-                createOrderProgress:'idle'
+                createOrderProgress: 'idle'
             })
     }
 
@@ -132,7 +138,8 @@ class NewOrderButton extends Component {
     }
 }
 
-NewOrderButton.propTypes = {
+NewOrderButton
+    .propTypes = {
     label: PropTypes.string.isRequired,
     account: PropTypes.string.isRequired,
     factoryInstance: PropTypes.any.isRequired, // TODO: Use specifc protype instead of 'any'!
