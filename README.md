@@ -1,7 +1,7 @@
 # Recurring payments/standing orders with Ethereum
 ## Website
-The UI is live at [http://stors.dappstar.io](http://stors.dappstar.io). Note that the contracts
-are currently only deployed on the Ropsten test network.  
+The UI is live at [http://stors.dappstar.io](http://stors.dappstar.io). The contract is deployed on 
+Main, Ropsten and Kovan networks.
 ## Problem
 As a smart contract can not do anything by itself there is no straightforward way to 
 have automatic recurring payments. You always need an external call (transaction) to trigger
@@ -56,8 +56,10 @@ Checkout [StandingOrder.sol](contracts/StandingOrder.sol) which contains all sol
 documentation.
 
 ## Deployed contract addresses
-At the moment the stors dapp is only available on Ropsten test network. 
-* Factory contract on Ropsten: [0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4](https://ropsten.etherscan.io/address/0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4)
+At the moment the stors dapp is available on these networks: 
+* Ropsten: [0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4](https://ropsten.etherscan.io/address/0x70a10e7acab0811aeb34d4a7d25d6e014f88d8d4)
+* Kovan: [0x2fD0B2B2e254Fb9dB4aDAafb95e824Be40198310](https://kovan.etherscan.io/address/0x2fD0B2B2e254Fb9dB4aDAafb95e824Be40198310)
+* Mainnet: [0x0cb34fa6011d573876f29803fb21ad5f1e01388b](https://kovan.etherscan.io/address/0x0cb34fa6011d573876f29803fb21ad5f1e01388b)
 
 # License
 This code is licensed under the [MIT License](LICENSE.txt).
