@@ -28,5 +28,8 @@ module.exports = {
             port: 8549,
             network_id: 4,
         }
+    },
+    mocha: {
+        reporter: 'eth-gas-reporter'
     }
 }
