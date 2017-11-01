@@ -94,9 +94,7 @@ describe('Checking Termination with unclaimed balance', function () {
         it('should have correct terminationTime', function() {
             // terminationtime should be set
             return order.terminationTime({from: owner}).then(function (terminationTime) {
-                //console.log("Termination time: " + terminationTime)
-                //console.log("System time: " + moment().unix())
-                assert.equal(terminationTime.toNumber(), moment().unix(), 'termination time should be now')
+                assert.approximately(terminationTime.toNumber(), moment().unix(), 2) // allow 2 seconds variance
             })
         })
     })
