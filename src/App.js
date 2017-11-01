@@ -230,7 +230,7 @@ class App extends Component {
                 <p>Please check:</p>
                 <ul>
                     <li>Use a web3-enabled browser (e.g. Mist or Chrome/Firefox with Metamask plugin)</li>
-                    <li>Currently stors.dappstar.io is only availble on the Ropsten test network.</li>
+                    <li>Currently stors.dappstar.io is availble on Main, Ropsten and Kovan networks.</li>
                 </ul>
             </Panel>
         }
