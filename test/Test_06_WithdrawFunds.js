@@ -16,30 +16,22 @@ let order, startBalance, newBalance
 
 describe('Checking withdraw', function () {
 
-    before('Create a standingOrder', function () {
+    before('Create a standingOrder', async () => {
         let interval = 120 // two minutes
         let startTime = moment() // First payment due now
         let label = 'testorder'
-
-        return StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
-            {
-                from: owner,
-            })
-            .then(function (instance) {
-                // console.log("Created new order at " + instance.address)
-                order = instance
-            })
+        order = await StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
+            { from: owner }
+        )
     })
 
-    before('Fund order', function () {
-        return order.send(fundAmount, {from: owner})
-            .then(function (result) {
-                assert.isNotNull(result.receipt.blockHash)
-                assert(web3.eth.getBalance(order.address).equals(fundAmount))
-            })
+    before('Fund order', async () => {
+        let result = await order.send(fundAmount, {from: owner})
+        assert.isNotNull(result.receipt.blockHash)
+        assert(web3.eth.getBalance(order.address).equals(fundAmount))
     })
 
-    before('Get owners current balance', function () {
+    before('Get owners current balance', () => {
         // get current owner balance
         startBalance = web3.eth.getBalance(owner)
         newBalance = startBalance
@@ -48,14 +40,15 @@ describe('Checking withdraw', function () {
 
     describe('Checking access', function () {
         let withdrawAmount = fundAmount.minus(paymentAmount)
-        it('should throw when payee calls withdrawFunds', function () {
+
+        it('should throw when payee calls withdrawFunds', () => {
             return assert.isRejected(
                 order.WithdrawOwnerFunds(withdrawAmount, {from: payee}),
                 /invalid opcode/
             )
         })
 
-        it('should throw when other user calls withdrawFunds', function () {
+        it('should throw when other user calls withdrawFunds', () => {
             return assert.isRejected(
                 order.WithdrawOwnerFunds(withdrawAmount, {from: otherUser}),
                 /invalid opcode/
@@ -69,33 +62,29 @@ describe('Checking withdraw', function () {
         let gasUsed, gasPrice
         let withdrawAmount = paymentAmount  // withdraw one payment amount
 
-        it('should get correct owner funds', function () {
-            return order.getOwnerFunds.call({from: owner}).then(function (_ownerFunds) {
-                ownerFunds = _ownerFunds
-                assert(expectedOwnerFunds.equals(ownerFunds), 'Ownerfunds should be correct!')
+        it('should get correct owner funds', async () => {
+            ownerFunds = await order.getOwnerFunds.call({from: owner})
+            assert(expectedOwnerFunds.equals(ownerFunds), 'Ownerfunds should be correct!')
+        })
+
+        it('should do a partial withdraw', async () => {
+            let result = await order.WithdrawOwnerFunds(withdrawAmount, {from: owner})
+            assert.isNotNull(result.receipt.blockHash)
+            assert.isNotNull(result.receipt.blockNumber)
+            gasUsed = result.receipt.gasUsed
+            gasPrice = web3.eth.getTransaction(result.tx).gasPrice
+            // there should be one log event named "Withdraw"
+            let withdrawEvent = result.logs.find(function (logentry) {
+                return logentry.event == 'Withdraw'
             })
+            assert.isDefined(withdrawEvent, 'No Withdraw event in transaction logs')
+            // Event should have arg 'amount'
+            let eventAmount = withdrawEvent.args['amount']
+            assert.isDefined(eventAmount, 'No amount info in Withdraw event')
+            assert(withdrawAmount.equals(eventAmount), 'Amount logged in Withdraw event not matching withdrawAmount')
         })
 
-        it('should do a partial withdraw', function done() {
-            return order.WithdrawOwnerFunds(withdrawAmount, {from: owner})
-                .then(function (result) {
-                    assert.isNotNull(result.receipt.blockHash)
-                    assert.isNotNull(result.receipt.blockNumber)
-                    gasUsed = result.receipt.gasUsed
-                    gasPrice = web3.eth.getTransaction(result.tx).gasPrice
-                    // there should be one log event named "Withdraw"
-                    let withdrawEvent = result.logs.find(function (logentry) {
-                        return logentry.event == 'Withdraw'
-                    })
-                    assert.isDefined(withdrawEvent, 'No Withdraw event in transaction logs')
-                    // Event should have arg 'amount'
-                    let eventAmount = withdrawEvent.args['amount']
-                    assert.isDefined(eventAmount, 'No amount info in Withdraw event')
-                    assert(withdrawAmount.equals(eventAmount), 'Amount logged in Withdraw event not matching withdrawAmount')
-                })
-        })
-
-        it('should correctly increase owner balance', function () {
+        it('should correctly increase owner balance', () => {
             newBalance = web3.eth.getBalance(owner)
             let diff = newBalance.minus(startBalance) // how much did balance increase
             diff = diff.plus(gasPrice.mul(gasUsed)) // take gas usage into account
@@ -107,32 +96,30 @@ describe('Checking withdraw', function () {
             assert(diff.equals(withdrawAmount), "Owner balance should be increased by withdraw amount")
         })
 
-        it('should correctly decrease contract balance', function () {
+        it('should correctly decrease contract balance', () => {
             assert(web3.eth.getBalance(order.address).equals(fundAmount.minus(withdrawAmount)))
         })
 
-        it('should throw when owner tries to withdraw more than available', function () {
+        it('should throw when owner tries to withdraw more than available', () => {
             return assert.isRejected(
                 order.WithdrawOwnerFunds(fundAmount, {from: owner}),
                 /invalid opcode/
             )
         })
 
-        it('should do a full withdraw', function () {
+        it('should do a full withdraw', async () => {
             // calculate remaining ownerfunds that should be available
             let fullAmount = ownerFunds.minus(withdrawAmount)
-            return order.WithdrawOwnerFunds(fullAmount, {from: owner})
-                .then(function(result) {
-                    // there should be one log event named "Withdraw"
-                    let withdrawEvent = result.logs.find(function (logentry) {
-                        return logentry.event == 'Withdraw'
-                    })
-                    assert.isDefined(withdrawEvent, 'No Withdraw event in transaction logs')
-                    // Event should have arg 'amount'
-                    let eventAmount = withdrawEvent.args['amount']
-                    assert.isDefined(eventAmount, 'No amount info in Withdraw event')
-                    assert(fullAmount.equals(eventAmount), 'Amount logged in Withdraw event not matching requested amount')
-                })
+            let result = await order.WithdrawOwnerFunds(fullAmount, {from: owner})
+            // there should be one log event named "Withdraw"
+            let withdrawEvent = result.logs.find(function (logentry) {
+                return logentry.event == 'Withdraw'
+            })
+            assert.isDefined(withdrawEvent, 'No Withdraw event in transaction logs')
+            // Event should have arg 'amount'
+            let eventAmount = withdrawEvent.args['amount']
+            assert.isDefined(eventAmount, 'No amount info in Withdraw event')
+            assert(fullAmount.equals(eventAmount), 'Amount logged in Withdraw event not matching requested amount')
         })
     })
 })

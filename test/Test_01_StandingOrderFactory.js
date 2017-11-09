@@ -16,15 +16,13 @@ contract('StandingOrderFactory', function (accounts) {
     let payee = accounts[1]
     let factory
 
-    before('obtain factory', function () {
-        return StandingOrderFactory.deployed().then(function (_factory) {
-            factory = _factory
-        })
+    before('obtain factory', async () => {
+        factory = await StandingOrderFactory.deployed()
     })
 
     describe('Create StandingOrder', function () {
 
-        it('should throw when trying to create an order with 0 interval', function () {
+        it('should throw when trying to create an order with 0 interval', () => {
             let interval = 0
             let startTime = moment().add(1, 'days') // First payment due in one day
             let amount = 100000000
@@ -37,7 +35,7 @@ contract('StandingOrderFactory', function (accounts) {
             )
         })
 
-        it('should throw when trying to create an order with 0 amount', function () {
+        it('should throw when trying to create an order with 0 amount', () => {
             let interval = 60 // one minute
             let startTime = moment().add(1, 'days') // First payment due in one day
             let amount = 0
@@ -50,7 +48,7 @@ contract('StandingOrderFactory', function (accounts) {
             )
         })
 
-        it('should throw when trying to create an order with empty label', function () {
+        it('should throw when trying to create an order with empty label', () => {
             let interval = 60 // one minute
             let startTime = moment().add(1, 'days') // First payment due in one day
             let amount = 100000000
@@ -63,7 +61,7 @@ contract('StandingOrderFactory', function (accounts) {
             )
         })
 
-        it('should throw when trying to create an order with label shorter than 3 chars', function () {
+        it('should throw when trying to create an order with label shorter than 3 chars', () => {
             let interval = 60 // one minute
             let startTime = moment().add(1, 'days') // First payment due in one day
             let amount = 100000000
@@ -76,7 +74,7 @@ contract('StandingOrderFactory', function (accounts) {
             )
         })
 
-        it('should create a standingOrder when valid parameters are used', function () {
+        it('should create a standingOrder when valid parameters are used', () => {
             let interval = 60 // one minute
             let startTime = moment().add(1, 'days') // First payment due in one day
             let amount = 100000000
@@ -84,18 +82,15 @@ contract('StandingOrderFactory', function (accounts) {
             return assert.isFulfilled(helper.createOrder(factory, owner, payee, amount, interval, startTime, label))
         })
 
-        it('should set correct owner', function() {
+        it('should set correct owner', async () => {
             let interval = 60 // one minute
             let startTime = moment().add(1, 'days') // First payment due in one day
             let amount = 100000000
             let label = 'testorder'
-            return helper.createOrder(factory, owner, payee, amount, interval, startTime, label)
-                .then(function (order) {
-                    return order.owner()
-                })
-                .then(function (_owner) {
-                    assert.equal(owner, _owner);
-                })
+            let order, _owner
+            order = await helper.createOrder(factory, owner, payee, amount, interval, startTime, label)
+            _owner = await order.owner()
+            assert.equal(owner, _owner)
         })
 
     })

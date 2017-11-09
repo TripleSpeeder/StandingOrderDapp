@@ -1,11 +1,11 @@
-var moment = require('moment')
-var chai = require('chai')
-var chaiAsPromised = require('chai-as-promised')
+let moment = require('moment')
+let chai = require('chai')
+let chaiAsPromised = require('chai-as-promised')
 
 chai.use(chaiAsPromised)
-var assert = chai.assert
+let assert = chai.assert
 
-var StandingOrder = artifacts.require('StandingOrder')
+let StandingOrder = artifacts.require('StandingOrder')
 
 let owner = web3.eth.accounts[0]
 let payee = web3.eth.accounts[1]
@@ -16,30 +16,22 @@ let order, startBalance, newBalance, gasUsed, unclaimedFunds, gasPrice
 
 describe('Checking collectFunds', function () {
 
-    before('Create a standingOrder', function () {
+    before('Create a standingOrder', async () => {
         let interval = 120 // two minutes
         let startTime = moment() // First payment due now
         let label = 'testorder'
-
-        return StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
-            {
-                from: owner,
-            })
-            .then(function (instance) {
-                // console.log("Created new order at " + instance.address)
-                order = instance
-            })
+        order = await StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
+            { from: owner }
+        )
     })
 
-    before('Fund order', function () {
-        return order.send(fundAmount, {from: owner})
-            .then(function (result) {
-                assert.isNotNull(result.receipt.blockHash)
-                assert(web3.eth.getBalance(order.address).equals(fundAmount))
-            })
+    before('Fund order', async () => {
+        result = await order.send(fundAmount, {from: owner})
+        assert.isNotNull(result.receipt.blockHash)
+        assert(web3.eth.getBalance(order.address).equals(fundAmount))
     })
 
-    before('Get payees current balance', function () {
+    before('Get payees current balance', () => {
         // get current payee balance
         startBalance = web3.eth.getBalance(payee)
         newBalance = startBalance
@@ -47,14 +39,15 @@ describe('Checking collectFunds', function () {
     })
 
     describe('Checking access', function () {
-        it('should throw when owner calls collectFunds', function () {
+
+        it('should throw when owner calls collectFunds', () => {
             return assert.isRejected(
                 order.collectFunds({from: owner}),
                 /invalid opcode/
             )
         })
 
-        it('should throw when non-payee calls collectFunds', function () {
+        it('should throw when non-payee calls collectFunds', () => {
             return assert.isRejected(
                 order.collectFunds({from: otherUser}),
                 /invalid opcode/
@@ -64,28 +57,26 @@ describe('Checking collectFunds', function () {
 
     describe('Checking collect', function () {
 
-        it('should get correct unclaimed funds', function () {
-            return order.getUnclaimedFunds.call({from: payee}).then(function (_unclaimedFunds) {
-                unclaimedFunds = _unclaimedFunds
-                assert(unclaimedFunds.equals(paymentAmount), 'unclaimedFunds should match paymentAmount!')
-            })
+        let unclaimedFunds
+
+        it('should get correct unclaimed funds', async () => {
+            unclaimedFunds = await order.getUnclaimedFunds.call({from: payee})
+            assert(unclaimedFunds.equals(paymentAmount), 'unclaimedFunds should match paymentAmount!')
         })
 
-        it('should call collectFunds', function done() {
-            return order.collectFunds({from: payee})
-                .then(function (result) {
-                    assert.isNotNull(result.receipt.blockHash)
-                    assert.isNotNull(result.receipt.blockNumber)
-                    gasUsed = result.receipt.gasUsed
-                    gasPrice = web3.eth.getTransaction(result.tx).gasPrice
-                    // there should be one log event named "Collect"
-                    assert.equal('Collect', result.logs[0].event)
-                    // the first (and only) argument is the amount collected
-                    assert(unclaimedFunds.equals(result.logs[0].args['amount']))
-                })
+        it('should call collectFunds', async () => {
+            let result = await order.collectFunds({from: payee})
+            assert.isNotNull(result.receipt.blockHash)
+            assert.isNotNull(result.receipt.blockNumber)
+            gasUsed = result.receipt.gasUsed
+            gasPrice = web3.eth.getTransaction(result.tx).gasPrice
+            // there should be one log event named "Collect"
+            assert.equal('Collect', result.logs[0].event)
+            // the first (and only) argument is the amount collected
+            assert(unclaimedFunds.equals(result.logs[0].args['amount']))
         })
 
-        it('should correctly increase payees balance', function () {
+        it('should correctly increase payees balance', () => {
             newBalance = web3.eth.getBalance(payee)
             let diff = newBalance.minus(startBalance) // how much did balance increase
             diff = diff.plus(gasPrice.mul(gasUsed)) // take gas usage into account
@@ -97,7 +88,7 @@ describe('Checking collectFunds', function () {
             assert(diff.equals(unclaimedFunds), "Account balance should be increased by unclaimedFunds")
         })
 
-        it('should correctly decrease contract balance', function () {
+        it('should correctly decrease contract balance', () => {
             assert(web3.eth.getBalance(order.address).equals(fundAmount.minus(paymentAmount)))
         })
 

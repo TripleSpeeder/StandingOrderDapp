@@ -18,38 +18,31 @@ describe('Underfunded standing order', function () {
     let fundAmount = web3.toBigNumber(0)
     let interval = 5 // seconds
 
-    before('Create a standingOrder', function () {
+    before('Create a standingOrder', async () => {
         let startTime = moment() // First payment due now
         let label = 'testorder'
 
-        return StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
-            {
-                from: owner,
-            })
-            .then(function (instance) {
-                order = instance
-            })
+        order = await StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
+            { from: owner}
+        )
     })
 
     describe('Checking initial balances', function () {
 
-        it('should have correct entitledfunds for payee', function () {
-            return order.getEntitledFunds({from: payee}).then(function (entitledFunds) {
-                assert(entitledFunds.equals(paymentAmount), 'entitledFunds should match paymentAmount!')
-            })
+        it('should have correct entitledfunds for payee', async () => {
+            let entitledFunds = await order.getEntitledFunds({from: payee})
+            assert(entitledFunds.equals(paymentAmount), 'entitledFunds should match paymentAmount!')
         })
 
-        it('should have zero unclaimed funds', function () {
-            return order.getUnclaimedFunds({from: owner}).then(function (unclaimedFunds) {
-                assert(unclaimedFunds.isZero(), 'unclaimedFunds should be zero!')
-            })
+        it('should have zero unclaimed funds', async () => {
+            let unclaimedFunds = await order.getUnclaimedFunds({from: owner})
+            assert(unclaimedFunds.isZero(), 'unclaimedFunds should be zero!')
         })
 
-        it('should have correct funds available for owner withdraw', function () {
-            return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
-                assert(ownerBalance.equals(fundAmount.minus(paymentAmount)),
-                    'ownerBalance should match fundAmount - paymentAmount!')
-            })
+        it('should have correct funds available for owner withdraw', async () => {
+            let ownerBalance = await order.getOwnerFunds({from: owner})
+            assert(ownerBalance.equals(fundAmount.minus(paymentAmount)),
+                'ownerBalance should match fundAmount - paymentAmount!')
         })
     })
 
@@ -57,13 +50,13 @@ describe('Underfunded standing order', function () {
 
         this.timeout(interval * 1000 * 2)
 
-        before('wait for one interval', function () {
-            return new Promise(function (resolve) {
+        before('wait for one interval', async () => {
+            await new Promise(function (resolve) {
                 setTimeout(resolve, interval * 1000)
             })
         })
 
-        before('Create a dummy transaction for testrpc so we have a new block mined', function () {
+        before('Create a dummy transaction for testrpc so we have a new block mined', () => {
             web3.eth.sendTransaction({from: otherUser, to: otherUser2}, function (err, address) {
                 if (err)
                     assert(false, 'sending dummy transaction failed')
@@ -72,23 +65,20 @@ describe('Underfunded standing order', function () {
             })
         })
 
-        it('should have correct entitledfunds for payee', function () {
-            return order.getEntitledFunds({from: payee}).then(function (entitledFunds) {
-                assert(entitledFunds.equals(paymentAmount.times(2)), 'entitledFunds should match 2 times paymentAmount!')
-            })
+        it('should have correct entitledfunds for payee', async () => {
+            let entitledFunds = await order.getEntitledFunds({from: payee})
+            assert(entitledFunds.equals(paymentAmount.times(2)), 'entitledFunds should match 2 times paymentAmount!')
         })
 
-        it('should have zero collectible funds', function () {
-            return order.getUnclaimedFunds({from: owner}).then(function (unclaimedFunds) {
-                assert(unclaimedFunds.isZero(), 'unclaimedFunds should be zero!')
-            })
+        it('should have zero collectible funds', async () => {
+            let unclaimedFunds = await order.getUnclaimedFunds({from: owner})
+            assert(unclaimedFunds.isZero(), 'unclaimedFunds should be zero!')
         })
 
-        it('should have correct funds available for owner withdraw', function () {
-            return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
-                assert(ownerBalance.equals(fundAmount.minus(paymentAmount.times(2))),
-                    'ownerBalance should match fundAmount - 2 times paymentAmount!')
-            })
+        it('should have correct funds available for owner withdraw', async () => {
+            let ownerBalance = await order.getOwnerFunds({from: owner})
+            assert(ownerBalance.equals(fundAmount.minus(paymentAmount.times(2))),
+                'ownerBalance should match fundAmount - 2 times paymentAmount!')
         })
     })
 

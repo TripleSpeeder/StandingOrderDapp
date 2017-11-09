@@ -18,55 +18,48 @@ describe('Funded standing order', function () {
     let fundAmount = web3.toBigNumber(web3.toWei(10, 'finney'))
     let interval = 5 // seconds
 
-    before('Create a standingOrder', function () {
+    before('Create a standingOrder', async () => {
         let startTime = moment() // First payment due now
         let label = 'testorder'
-
-        return StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
-            {
-                from: owner,
-            })
-            .then(function (instance) {
-                order = instance
-            })
+        order = await StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
+            { from: owner }
+        )
     })
 
-    it('Funding order', function () {
-        return order.send(fundAmount, {from: owner})
-            .then(function (result) {
-                assert.isNotNull(result.receipt.blockHash)
-                // there should be one log event named "Fund"
-                let fundEvent = result.logs.find(function (logentry) {
-                    return logentry.event == 'Fund'
-                })
-                assert.isDefined(fundEvent, 'No Fund event in transaction logs')
-                // Event should have arg 'amount'
-                let eventAmount = fundEvent.args['amount']
-                assert.isDefined(eventAmount, 'No amount info in Fund event')
-                assert(fundAmount.equals(eventAmount), 'Amount logged in Fund event not matching fundAmount')
-                assert(web3.eth.getBalance(order.address).equals(fundAmount), 'Order balance not matching fundAmount')
-            })
+    it('Funding order', async () => {
+        let result = await order.send(fundAmount, {from: owner})
+
+        assert.isNotNull(result.receipt.blockHash)
+
+        // there should be one log event named "Fund"
+        let fundEvent = result.logs.find(function (logentry) {
+            return logentry.event == 'Fund'
+        })
+        assert.isDefined(fundEvent, 'No Fund event in transaction logs')
+
+        // Event should have arg 'amount'
+        let eventAmount = fundEvent.args['amount']
+        assert.isDefined(eventAmount, 'No amount info in Fund event')
+        assert(fundAmount.equals(eventAmount), 'Amount logged in Fund event not matching fundAmount')
+        assert(web3.eth.getBalance(order.address).equals(fundAmount), 'Order balance not matching fundAmount')
     })
 
-    describe('Checking initial balances', function () {
+    describe('Checking initial balances', () => {
 
-        it('should have correct entitledfunds for payee', function () {
-            return order.getEntitledFunds({from: payee}).then(function (entitledFunds) {
-                assert(entitledFunds.equals(paymentAmount), 'entitledFunds should match paymentAmount!')
-            })
+        it('should have correct entitledfunds for payee', async () => {
+            let entitledFunds = await order.getEntitledFunds({from: payee})
+            assert(entitledFunds.equals(paymentAmount), 'entitledFunds should match paymentAmount!')
         })
 
-        it('should have correct collectible funds', function () {
-            return order.getUnclaimedFunds({from: owner}).then(function (unclaimedFunds) {
-                assert(unclaimedFunds.equals(paymentAmount), 'unclaimedFunds should match paymentAmount!')
-            })
+        it('should have correct collectible funds', async () => {
+            let unclaimedFunds = await order.getUnclaimedFunds({from: owner})
+            assert(unclaimedFunds.equals(paymentAmount), 'unclaimedFunds should match paymentAmount!')
         })
 
-        it('should have correct funds available for owner withdraw', function () {
-            return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
-                assert(ownerBalance.equals(fundAmount.minus(paymentAmount)),
-                    'ownerBalance should match fundAmount - paymentAmount!')
-            })
+        it('should have correct funds available for owner withdraw', async () => {
+            let ownerBalance = await order.getOwnerFunds({from: owner})
+            assert(ownerBalance.equals(fundAmount.minus(paymentAmount)),
+                'ownerBalance should match fundAmount - paymentAmount!')
         })
     })
 
@@ -74,13 +67,13 @@ describe('Funded standing order', function () {
 
         this.timeout(interval * 1000 * 2)
 
-        before('wait for one interval', function () {
+        before('wait for one interval', () => {
             return new Promise(function (resolve) {
                 setTimeout(resolve, interval * 1000)
             })
         })
 
-        before('Create a dummy transaction for testrpc so we have a new block mined', function () {
+        before('Create a dummy transaction for testrpc so we have a new block mined', () => {
             web3.eth.sendTransaction({from: otherUser, to: otherUser2}, function (err, address) {
                 if (err)
                     assert(false, 'sending dummy transaction failed')
@@ -89,24 +82,20 @@ describe('Funded standing order', function () {
             })
         })
 
-        it('should have correct entitledfunds for payee', function () {
-            return order.getEntitledFunds({from: payee}).then(function (entitledFunds) {
-                assert(entitledFunds.equals(paymentAmount.times(2)), 'entitledFunds should match 2 times paymentAmount!')
-            })
+        it('should have correct entitledfunds for payee', async () => {
+            let entitledFunds = await order.getEntitledFunds({from: payee})
+            assert(entitledFunds.equals(paymentAmount.times(2)), 'entitledFunds should match 2 times paymentAmount!')
         })
 
-        it('should have correct collectible funds', function () {
-            return order.getUnclaimedFunds({from: owner}).then(function (unclaimedFunds) {
-                assert(unclaimedFunds.equals(paymentAmount.times(2)), 'unclaimedFunds should match 2 times paymentAmount!')
-            })
+        it('should have correct collectible funds', async () => {
+            let unclaimedFunds = await order.getUnclaimedFunds({from: owner})
+            assert(unclaimedFunds.equals(paymentAmount.times(2)), 'unclaimedFunds should match 2 times paymentAmount!')
         })
 
-        it('should have correct funds available for owner withdraw', function () {
-            return order.getOwnerFunds({from: owner}).then(function (ownerBalance) {
-                assert(ownerBalance.equals(fundAmount.minus(paymentAmount.times(2))),
+        it('should have correct funds available for owner withdraw', async () => {
+            let ownerBalance = await order.getOwnerFunds({from: owner})
+            assert(ownerBalance.equals(fundAmount.minus(paymentAmount.times(2))),
                     'ownerBalance should match fundAmount - 2 times paymentAmount!')
-            })
         })
     })
-
 })
