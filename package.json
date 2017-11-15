@@ -57,6 +57,7 @@
   "dependencies": {
     "better-react-spinkit": "^2.0.0",
     "bootstrap": "^3.3.7",
+    "ethereum-ens": "^0.7.1",
     "moment-duration-format": "^1.3.0",
     "react": "^15.6.1",
     "react-bootstrap": "^0.31.1",
