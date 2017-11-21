@@ -183,6 +183,25 @@ class App extends Component {
         })
     }
 
+    createEtherscanLink(address) {
+        let host = ""
+        switch (this.state.networkID) {
+            case 3:
+                host = "https://ropsten.etherscan.io"
+                break
+            case 4:
+                host = "https://rinkeby.etherscan.io"
+                break
+            case 42:
+                host = "https://kovan.etherscan.io"
+                break
+            case 1:
+            default:
+                host = "https://etherscan.io"
+        }
+        return host + "/address/" + address + "#code"
+    }
+
     render() {
         let header = <Navbar>
             <Navbar.Header>
@@ -191,9 +210,13 @@ class App extends Component {
                 </Navbar.Brand>
             </Navbar.Header>
             <Nav>
-                <NavItem eventKey={2} target="_blank"
-                         href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/contracts/StandingOrder.sol">Contract Source</NavItem>
+                {this.state.web3Available &&
+                    <NavItem eventKey={2} target="_blank"
+                             href={this.createEtherscanLink(this.state.factoryInstance.address)}>Contract on etherscan</NavItem>
+                }
                 <NavItem eventKey={3} target="_blank"
+                         href="https://github.com/TripleSpeeder/StandingOrderDapp">Github</NavItem>
+                <NavItem eventKey={4} target="_blank"
                          href="https://github.com/TripleSpeeder/StandingOrderDapp/blob/master/README.md">Readme</NavItem>
             </Nav>
         </Navbar>
