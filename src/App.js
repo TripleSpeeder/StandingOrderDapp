@@ -13,6 +13,8 @@ import standingOrder_artifacts from '../build/contracts/StandingOrder.json'
 import HeaderAddress from './HeaderAddress'
 import Web3 from 'web3'
 import contract from 'truffle-contract'
+import ENS from 'ethereum-ens'
+import getAddr from './ensutils'
 import BlockInfo from "./BlockInfo"
 
 const PromisifyWeb3 = require("./promisifyWeb3.js")
@@ -49,6 +51,9 @@ class App extends Component {
             }
             // FIXME - Probably can be removed once web3.js 1.0 is released
             PromisifyWeb3.promisify(window.web3)
+
+            // setup ENS
+            // window.ens = new ENS(window.web3)
 
             self.initialize()
         })

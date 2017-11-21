@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
+import ensutils from 'ethereum-ens'
 import StandingOrder from './StandingOrder'
 
 class StandingOrderContainer extends Component {
@@ -99,6 +100,11 @@ class StandingOrderContainer extends Component {
 
         // get all other info via call() and promises
         var promises = []
+        promises.push(ens.resolver('foo.eth').addr().then(function(addr) {
+            // flatOrder.address = addr
+            console.log("Resolved address: " + addr)
+        }))
+
         promises.push(this.state.orderInstance.startTime.call().then(function (startTime) {
             flatOrder.startTime = startTime
         }))
