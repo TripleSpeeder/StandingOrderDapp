@@ -69,9 +69,9 @@ class App extends Component {
             let network = 'unknown'
             let networkID = 0
             switch (netId) {
-                case "6666":
-                    network = 'local dev'
-                    networkID = 6666
+                case "4447":
+                    network = 'truffle test'
+                    networkID = 4447
                     break
                 case "1":
                     network = 'mainnet'
