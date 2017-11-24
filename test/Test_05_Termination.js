@@ -14,12 +14,13 @@ describe('Checking Termination with unclaimed balance', function () {
     let order
     let owner = web3.eth.accounts[0]
     let payee = web3.eth.accounts[1]
-    let paymentAmount = web3.toWei(1, 'finney')
-    let fundAmount = web3.toWei(10, 'finney')
-    let interval = 5 // 5 secs
+    let paymentAmount = web3.toBigNumber(web3.toWei(1, 'finney'))
+    let fundAmount = web3.toBigNumber(web3.toWei(10, 'finney'))
+    let interval = 8
+    let startTime
 
     before('Create a standingOrder', async () => {
-        let startTime = moment() // First payment due now
+        startTime = moment() // First payment due now
         let label = 'testorder'
         order = await StandingOrder.new(owner, payee, interval, paymentAmount, startTime.unix(), label,
             { from: owner }
@@ -85,8 +86,15 @@ describe('Checking Termination with unclaimed balance', function () {
     describe('Checking balances after termination', function () {
 
         it('should have correct entitledfunds for payee', async () => {
+            let elapsed = moment().diff(startTime, 'seconds')
+            // console.log("Elapsed seconds: " + elapsed)
+            let numPayments = (Math.floor(elapsed / interval)) + 1
+            // console.log("Payments: " + numPayments)
+            let expectedEntitledFunds = paymentAmount.times(numPayments)
             let entitledFunds = await order.getEntitledFunds({from: payee})
-            assert(entitledFunds.equals(paymentAmount), 'entitledFunds should match paymentAmount!')
+            // console.log("entitled funds: " + entitledFunds.toString())
+            // console.log("Expected:       " + expectedEntitledFunds.toString())
+            assert(entitledFunds.equals(expectedEntitledFunds), 'entitledFunds should match Expected amount!')
         })
 
         it('should have correct collectible funds', async () => {
@@ -96,6 +104,7 @@ describe('Checking Termination with unclaimed balance', function () {
 
         it('should have zero funds available for owner withdraw', async () => {
             let ownerBalance = await order.getOwnerFunds({from: owner})
+            console.log("Ownerbalance: " + ownerBalance.toString())
             assert(ownerBalance.isZero(),
                 'ownerBalance should be zero after termination!')
         })
@@ -140,7 +149,7 @@ describe('Checking Termination with unclaimed balance', function () {
             assert.becomes(order.isTerminated({from: owner}), true, 'Contract not yet terminated!')
         })
 
-        before('should have collectible funds', async () => {
+        it('should have collectible funds', async () => {
             let unclaimedFunds = await order.getUnclaimedFunds({from: owner})
             assert(unclaimedFunds.greaterThan(0), 'unclaimedFunds should exist!')
         })
@@ -158,9 +167,9 @@ describe('Checking Termination of underfunded order', function () {
     let order
     let owner = web3.eth.accounts[0]
     let payee = web3.eth.accounts[1]
-    let paymentAmount = web3.toWei(1, 'finney')
-    let fundAmount = web3.toWei(10, 'finney')
-    let interval = 5 // 5 secs
+    let paymentAmount = web3.toBigNumber(web3.toWei(1, 'finney'))
+    let fundAmount = web3.toBigNumber(web3.toWei(10, 'finney'))
+    let interval = 8 // secs
 
     before('Create a standingOrder', async () => {
         let startTime = moment() // First payment due now
@@ -177,7 +186,8 @@ describe('Checking Termination of underfunded order', function () {
 
     it('should be terminated after calling "Terminate', async () => {
         await order.Terminate({from: owner})
+        let isTerminated = await order.isTerminated({from: owner})
         // contract should be terminated now
-        assert.becomes(order.isTerminated({from: owner}), true, 'Contract should now be terminated')
+        assert(isTerminated, 'Contract should now be terminated')
     })
 })
